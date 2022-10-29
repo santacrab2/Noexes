@@ -28,7 +28,7 @@ public class NoexsApplication extends Application {
 
     @Override
     public void start(Stage stage) throws IOException {
-        FXMLLoader loader = new FXMLLoader(getClass().getResource(("views/Main.fxml")));
+        FXMLLoader loader = new FXMLLoader(getClass().getResource(("/views/Main.fxml")));
         //TODO not hardcode the locale
         loader.setResources(PropertyResourceBundle.getBundle("bundles.Noexes", Locale.ENGLISH));
         Parent root = loader.load();
