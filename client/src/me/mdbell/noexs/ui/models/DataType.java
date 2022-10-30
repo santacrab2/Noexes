@@ -1,24 +1,22 @@
 package me.mdbell.noexs.ui.models;
 
-import me.mdbell.util.ILocalized;
+public enum DataType {
+    BYTE("8 bit", 1),
+    SHORT("16 bit", 2),
+    INT("32 bit", 4),
+    LONG("64 bit", 8);
 
-public enum DataType implements ILocalized {
-    BYTE("search.data_types.byte", 1),
-    SHORT("search.data_types.short", 2),
-    INT("search.data_types.int", 4),
-    LONG("search.data_types.long", 8);
-
-    String key;
+    String str;
     int bytes;
 
-    DataType(String key, int bytes) {
-        this.key = key;
+    DataType(String str, int bytes) {
+        this.str = str;
         this.bytes = bytes;
     }
 
     @Override
-    public String getKey() {
-        return key;
+    public String toString() {
+        return str;
     }
 
     public int getSize() {

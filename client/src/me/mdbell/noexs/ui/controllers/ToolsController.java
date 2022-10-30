@@ -18,10 +18,9 @@ import me.mdbell.noexs.ui.menus.MemoryInfoContextMenu;
 import me.mdbell.noexs.ui.models.MemoryInfoTableModel;
 import me.mdbell.util.HexUtils;
 
-import java.net.URL;
+import java.util.HashMap;
 import java.util.Map;
-import java.util.ResourceBundle;
-import java.util.concurrent.ConcurrentHashMap;
+import java.util.function.Predicate;
 
 
 public class ToolsController implements IController {
@@ -53,28 +52,20 @@ public class ToolsController implements IController {
 
     private ObservableList<MemoryInfoTableModel> memoryInfoList;
 
-    private final Map<String, Long> vars = new ConcurrentHashMap<>();
-
     private final ExpressionEvaluator evaluator = new ExpressionEvaluator(new ExpressionEvaluator.VariableProvider() {
         @Override
         public long get(String name) {
-            return vars.get(name);
+            return memoryInfoList.filtered(memoryInfoTableModel -> memoryInfoTableModel.nameProperty().get().equals(name)).get(0).getAddr();
         }
 
         @Override
         public boolean containsVar(String value) {
-            return vars.containsKey(value);
+            return memoryInfoList.filtered(memoryInfoTableModel -> memoryInfoTableModel.nameProperty().get().equals(value)).size() > 0;
         }
-    }, addr -> {
-        Debugger debugger = mc.getDebugger();
-        if (!debugger.connected()) {
-            return 0;
-        }
-        return debugger.peek64(addr);
-    });
+    }, addr -> mc.getConnection().peek64(addr));
 
-    @Override
-    public void initialize(URL url, ResourceBundle bundle) {
+    @FXML
+    public void initialize() {
         memoryInfoList = FXCollections.observableArrayList();
 
         for (TableColumn c : memInfoTable.getColumns()) {
@@ -106,10 +97,10 @@ public class ToolsController implements IController {
             if (newValue == null) {
                 return;
             }
-            displayTitleId(mc.getDebugger().getTitleId(newValue));
+            displayTitleId(mc.getConnection().getTitleId(newValue));
         });
 
-        MemoryInfoContextMenu cm = new MemoryInfoContextMenu(bundle, () -> mc, memInfoTable);
+        MemoryInfoContextMenu cm = new MemoryInfoContextMenu(() -> mc, memInfoTable);
         memInfoTable.contextMenuProperty().setValue(cm);
     }
 
@@ -129,7 +120,7 @@ public class ToolsController implements IController {
 
     public void setPidsList() {
         pidList.getItems().clear();
-        Debugger debugger = mc.getDebugger();
+        Debugger debugger = mc.getConnection();
         if (debugger.connected()) {
             for (long pid : debugger.getPids()) {
                 pidList.getItems().add(pid);
@@ -140,7 +131,7 @@ public class ToolsController implements IController {
     }
 
     public void detachProcess() {
-        Debugger conn = mc.getDebugger();
+        Debugger conn = mc.getConnection();
         if (conn.connected() && conn.attached()) {
             Result result = conn.detach();
             if (result.succeeded()) {
@@ -157,7 +148,7 @@ public class ToolsController implements IController {
     }
 
     public void attachProcess() {
-        Debugger conn = mc.getDebugger();
+        Debugger conn = mc.getConnection();
         if (conn.connected()) {
             long selectedPid = pidList.getSelectionModel().getSelectedItem();
 
@@ -194,13 +185,8 @@ public class ToolsController implements IController {
             }
         }
         int mod = 0;
-        boolean heap = false;
         for (MemoryInfo m : info) {
             String name = "-";
-            if (m.getType() == MemoryType.HEAP && !heap) {
-                heap = true;
-                name = "heap";
-            }
             if (m.getType() == MemoryType.CODE_STATIC && m.getPerm() == 0b101) {
                 if (mod == 0 && moduleCount == 1) {
                     name = "main";
@@ -222,16 +208,13 @@ public class ToolsController implements IController {
                 }
                 mod++;
             }
-            if (!name.equals("-")) {
-                vars.put(name, m.getAddress());
-            }
             if (m.getType() != MemoryType.UNMAPPED) {
                 memoryInfoList.add(new MemoryInfoTableModel(name, m));
             }
         }
     }
 
-    public ExpressionEvaluator getEvaluator() {
+    public ExpressionEvaluator getEvaluator(){
         return evaluator;
     }
 

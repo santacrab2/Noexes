@@ -1,5 +1,7 @@
 package me.mdbell.noexs.ui.controllers;
 
+import javafx.beans.value.ChangeListener;
+import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
@@ -14,12 +16,13 @@ import me.mdbell.noexs.core.MemoryInfo;
 import me.mdbell.noexs.ui.Settings;
 import me.mdbell.noexs.ui.models.DataType;
 import me.mdbell.noexs.ui.models.MemoryViewerTableModel;
-import me.mdbell.util.*;
+import me.mdbell.util.HexUtils;
+import me.mdbell.util.IPatternMatcher;
+import me.mdbell.util.PatternCompiler;
+import me.mdbell.util.PatternTokenizer;
 
-import java.net.URL;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
-import java.util.ResourceBundle;
 import java.util.TimerTask;
 import java.util.function.Function;
 
@@ -99,8 +102,8 @@ public class MemoryViewerController implements IController {
     private ObservableList<MemoryViewerTableModel> memoryList;
     private long lastAddress = 0;
 
-    @Override
-    public void initialize(URL url, ResourceBundle bundle) {
+    @FXML
+    public void initialize() {
         //setup the memview table
         memViewTable.getSelectionModel().setCellSelectionEnabled(true);
         memoryList = FXCollections.observableArrayList();
@@ -149,11 +152,10 @@ public class MemoryViewerController implements IController {
             long addr = getSelectedAddress();
             memViewAddrBox.getValueFactory().setValue(addr);
             if(addr != 0) {
-                pokeValue.getValueFactory().setValue(mainController.getDebugger().peek(pokeType.getValue(), addr));
+                pokeValue.getValueFactory().setValue(mainController.getConnection().peek(pokeType.getValue(), addr));
             }
         });
 
-        pokeType.setConverter(new LocalizedStringConverter<>(() -> bundle));
         pokeType.getItems().addAll(DataType.values());
         pokeType.setValue(DataType.INT);
 
@@ -204,7 +206,7 @@ public class MemoryViewerController implements IController {
 
         long base = updateAddr & ~0xF;
         lastAddress = base;
-        Debugger conn = mainController.getDebugger();
+        Debugger conn = mainController.getConnection();
         int size = ROW_COUNT * 16;
         ByteBuffer data = conn.readmem(base, size, new byte[size]);
         if(swap){
@@ -280,7 +282,7 @@ public class MemoryViewerController implements IController {
         mc.timer().scheduleAtFixedRate(new TimerTask() {
             @Override
             public void run() {
-                if (refreshCheckbox.isSelected() && mc.getDebugger().connected()
+                if (refreshCheckbox.isSelected() && mc.getConnection().connected()
                         && mc.getCurrentTab() == MainController.Tab.MEMORY_VIEWER) {
                     mc.runAndWait(() -> dumpToMemoryViewer(lastAddress));
                 }
@@ -299,7 +301,7 @@ public class MemoryViewerController implements IController {
     }
 
     public void populateMemory() {
-        Debugger conn = mainController.getDebugger();
+        Debugger conn = mainController.getConnection();
         if (!conn.connected()) {
             return;
         }
@@ -311,7 +313,7 @@ public class MemoryViewerController implements IController {
     PatternCompiler compiler = new PatternCompiler();
 
     public void onPokeAction(ActionEvent event) {
-        Debugger debugger = mainController.getDebugger();
+        Debugger debugger = mainController.getConnection();
         debugger.poke(pokeType.getValue(), memViewAddrBox.getValue(), pokeValue.getValue());
         dumpToMemoryViewer(lastAddress);
     }
@@ -332,10 +334,10 @@ public class MemoryViewerController implements IController {
         IPatternMatcher matcher = compiler.compile(elements);
 
         //TODO do this in a service, not here
-        MemoryInfo info = mainController.getDebugger().query(address);
-        int size = (int) (mainController.getDebugger().query(address).getSize() - (address - info.getAddress()));
+        MemoryInfo info = mainController.getConnection().query(address);
+        int size = (int) (mainController.getConnection().query(address).getSize() - (address - info.getAddress()));
         byte[] bytes = new byte[size];
-        ByteBuffer buffer = mainController.getDebugger().readmem(address, size, bytes);
+        ByteBuffer buffer = mainController.getConnection().readmem(address, size, bytes);
         int idx = matcher.match(buffer);
         if(idx != -1) {
             memViewAddrBox.getValueFactory().setValue(address + idx);

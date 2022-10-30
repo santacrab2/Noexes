@@ -5,7 +5,9 @@ module JNoexes {
 	requires org.objectweb.asm;
 	requires java.desktop;
 	requires java.prefs;
-
+	
+	requires javaxusb;
+	
 	exports me.mdbell;
 	exports me.mdbell.noexs.ui;
 

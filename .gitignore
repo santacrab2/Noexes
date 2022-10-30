@@ -8,3 +8,6 @@ client/dependency-reduced-pom.xml
 client/.settings
 client/shade
 client/tmp
+client/dependencies/.classpath
+client/dependencies/.project
+client/dependencies/.settings

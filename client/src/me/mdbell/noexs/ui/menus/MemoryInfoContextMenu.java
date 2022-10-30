@@ -6,20 +6,20 @@ import javafx.scene.control.TableView;
 import me.mdbell.noexs.ui.controllers.MainController;
 import me.mdbell.noexs.ui.models.MemoryInfoTableModel;
 
-import java.util.ResourceBundle;
 import java.util.function.Supplier;
 
 public class MemoryInfoContextMenu extends ContextMenu {
 
-    public MemoryInfoContextMenu(ResourceBundle bundle, Supplier<MainController> mc, TableView<MemoryInfoTableModel> memInfoTable) {
-        MenuItem searchBoth = new MenuItem(bundle.getString("tools.mem.ctx.search.both"));
-        MenuItem searchStart = new MenuItem(bundle.getString("tools.mem.ctx.search.start"));
-        MenuItem searchEnd = new MenuItem(bundle.getString("tools.mem.ctx.search.end"));
-        MenuItem ptrMain = new MenuItem(bundle.getString("tools.mem.ctx.ptr.main"));
-        MenuItem ptrFilter = new MenuItem(bundle.getString("tools.mem.ctx.ptr.filter.both"));
-        MenuItem ptrFilterStart = new MenuItem(bundle.getString("tools.mem.ctx.ptr.filter.start"));
-        MenuItem ptrFilterEnd = new MenuItem(bundle.getString("tools.mem.ctx.ptr.filter.end"));
-        MenuItem memoryView = new MenuItem(bundle.getString("tools.mem.ctx.viewer"));
+    public MemoryInfoContextMenu(Supplier<MainController> mc, TableView<MemoryInfoTableModel> memInfoTable) {
+        MenuItem searchBoth = new MenuItem("Search (Start & End)");
+        MenuItem searchStart = new MenuItem("Search(Start)");
+        MenuItem searchEnd = new MenuItem("Search (End)");
+        MenuItem ptrMain = new MenuItem("Pointer Search (Main)");
+        MenuItem ptrFilter = new MenuItem("Pointer Search (Filter Min & Min)");
+        MenuItem ptrFilterStart = new MenuItem("Pointer Search (Filter Min)");
+        MenuItem ptrFilterEnd = new MenuItem("Pointer Search (Filter Max)");
+        MenuItem memoryView = new MenuItem("Memory Viewer");
+        MenuItem disassembler = new MenuItem("Disassembler");
         searchBoth.setOnAction(event -> {
             MemoryInfoTableModel model = memInfoTable.getSelectionModel().getSelectedItem();
             if (model == null) {
@@ -84,7 +84,16 @@ public class MemoryInfoContextMenu extends ContextMenu {
             }
             mc.get().memory().setViewAddress(model.getAddr());
             mc.get().setTab(MainController.Tab.MEMORY_VIEWER);
+
         });
-        getItems().addAll(searchBoth, searchStart, searchEnd, ptrMain, ptrFilter, ptrFilterStart, ptrFilterEnd, memoryView);
+        disassembler.setOnAction(event -> {
+            MemoryInfoTableModel model = memInfoTable.getSelectionModel().getSelectedItem();
+            if (model == null) {
+                return;
+            }
+            mc.get().disassembly().setDisassembleAddress(model.getAddr());
+            mc.get().setTab(MainController.Tab.DISASSEMBLER);
+        });
+        getItems().addAll(searchBoth, searchStart, searchEnd, ptrMain, ptrFilter, ptrFilterStart, ptrFilterEnd, memoryView, disassembler);
     }
 }

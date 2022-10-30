@@ -1,20 +1,15 @@
 package me.mdbell.noexs.ui.models;
 
-import me.mdbell.util.ILocalized;
+public enum RangeType {
+    ALL("All (R/W)"), RANGE("Range"), HEAP("Heap"), TLS("Thread Local Storage");
 
-public enum RangeType implements ILocalized {
-    ALL("search.range_types.all"),
-    RANGE("search.range_types.range"),
-    HEAP("search.range_types.heap"),
-    TLS("search.range_types.thread");
+    String str;
 
-    String key;
-
-    RangeType(String key) {
-        this.key = key;
+    RangeType(String str) {
+        this.str = str;
     }
 
-    public String getKey() {
-        return key;
+    public String toString() {
+        return str;
     }
 }

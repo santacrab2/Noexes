@@ -14,13 +14,11 @@ import java.util.concurrent.ForkJoinPool;
 import java.util.concurrent.RecursiveTask;
 import java.util.concurrent.Semaphore;
 
-public class PointerSearchService extends Service<Set<PointerSearchResult>> implements IMessageArguments{
+public class PointerSearchService extends Service<Set<PointerSearchResult>> {
 
     private Path dumpPath;
     private long maxOffset, address;
     private int maxDepth, threadCount;
-
-    private Object[] args = new Object[4];
 
 
     public void setDumpPath(Path dumpPath) {
@@ -53,11 +51,6 @@ public class PointerSearchService extends Service<Set<PointerSearchResult>> impl
         return new MemoryDump(dumpPath.toFile());
     }
 
-    @Override
-    public Object[] getMessageArguments() {
-        return args;
-    }
-
     private class SearchTask extends Task<Set<PointerSearchResult>> {
 
         private int depth = 0;
@@ -69,10 +62,7 @@ public class PointerSearchService extends Service<Set<PointerSearchResult>> impl
             readLock.acquire();
             long l = this.read += read;
             readLock.release();
-            args[0] = depth + 1;
-            args[1] = maxDepth;
-            args[2] = total;
-            updateMessage("pointer.service.searching");
+            updateMessage("Searching for pointers... (" + (depth + 1) + "/" + maxDepth + ") (" + l + "/" + total + ")");
             updateProgress(l, total);
         }
 

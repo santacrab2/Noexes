@@ -1,22 +1,24 @@
 package me.mdbell.noexs.ui.controllers;
 
+import com.google.gson.GsonBuilder;
+import javafx.beans.property.StringProperty;
+import javafx.beans.value.ChangeListener;
+import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
+import javafx.stage.FileChooser;
 import me.mdbell.javafx.control.AddressSpinner;
 import me.mdbell.javafx.control.HexSpinner;
 import me.mdbell.noexs.ui.Settings;
 import me.mdbell.noexs.ui.services.PointerSearchResult;
 import me.mdbell.noexs.ui.services.PointerSearchService;
 
-import java.net.URL;
+import java.io.File;
 import java.nio.file.Paths;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.ResourceBundle;
-import java.util.Set;
+import java.util.*;
 
 public class PointerSearchController implements IController {
 
@@ -69,8 +71,8 @@ public class PointerSearchController implements IController {
 
     private final PointerSearchService searchService = new PointerSearchService();
 
-    @Override
-    public void initialize(URL url, ResourceBundle bundle) {
+    @FXML
+    public void initialize() {
         depthSpinner.setValueFactory(new SpinnerValueFactory.IntegerSpinnerValueFactory(1, 10));
 
         threadsSpinner.setValueFactory(new SpinnerValueFactory.IntegerSpinnerValueFactory(1, Runtime.getRuntime().availableProcessors()));
@@ -101,7 +103,7 @@ public class PointerSearchController implements IController {
 
         dumpFilePath.textProperty().addListener((observable, oldValue, newValue) -> updateSearchButton());
 
-        searchService.messageProperty().addListener(new StatusListener(mc, searchService));
+        searchService.messageProperty().addListener((observable, oldValue, newValue) -> mc.setStatus(newValue));
 
         results = FXCollections.observableArrayList();
         resultList.setItems(results);

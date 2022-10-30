@@ -9,27 +9,26 @@ import javafx.scene.layout.GridPane;
 import javafx.scene.layout.Priority;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
-import me.mdbell.javafx.control.FormattedLabel;
-import me.mdbell.noexs.core.Debugger;
 import me.mdbell.noexs.core.DebuggerStatus;
 import me.mdbell.noexs.core.IConnection;
-import me.mdbell.noexs.core.Result;
 import me.mdbell.noexs.io.net.NetworkConstants;
+import me.mdbell.noexs.core.Debugger;
+import me.mdbell.noexs.core.Result;
 import me.mdbell.noexs.misc.NopConnection;
 import me.mdbell.noexs.misc.ResultDecoder;
 import me.mdbell.noexs.ui.NoexsApplication;
 import me.mdbell.noexs.ui.Settings;
 import me.mdbell.noexs.ui.models.ConnectionType;
 import me.mdbell.noexs.ui.services.DebuggerConnectionService;
-import me.mdbell.util.LocalizedStringConverter;
 
 import java.io.File;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.StringWriter;
-import java.net.URL;
-import java.text.MessageFormat;
-import java.util.*;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Timer;
+import java.util.TimerTask;
 import java.util.concurrent.Semaphore;
 import java.util.function.Consumer;
 
@@ -66,6 +65,9 @@ public class MainController implements NetworkConstants, IController {
     SearchController searchTabPageController;
 
     @FXML
+    DisassemblerController disassembleTabPageController;
+
+    @FXML
     PointerSearchController pointerTabPageController;
 
     @FXML
@@ -79,9 +81,7 @@ public class MainController implements NetworkConstants, IController {
 
     private Stage stage;
 
-    private final FileChooser fileChooser = new FileChooser();
-
-    private ResourceBundle bundle;
+    private FileChooser fileChooser = new FileChooser();
 
     public void setStage(Stage s) {
         if (stage != null) {
@@ -90,14 +90,14 @@ public class MainController implements NetworkConstants, IController {
         stage = s;
     }
 
-    @Override
-    public void initialize(URL url, ResourceBundle bundle) {
-        this.bundle = bundle;
+    @FXML
+    public void initialize() {
         fileChooser.setInitialDirectory(Settings.getChooserDir());
         controllers.add(this);
         controllers.add(toolsTabPageController);
         controllers.add(memViewTabPageController);
         controllers.add(searchTabPageController);
+        controllers.add(disassembleTabPageController);
         controllers.add(pointerTabPageController);
         controllers.add(watchlistTabPageController);
 
@@ -114,11 +114,10 @@ public class MainController implements NetworkConstants, IController {
             progressLabel.setText(i + "%");
         });
         progressBar.setProgress(0);
-        connectionService.messageProperty().addListener(new StatusListener(this, connectionService));
+        connectionService.messageProperty().addListener((observable, oldValue, newValue) -> setStatus(newValue));
 
         ipAddr.setText(Settings.getConnectionHost());
 
-        connectionType.setConverter(new LocalizedStringConverter<>(() -> bundle));
         connectionType.getItems().addAll(ConnectionType.values());
         connectionType.getSelectionModel().select(ConnectionType.NETWORK); //TODO save/store this
         connectionType.getSelectionModel().selectedItemProperty()
@@ -148,6 +147,10 @@ public class MainController implements NetworkConstants, IController {
 
     public MemoryViewerController memory() {
         return memViewTabPageController;
+    }
+
+    public DisassemblerController disassembly() {
+        return disassembleTabPageController;
     }
 
     @Override
@@ -278,16 +281,15 @@ public class MainController implements NetworkConstants, IController {
     }
 
 
-    public void setStatus(String formatKey, Object... args) {
-        if (!Platform.isFxApplicationThread()) {
-            String finalFormatKey = formatKey;
-            Platform.runLater(() -> setStatus(finalFormatKey, args));
+    public void setStatus(String message) {
+        if (message.length() == 0) {
             return;
         }
-        if (bundle.containsKey(formatKey)) {
-            formatKey = bundle.getString(formatKey);
+        if (!Platform.isFxApplicationThread()) {
+            Platform.runLater(() -> setStatus(message));
+            return;
         }
-        statusLbl.setText(MessageFormat.format(formatKey, args));
+        statusLbl.setText(message);
     }
 
     public ProgressBar getProgressBar() {
@@ -395,14 +397,14 @@ public class MainController implements NetworkConstants, IController {
             File parent = f.getParentFile();
             fileChooser.setInitialDirectory(parent);
             Settings.setChooserFile(parent);
-            if (property != null) {
+            if(property != null) {
                 property.setValue(f.toPath().toString());
             }
         }
         return f;
     }
 
-    Debugger getDebugger() {
+    Debugger getConnection() {
         return debugger;
     }
 
@@ -428,10 +430,6 @@ public class MainController implements NetworkConstants, IController {
 
     public Stage getStage() {
         return stage;
-    }
-
-    public ResourceBundle bundle() {
-        return bundle;
     }
 
     public enum Tab {

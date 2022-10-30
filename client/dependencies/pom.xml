@@ -1,0 +1,76 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+	<groupId>me.mdbell</groupId>
+	<artifactId>noexs.dependencies</artifactId>
+	<version>1.1.3-SNAPSHOT</version>
+
+
+	<properties>
+		<maven.compiler.target>17</maven.compiler.target>
+		<maven.compiler.source>17</maven.compiler.source>
+		<maven.compiler.release>17</maven.compiler.release>
+		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+
+		<plugin.compiler.version>3.10.1</plugin.compiler.version>
+
+		<libusb4java.version>1.3.0</libusb4java.version>
+
+	</properties>
+	<build>
+		<plugins>
+
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-compiler-plugin</artifactId>
+				<version>${plugin.compiler.version}</version>
+				<configuration>
+					<release>${maven.compiler.release}</release>
+				</configuration>
+			</plugin>
+			<plugin>
+				<groupId>org.moditect</groupId>
+				<artifactId>moditect-maven-plugin</artifactId>
+				<version>1.0.0.RC2</version>
+				<executions>
+					<execution>
+						<id>add-module-infos</id>
+						<phase>process-resources</phase>
+						<configuration>
+							<outputDirectory>${project.build.directory}/modules</outputDirectory>
+							<modules>
+								<module>
+									<artifact>
+										<groupId>javax.usb</groupId>
+										<artifactId>usb-api</artifactId>
+										<version>${usbapi.version}</version>
+									</artifact>
+									<moduleInfoSource>
+                                        module javaxusb {
+                                            exports javax.usb;
+                                        }
+                                    </moduleInfoSource>
+								</module>
+							</modules>
+
+						</configuration>
+						<goals>
+							<goal>add-module-info</goal>
+						</goals>
+					</execution>
+				</executions>
+			</plugin>
+
+
+		</plugins>
+	</build>
+
+	<dependencies>
+
+		<dependency>
+			<groupId>org.usb4java</groupId>
+			<artifactId>usb4java-javax</artifactId>
+			<version>${libusb4java.version}</version>
+		</dependency>
+	</dependencies>
+
+</project>
