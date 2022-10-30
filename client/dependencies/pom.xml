@@ -47,6 +47,7 @@
 									<moduleInfoSource>
                                         module javaxusb {
                                             exports javax.usb;
+                                            exports javax.usb.event;
                                         }
                                     </moduleInfoSource>
 								</module>
