@@ -8,7 +8,6 @@ module JNoexes {
 	
 	requires javaxusb;
 	
-	exports me.mdbell;
 	exports me.mdbell.noexs.ui;
 
 	opens me.mdbell.noexs.ui.controllers to javafx.fxml;

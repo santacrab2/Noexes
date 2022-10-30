@@ -11,3 +11,4 @@ client/tmp
 client/dependencies/.classpath
 client/dependencies/.project
 client/dependencies/.settings
+client/target
