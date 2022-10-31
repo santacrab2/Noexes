@@ -36,9 +36,8 @@ public class PointerCode {
 	}
 
 	private String generateSetValuePartForPointer(WriteValue wv) {
-		String commandStart = "6" + wv.getValueType().getDataType().getPointerDataType() + "0" + registerToUse + "0000";
-		return commandStart + " " + PointerUtils.padPointer(wv.getHexValue(), wv.getValueType().getDataType(), 16);
-
+		return OperationBuilder.storeStaticValueToRegisterMemoryAddress(wv.getValueType().getDataType(), registerToUse,
+				false, false, ' ', wv.getHexValue());
 	}
 
 	private String generateMovesPartForPointer(Pointer p, boolean global) {
@@ -65,23 +64,19 @@ public class PointerCode {
 	private String generatePointerJump(Pointer p, boolean positionTypeFirst) {
 		String res = null;
 
-		String positionType = "";
 		if (positionTypeFirst) {
-			positionType = "0";
+			res = OperationBuilder.loadRegisterWithMemoryValueFromFixedAddress(DataType.T64,
+					p.getInheritedMemoryRegion(), registerToUse, p.getOffsetAsHex());
 		} else {
-			positionType = "1";
+			res = OperationBuilder.loadRegisterWithMemoryValueFromRegisterAddress(DataType.T64, registerToUse,
+					p.getOffsetAsHex());
 		}
-		String commandStart = "58" + p.getInheritedAddressType().getPointerAdressType() + registerToUse + positionType
-				+ "0";
-		res = commandStart + PointerUtils.padPointer(p.getOffsetAsHex(), DataType.T64, 10);
-
 		return res;
 	}
 
 	private String generatePointerMove(Pointer p) {
-		String commandStart = "780" + registerToUse + p.getArithmeticType().getPointerArithmeticType() + "0";
-		String res = commandStart + PointerUtils.padPointer(p.getOffsetAsHex(), DataType.T64, 10);
-		return res;
+		return OperationBuilder.legacyArithmetic(DataType.T32, registerToUse, p.getArithmeticOperation(),
+				p.getOffsetAsHex());
 	}
 
 }

@@ -9,9 +9,9 @@ public class Pointer {
 
 	private Pointer pointer;
 
-	private AddressType addressType;
+	private MemoryRegion memoryRegion;
 
-	private ArithmeticType arithmeticType;
+	private ArithmeticOperation arithmeticOperation;
 
 	private Long offset;
 
@@ -24,17 +24,17 @@ public class Pointer {
 		this.pointer = pointer;
 	}
 
-	public Pointer(Pointer pointer, ArithmeticType arithmeticType, String offsetStr) {
+	public Pointer(Pointer pointer, ArithmeticOperation arithmeticType, String offsetStr) {
 		super();
 		this.pointer = pointer;
-		this.arithmeticType = arithmeticType;
+		this.arithmeticOperation = arithmeticType;
 		this.offset = HexUtils.fromString(offsetStr);
 	}
 
-	public Pointer(AddressType addressType, String offsetStr) {
+	public Pointer(MemoryRegion MemoryRegion, String offsetStr) {
 		super();
-		this.addressType = addressType;
-		this.arithmeticType = ArithmeticType.ADDITION;
+		this.memoryRegion = MemoryRegion;
+		this.arithmeticOperation = ArithmeticOperation.ADDITION;
 		this.offset = HexUtils.fromString(offsetStr);
 	}
 
@@ -42,12 +42,12 @@ public class Pointer {
 		return pointer;
 	}
 
-	public AddressType getAddressType() {
-		return addressType;
+	public MemoryRegion getMemoryRegion() {
+		return memoryRegion;
 	}
 
-	public ArithmeticType getArithmeticType() {
-		return arithmeticType;
+	public ArithmeticOperation getArithmeticOperation() {
+		return arithmeticOperation;
 	}
 
 	public Long getOffset() {
@@ -62,10 +62,10 @@ public class Pointer {
 		return pointer == null;
 	}
 
-	public AddressType getInheritedAddressType() {
-		AddressType res = addressType;
+	public MemoryRegion getInheritedMemoryRegion() {
+		MemoryRegion res = memoryRegion;
 		if (res == null) {
-			res = pointer.getInheritedAddressType();
+			res = pointer.getInheritedMemoryRegion();
 		}
 
 		return res;

@@ -4,6 +4,7 @@ import org.antlr.v4.runtime.CharStreams;
 import org.antlr.v4.runtime.CodePointCharStream;
 import org.antlr.v4.runtime.CommonTokenStream;
 
+import me.mdbell.noexs.code.model.Keypad;
 import me.mdbell.noexs.code.parser.CodeLexer;
 import me.mdbell.noexs.code.parser.CodeParser;
 import me.mdbell.noexs.code.parser.CodeParser.CodeContext;
@@ -21,6 +22,11 @@ public class TestCode {
 		doCodeFor("[[[MAIN+0x0049800000] +420]+68] = (U8)0x80");
 		doCodeFor("[[MAIN+0x0049800000] +420]+68 = (U8)0x80");
 		doCodeFor("[[HEAP+0x0042000000] +690]+44 = (U16)0x8000");
+
+		doCodeFor("[[ALIAS+0x0042000000] +690]+44 = (U16)0x8000");
+
+		Keypad[] keyPads = { Keypad.A, Keypad.R, Keypad.LEFT };
+		System.out.println("Key test : " + OperationBuilder.beginKeypressConditionalBlock(keyPads));
 	}
 
 	private static void doCodeFor(String cheatLine) {
@@ -37,7 +43,7 @@ public class TestCode {
 		System.out.println(cheatLine);
 
 		PointerCode pc = new PointerCode(tree.c);
-		
+
 		System.out.println(pc.generateCode() + "\n");
 	}
 }
