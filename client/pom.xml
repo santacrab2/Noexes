@@ -6,9 +6,9 @@
 	<packaging>jar</packaging>
 
 	<properties>
-		<maven.compiler.target>16</maven.compiler.target>
-		<maven.compiler.source>16</maven.compiler.source>
-		<maven.compiler.release>16</maven.compiler.release>
+		<maven.compiler.target>17</maven.compiler.target>
+		<maven.compiler.source>17</maven.compiler.source>
+		<maven.compiler.release>17</maven.compiler.release>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 
 
@@ -24,6 +24,8 @@
 		<gson.version>2.10</gson.version>
 		<libusb4java.version>1.3.0</libusb4java.version>
 		<usbapi.version>1.0.2</usbapi.version>
+		<commonslang.version>3.12.0</commonslang.version>
+		<antlr4.version>4.11.1</antlr4.version>
 
 		<noexs.version>1.1.3-SNAPSHOT</noexs.version>
 
@@ -49,7 +51,22 @@
 
 		<plugins>
 
-
+			<plugin>
+				<groupId>org.antlr</groupId>
+				<artifactId>antlr4-maven-plugin</artifactId>
+				<version>${antlr4.version}</version>
+				<executions>
+					<execution>
+						<id>antlr</id>
+						<goals>
+							<goal>antlr4</goal>
+						</goals>
+						<configuration>
+							<sourceDirectory>resources</sourceDirectory>
+						</configuration>
+					</execution>
+				</executions>
+			</plugin>
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-dependency-plugin</artifactId>
@@ -82,6 +99,7 @@
 						<configuration>
 							<sources>
 								<source>modules/Utils/src</source>
+								<source>target/generated-sources/antlr4</source>
 							</sources>
 						</configuration>
 					</execution>
@@ -177,6 +195,11 @@
 			<classifier>win</classifier>
 		</dependency>
 		<dependency>
+			<groupId>org.apache.commons</groupId>
+			<artifactId>commons-lang3</artifactId>
+			<version>${commonslang.version}</version>
+		</dependency>
+		<dependency>
 			<groupId>org.usb4java</groupId>
 			<artifactId>usb4java-javax</artifactId>
 			<version>${libusb4java.version}</version>
@@ -186,8 +209,16 @@
 			<artifactId>usb-api</artifactId>
 			<version>${usbapi.version}</version>
 			<scope>system</scope>
-			<systemPath>${basedir}/dependencies/target/modules/usb-api-1.0.2.jar</systemPath>
+			<systemPath>${basedir}/dependencies/target/modules/usb-api-${usbapi.version}.jar</systemPath>
 		</dependency>
+		<!-- https://mvnrepository.com/artifact/org.antlr/antlr4 -->
+		<dependency>
+			<groupId>org.antlr</groupId>
+			<artifactId>antlr4</artifactId>
+			<version>${antlr4.version}</version>
+		</dependency>
+
+
 		<!--<dependency>
 			<groupId>me.mdbell</groupId>
 			<artifactId>noexs.dependencies</artifactId>

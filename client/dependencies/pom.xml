@@ -14,6 +14,7 @@
 		<plugin.compiler.version>3.10.1</plugin.compiler.version>
 
 		<libusb4java.version>1.3.0</libusb4java.version>
+		<commonslang.version>3.12.0</commonslang.version>
 
 	</properties>
 	<build>
@@ -37,6 +38,7 @@
 						<phase>process-resources</phase>
 						<configuration>
 							<outputDirectory>${project.build.directory}/modules</outputDirectory>
+							<overwriteExistingFiles>true</overwriteExistingFiles>
 							<modules>
 								<module>
 									<artifact>
@@ -51,8 +53,20 @@
                                         }
                                     </moduleInfoSource>
 								</module>
+								<module>
+									<artifact>
+										<groupId>javax.usb</groupId>
+										<artifactId>usb-api</artifactId>
+										<version>${usbapi.version}</version>
+									</artifact>
+									<moduleInfoSource>
+                                        module javaxusb {
+                                            exports javax.usb;
+                                            exports javax.usb.event;
+                                        }
+                                    </moduleInfoSource>
+								</module>
 							</modules>
-
 						</configuration>
 						<goals>
 							<goal>add-module-info</goal>
@@ -71,6 +85,11 @@
 			<groupId>org.usb4java</groupId>
 			<artifactId>usb4java-javax</artifactId>
 			<version>${libusb4java.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>org.apache.commons</groupId>
+			<artifactId>commons-lang3</artifactId>
+			<version>${commonslang.version}</version>
 		</dependency>
 	</dependencies>
 

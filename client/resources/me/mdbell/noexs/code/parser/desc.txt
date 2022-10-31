@@ -1,0 +1,13 @@
+grammar Code ;
+
+options {
+	caseInsensitive	=true ;
+}
+code:  	pointer  <EOF>;
+pointer:   '[' pointer ']' ('+'|'-')  OFFSET 
+			| '[' pointer ']' 
+ 			|  ADDRTYPE '+' OFFSET ;
+ADDRTYPE	: ('main' | 'heap' )  ;
+OFFSET		: ('0'[x] )?[0-9A-F]+ ;
+NEWLINE		: [\r\n]+ -> skip ;
+UNICODE_WS	: [\p{White_Space}] -> skip ;

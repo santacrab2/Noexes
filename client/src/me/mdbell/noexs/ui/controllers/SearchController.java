@@ -1,27 +1,48 @@
 package me.mdbell.noexs.ui.controllers;
 
+import java.io.IOException;
+import java.util.List;
+import java.util.function.Function;
+
 import javafx.beans.property.DoubleProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.concurrent.Service;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
-import javafx.scene.control.*;
+import javafx.geometry.Insets;
+import javafx.scene.control.Alert;
+import javafx.scene.control.Button;
+import javafx.scene.control.ChoiceBox;
+import javafx.scene.control.ComboBox;
+import javafx.scene.control.ContextMenu;
+import javafx.scene.control.Label;
+import javafx.scene.control.MenuItem;
+import javafx.scene.control.SelectionMode;
+import javafx.scene.control.TableColumn;
+import javafx.scene.control.TableView;
+import javafx.scene.control.TextField;
+import javafx.scene.control.TitledPane;
 import javafx.scene.layout.AnchorPane;
+import javafx.scene.layout.Background;
+import javafx.scene.layout.BackgroundFill;
+import javafx.scene.layout.CornerRadii;
+import javafx.scene.paint.Color;
 import me.mdbell.javafx.control.AddressSpinner;
 import me.mdbell.javafx.control.FormattedTableCell;
 import me.mdbell.javafx.control.HexSpinner;
 import me.mdbell.noexs.core.Debugger;
 import me.mdbell.noexs.core.MemoryType;
-import me.mdbell.noexs.ui.models.*;
+import me.mdbell.noexs.dump.DumpRegionSupplier;
+import me.mdbell.noexs.ui.models.ConditionType;
+import me.mdbell.noexs.ui.models.ConversionType;
+import me.mdbell.noexs.ui.models.DataType;
+import me.mdbell.noexs.ui.models.RangeType;
+import me.mdbell.noexs.ui.models.SearchType;
+import me.mdbell.noexs.ui.models.SearchValueModel;
 import me.mdbell.noexs.ui.services.MemorySearchService;
 import me.mdbell.noexs.ui.services.SearchResult;
-import me.mdbell.noexs.dump.DumpRegionSupplier;
 import me.mdbell.util.HexUtils;
-
-import java.io.IOException;
-import java.util.List;
-import java.util.function.Function;
 
 public class SearchController implements IController {
 
@@ -44,6 +65,12 @@ public class SearchController implements IController {
     @FXML
     AddressSpinner searchEnd;
 
+    @FXML
+    TextField floatValue;
+    
+    @FXML
+    ChoiceBox<ConversionType> conversionType;
+    
     @FXML
     HexSpinner knownValue;
 
@@ -131,6 +158,10 @@ public class SearchController implements IController {
 
         knownValue.valueProperty().addListener((observable, oldValue, newValue) -> updateCondition());
         knownValue.getEditor().textProperty().addListener((observable, oldValue, newValue) -> updateCondition());
+        
+        
+        conversionType.getItems().addAll(ConversionType.values());
+        conversionType.getSelectionModel().select(ConversionType.U32); //TODO save/store this
 
         resultList = FXCollections.observableArrayList();
 
@@ -235,7 +266,30 @@ public class SearchController implements IController {
         } catch (NumberFormatException ignored) {
         }
     }
-
+  
+    public void convertValueToHex(ActionEvent event) {
+        try {
+			switch(conversionType.getValue()) {
+			case FLT: 
+				Float f = Float.parseFloat(floatValue.getText());           
+			    knownValue.getValueFactory().setValue((long)Float.floatToIntBits(f));
+			    break;
+			case U32:
+				long l = Long.parseUnsignedLong(floatValue.getText());
+			    knownValue.getValueFactory().setValue(l);
+			    break;
+			case S32:
+				long sl = Long.parseLong(floatValue.getText());
+			    knownValue.getValueFactory().setValue(sl);
+			    break;
+			}
+		} catch (NumberFormatException e) {		
+			// TODO ERROR CASE
+		}
+    	
+    }
+    
+    
     public void poke(ActionEvent event) {
         if (isServiceRunning()) {
             MainController.showMessage("Please wait for your previous task to finish!", Alert.AlertType.WARNING);

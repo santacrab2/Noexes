@@ -7,9 +7,13 @@ module JNoexes {
 	requires java.prefs;
 	
 	requires javaxusb;
+	requires org.apache.commons.lang3;
+	
+	requires org.antlr.antlr4.runtime;
 	
 	exports me.mdbell.noexs.ui;
 
 	opens me.mdbell.noexs.ui.controllers to javafx.fxml;
 	opens me.mdbell.javafx.control to javafx.fxml;
+	opens me.mdbell.noexs.code.model to org.apache.commons.lang3;
 }

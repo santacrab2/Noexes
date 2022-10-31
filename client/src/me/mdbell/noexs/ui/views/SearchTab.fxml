@@ -1,17 +1,19 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <?import javafx.scene.control.Button?>
+<?import javafx.scene.control.ChoiceBox?>
 <?import javafx.scene.control.ComboBox?>
 <?import javafx.scene.control.Label?>
 <?import javafx.scene.control.Separator?>
 <?import javafx.scene.control.TableColumn?>
 <?import javafx.scene.control.TableView?>
+<?import javafx.scene.control.TextField?>
 <?import javafx.scene.control.TitledPane?>
 <?import javafx.scene.layout.AnchorPane?>
 <?import me.mdbell.javafx.control.AddressSpinner?>
 <?import me.mdbell.javafx.control.HexSpinner?>
 
-<AnchorPane fx:id="searchTabPage" minHeight="0.0" minWidth="0.0" prefHeight="470.0" prefWidth="1022.0" xmlns="http://javafx.com/javafx/8.0.121" xmlns:fx="http://javafx.com/fxml/1" fx:controller="me.mdbell.noexs.ui.controllers.SearchController">
+<AnchorPane fx:id="searchTabPage" minHeight="0.0" minWidth="0.0" prefHeight="470.0" prefWidth="1022.0" xmlns="http://javafx.com/javafx/19" xmlns:fx="http://javafx.com/fxml/1" fx:controller="me.mdbell.noexs.ui.controllers.SearchController">
     <children>
         <TableView fx:id="searchResults" layoutX="536.0" layoutY="20.0" prefHeight="406.0" prefWidth="480.0">
             <columns>
@@ -37,10 +39,14 @@
                         <ComboBox fx:id="searchConditionTypeDropdown" layoutX="21.0" layoutY="134.0" prefHeight="25.0" prefWidth="130.0" />
                         <Label layoutX="21.0" layoutY="116.0" text="Search Condition" />
                         <ComboBox fx:id="searchConditionDropdown" layoutX="21.0" layoutY="164.0" prefHeight="25.0" prefWidth="130.0" />
-                        <HexSpinner fx:id="knownValue" editable="true" layoutX="321.0" layoutY="89.0" prefHeight="25.0" prefWidth="149.0" />
-                        <Label layoutX="321.0" layoutY="72.0" text="Value" />
-                        <Button layoutX="320.0" layoutY="121.0" mnemonicParsing="false" onAction="#convertToHex" prefHeight="25.0" prefWidth="149.0" text="Convert Decimal to Hex" />
+                        <HexSpinner fx:id="knownValue" editable="true" layoutX="356.0" layoutY="89.0" prefHeight="25.0" prefWidth="149.0" />
+                        <Label layoutX="356.0" layoutY="72.0" text="Value" />
+                        <Button disable="true" layoutX="355.0" layoutY="121.0" mnemonicParsing="false" onAction="#convertToHex" prefHeight="25.0" prefWidth="149.0" text="Convert Decimal to Hex" visible="false" />
                   <Label fx:id="conditionLabel" layoutX="160.0" layoutY="168.0" />
+                  <Button layoutX="249.0" layoutY="121.0" mnemonicParsing="false" onAction="#convertValueToHex" prefHeight="25.0" prefWidth="100.0" text="Convert to Hex" />
+                  <TextField fx:id="floatValue" layoutX="167.0" layoutY="88.0" prefHeight="25.0" prefWidth="182.0" text="0.0" />
+                  <ChoiceBox fx:id="conversionType" layoutX="167.0" layoutY="121.0" prefHeight="25.0" prefWidth="74.0" />
+                  <Label layoutX="168.0" layoutY="72.0" text="Value to convert" />
                     </children>
                 </AnchorPane>
             </content>

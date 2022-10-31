@@ -13,3 +13,7 @@ client/dependencies/.project
 client/dependencies/.settings
 client/target
 client/lib
+client/resources/me/mdbell/noexs/code/parser/*.interp
+client/resources/me/mdbell/noexs/code/parser/*.tokens
+client/resources/me/mdbell/noexs/code/parser/*.java
+

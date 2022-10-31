@@ -38,6 +38,8 @@ public class MemorySearchService extends Service<SearchResult> {
     private ConditionType compareType;
 
     private long knownValue;
+    
+    private float floatValue;
 
     private SearchResult prevResult;
 
@@ -48,6 +50,7 @@ public class MemorySearchService extends Service<SearchResult> {
         type = null;
         compareType = null;
         knownValue = 0;
+        floatValue = 0.0f;
         if (prevResult != null) {
             try {
                 prevResult.close();
@@ -89,8 +92,14 @@ public class MemorySearchService extends Service<SearchResult> {
     public void setKnownValue(long value) {
         this.knownValue = value;
     }
+    
+    
 
-    public void setPrevResult(SearchResult result) {
+    public void setFloatValue(float floatValue) {
+		this.floatValue = floatValue;
+	}
+
+	public void setPrevResult(SearchResult result) {
         this.prevResult = result;
     }
 
