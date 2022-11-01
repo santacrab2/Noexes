@@ -19,9 +19,13 @@ code 	returns [Code c]
 
 @init {        $c= new Code();  }			
 									:  label=STRING {$c.setLabel($label.text);} 
-									           (v = writeValue {$c.setWriteValue($v.wv);} | b =block {$c.setBlock($b.b);})  ;
+									           (v = writeValue {$c.setWriteValue($v.wv);} | b =expr {$c.setBlock($b.b);})  ;
 
-// expr returns [Expression e] :
+
+expr		returns [Block b]     	: b1 = block {$b=$b1.b;}| c= cond_block {$b=$c.b;};
+
+cond_block 		returns [Block b] 	: IF_BUTTON key = KEYPAD b1 = block {$b = new ConditionalBlock(new ConditionPressButton(Keypad.getKeypad($key.text)), $b1.b);};
+
 block	returns [Block b]
 
 @init {        $b= new Block();  }
@@ -32,11 +36,12 @@ writeValue returns [WriteValue wv]	:  p = pointer '=' '(' vt = VALUETYPE ')' v =
 pointer returns [Pointer pt]		:   	'[' recPtWOff = pointer ']' symb=('+'|'-') ptOff = VALUE 	{$pt= new Pointer($recPtWOff.pt,ArithmeticOperation.getArithmeticOperationFromSymbol($symb.text),$ptOff.text);}
 										| 	'[' recPt = pointer ']' 									{$pt= new Pointer($recPt.pt);}
 		 								|  	addrT = ADDRTYPE '+' off = VALUE 							{$pt= new Pointer(MemoryRegion.getMemoryRegion($addrT.text),$off.text);};
+
 VALUETYPE	: 'U8' | 'S8' | 'U16' | 'S16' | 'U32' | 'S32' | 'U64' | 'S64' | 'FLT' | 'DBL' | 'PTR' ;
 ADDRTYPE	: 'main' | 'heap' | 'alias' | 'aslr' ;
 VALUE		: ('0x' )?[0-9A-F]+ ;
 FLOAT_VALUE	: [0-9]+ '.' [0-9]+ ;
-STRING	: '"' (ESC | ~ ('\\' |'"' ) )* '"' ;
+STRING	: '"' (ESC | ~ ('\\' |'"' )	)* '"' ;
 ESC : '\\' ( 'n' | 'r' ) ;
 
 KEYPAD
@@ -67,5 +72,7 @@ KEYPAD
 	| 'SL'
 	| 'SR'
 	;
+
+IF_BUTTON	: 'ifBut' ;
 
 WS	: [ \t\r\n]+ -> skip ;

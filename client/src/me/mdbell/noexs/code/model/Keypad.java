@@ -1,5 +1,7 @@
 package me.mdbell.noexs.code.model;
 
+import org.apache.commons.lang3.StringUtils;
+
 public enum Keypad {
 	A(0x00000001), B(0x00000002), X(0x00000004), Y(0x00000008), LEFT_STICK_PRESSED(0x00000010),
 	RIGHT_STICK_PRESSED(0x00000020), L(0x00000040), R(0x00000080), ZL(0x00000100), ZR(0x00000200), PLUS(0x00000400),
@@ -16,5 +18,9 @@ public enum Keypad {
 
 	public long getKeypadMask() {
 		return keypadMask;
+	}
+
+	public static Keypad getKeypad(String keyPad) {
+		return Keypad.valueOf(StringUtils.upperCase(keyPad));
 	}
 }

@@ -23,7 +23,7 @@ public class TestCode {
 				"\"Block1\"{[[ALIAS+0x0042000000] +690]+44 = (FLT)17.52 ; [[MAIN+0x0049800000] +420]+68 = (U16)4246;}");
 
 		doCodeFor("\"Block2\"{[[MAIN+0x0042000000] +690]+44 = (FLT)17.52 ; [[MAIN+0x0049800000] +420]+68 = (U32)1234;}\n"
-				+ "\"Block3\"{[[MAIN+0x0042000000] +690]+44 = (FLT)17.52 ; [[MAIN+0x0049800000] +420]+68 = (U8)42;}");
+				+ "\"Block3\"IFBUT LEFT_STICK_LEFT {[[MAIN+0x0042000000] +690]+44 = (FLT)17.52 ; [[MAIN+0x0049800000] +420]+68 = (U8)42;}");
 
 		Keypad[] keyPads = { Keypad.A, Keypad.R, Keypad.LEFT };
 		System.out.println("Key test : " + OperationBuilder.beginKeypressConditionalBlock(keyPads));

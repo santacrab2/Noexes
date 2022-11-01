@@ -31,12 +31,30 @@ public class OperationBuilder {
 	 * @param value         V
 	 * @return
 	 */
-	public static String buildStoreStaticValueToMemory(DataType dataType, MemoryRegion region, char registerToUse,
+	public static String storeStaticValueToMemory(DataType dataType, MemoryRegion region, char registerToUse,
 			String offset, String value) {
 		String res = buildOperationHead(Operation.STORE_STATIC_VALUE_TO_MEMORY, dataType, region, registerToUse);
 		res += "00";
 		res += OperationUtils.padHexValue(offset, DataType.ADDR);
 		res += " " + OperationUtils.padHexValue(value, dataType);
+		return res;
+	}
+
+//	### Code Type 0x2: End Conditional Block
+//	Code type 0x2 marks the end of a conditional block (started by Code Type 0x1 or Code Type 0x8).
+//
+//	When an Else is executed, all instructions until the appropriate End conditional block terminator are skipped.
+//
+//	#### Encoding
+//	`2X000000`
+//
+//	+ X: End type (0 = End, 1 = Else).
+//
+//	---	
+	public static String endConditionalBlock(boolean elseEndType) {
+		String res = "" + Operation.END_CONDITIONAL_BLOCK.getCodeType();
+		res += getFlagValue(elseEndType);
+		res += "000000";
 		return res;
 	}
 

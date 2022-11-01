@@ -10,7 +10,10 @@ import me.mdbell.noexs.code.model.Block;
 import me.mdbell.noexs.code.model.Code;
 import me.mdbell.noexs.code.model.CodeLines;
 import me.mdbell.noexs.code.model.Codes;
+import me.mdbell.noexs.code.model.ConditionPressButton;
 import me.mdbell.noexs.code.model.DataType;
+import me.mdbell.noexs.code.model.ElseCondition;
+import me.mdbell.noexs.code.model.EndCondition;
 import me.mdbell.noexs.code.model.IInstruction;
 import me.mdbell.noexs.code.model.Pointer;
 import me.mdbell.noexs.code.model.WriteValue;
@@ -74,6 +77,18 @@ public class CheatCodeMaker {
 		for (IInstruction instruction : instructions) {
 			if (instruction instanceof WriteValue) {
 				res.addCodeLines(generateInstructionWriteValue((WriteValue) instruction));
+			} else if (instruction instanceof EndCondition) {
+				res.addLineToEnd(OperationBuilder.endConditionalBlock(false));
+			} else if (instruction instanceof ElseCondition) {
+				res.addLineToEnd(OperationBuilder.endConditionalBlock(true));
+			} else if (instruction instanceof ConditionPressButton) {
+				res.addLineToEnd(OperationBuilder
+						.beginKeypressConditionalBlock(((ConditionPressButton) instruction).getKeypad()));
+			}
+
+			else {
+				System.err.println("Unkonwn instruction : " + instruction);
+
 			}
 
 			/**

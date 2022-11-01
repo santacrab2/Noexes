@@ -1,8 +1,8 @@
 - New arithmetic
-- Label code
+- Multiple button
 - Conditions
 - All operations
-- Tab in Jnoexs script => cheat code
+- Else
 
 
 https://www.cheatslips.com/wiki/home/code_types
