@@ -3,17 +3,28 @@ package me.mdbell.noexs.code.model;
 import org.apache.commons.lang3.builder.ReflectionToStringBuilder;
 import org.apache.commons.lang3.builder.ToStringStyle;
 
-import me.mdbell.noexs.code.CodeUtils;
-
 public class Code {
 
 	private String label;
 	private WriteValue writeValue;
+	private Block block;
 
-	public Code(String label, WriteValue writeValue) {
+	public Code() {
 		super();
-		this.label = CodeUtils.getStringLitteral(label);
+	}
+
+	
+	
+	public void setLabel(String label) {
+		this.label = label;
+	}
+
+	public void setWriteValue(WriteValue writeValue) {
 		this.writeValue = writeValue;
+	}
+
+	public void setBlock(Block block) {
+		this.block = block;
 	}
 
 	public WriteValue getWriteValue() {
@@ -22,6 +33,10 @@ public class Code {
 
 	public String getLabel() {
 		return label;
+	}
+
+	public Block getBlock() {
+		return block;
 	}
 
 	@Override

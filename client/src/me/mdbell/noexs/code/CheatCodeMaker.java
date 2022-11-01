@@ -1,17 +1,22 @@
 package me.mdbell.noexs.code;
 
+import java.util.List;
+
 import org.antlr.v4.runtime.CharStreams;
 import org.antlr.v4.runtime.CodePointCharStream;
 import org.antlr.v4.runtime.CommonTokenStream;
 
+import me.mdbell.noexs.code.model.Block;
 import me.mdbell.noexs.code.model.Code;
 import me.mdbell.noexs.code.model.CodeLines;
+import me.mdbell.noexs.code.model.Codes;
 import me.mdbell.noexs.code.model.DataType;
+import me.mdbell.noexs.code.model.IInstruction;
 import me.mdbell.noexs.code.model.Pointer;
 import me.mdbell.noexs.code.model.WriteValue;
 import me.mdbell.noexs.code.parser.CodeLexer;
 import me.mdbell.noexs.code.parser.CodeParser;
-import me.mdbell.noexs.code.parser.CodeParser.CodeContext;
+import me.mdbell.noexs.code.parser.CodeParser.CodesContext;
 
 public class CheatCodeMaker {
 
@@ -19,23 +24,63 @@ public class CheatCodeMaker {
 
 	private char registerToUse;
 
-	private Code c;
+	private Codes codes;
 
-	public CheatCodeMaker(Code c, char registerToUse) {
+	public CheatCodeMaker(Codes codes, char registerToUse) {
 		super();
 		this.registerToUse = registerToUse;
-		this.c = c;
+		this.codes = codes;
 	}
 
-	public CheatCodeMaker(Code c) {
-		this(c, DEFAULT_REGISTER_TO_USE);
+	public CheatCodeMaker(Codes codes) {
+		this(codes, DEFAULT_REGISTER_TO_USE);
 	}
 
-	public CodeLines generateCode() {
-		WriteValue wv = c.getWriteValue();
+	private CodeLines generateCode(Code c) {
+
 		CodeLines res = new CodeLines("[" + c.getLabel() + "]");
+
+		WriteValue wv = c.getWriteValue();
+		if (wv != null) {
+			res.addCodeLines(generateInstructionWriteValue(wv));
+		}
+
+		Block block = c.getBlock();
+		if (block != null) {
+			res.addCodeLines(generateInstructionBlock(block));
+		}
+		return res;
+	}
+
+	private CodeLines generateCode() {
+		CodeLines res = new CodeLines();
+		List<Code> codesToGenerate = codes.getCodes();
+		for (Code c : codesToGenerate) {
+			res.addCodeLines(generateCode(c));
+		}
+		return res;
+	}
+
+	private CodeLines generateInstructionWriteValue(WriteValue wv) {
+		CodeLines res = new CodeLines();
 		res.addCodeLines(generateMovesPartForPointer(wv.getPointer(), true));
 		res.addLineToEnd(generateSetValuePartForPointer(wv));
+		return res;
+	}
+
+	private CodeLines generateInstructionBlock(Block block) {
+		CodeLines res = new CodeLines();
+		List<IInstruction> instructions = block.getInstructions();
+		for (IInstruction instruction : instructions) {
+			if (instruction instanceof WriteValue) {
+				res.addCodeLines(generateInstructionWriteValue((WriteValue) instruction));
+			}
+
+			/**
+			 * CodeLines codeLines = switch (instruction) { case WriteValue wv
+			 * ->generateInstructionWriteValue(WriteValue wv); }
+			 **/
+		}
 		return res;
 	}
 
@@ -90,8 +135,9 @@ public class CheatCodeMaker {
 		CommonTokenStream tokens = new CommonTokenStream(lexer);
 		CodeParser parser = new CodeParser(tokens);
 		parser.setBuildParseTree(true);
-		CodeContext tree = parser.code();
-		CheatCodeMaker pc = new CheatCodeMaker(tree.c);
+		CodesContext tree = parser.codes();
+
+		CheatCodeMaker pc = new CheatCodeMaker(tree.cs);
 		CodeLines codeLines = pc.generateCode();
 		return codeLines.toStringCode();
 

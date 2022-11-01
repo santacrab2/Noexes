@@ -7,19 +7,41 @@ import me.mdbell.noexs.code.model.*;
 options {
 	caseInsensitive = true ;
 }
-code 	returns [Code c]			:  label=STRING v = writeValue  EOF 								{$c= new Code($label.getText(),$v.wv);} ;
-writeValue returns [WriteValue wv]	:  p = pointer '=' '(' vt = VALUETYPE ')' v = (VALUE|FLOAT_VALUE)	{$wv= new WriteValue($p.pt, ValueType.getValueType($vt.getText()),$v.getText());};
-pointer returns [Pointer pt]		:   	'[' recPtWOff = pointer ']' symb=('+'|'-') ptOff = VALUE 	{$pt= new Pointer($recPtWOff.pt,ArithmeticOperation.getArithmeticOperationFromSymbol($symb.getText()),$ptOff.getText());}
+
+codes	returns [Codes cs]
+
+@init {        $cs= new Codes();  }
+									:  (c = code {$cs.addCode($c.c);})+  EOF;
+
+
+
+code 	returns [Code c]
+
+@init {        $c= new Code();  }			
+									:  label=STRING {$c.setLabel($label.text);} 
+									           (v = writeValue {$c.setWriteValue($v.wv);} | b =block {$c.setBlock($b.b);})  ;
+
+// expr returns [Expression e] :
+block	returns [Block b]
+
+@init {        $b= new Block();  }
+									:  '{'  (wv= writeValue ';'{$b.addInstruction($wv.wv);})+ '}'	;
+									
+									
+writeValue returns [WriteValue wv]	:  p = pointer '=' '(' vt = VALUETYPE ')' v = (VALUE|FLOAT_VALUE)	{$wv= new WriteValue($p.pt, ValueType.getValueType($vt.text),$v.text);};
+pointer returns [Pointer pt]		:   	'[' recPtWOff = pointer ']' symb=('+'|'-') ptOff = VALUE 	{$pt= new Pointer($recPtWOff.pt,ArithmeticOperation.getArithmeticOperationFromSymbol($symb.text),$ptOff.text);}
 										| 	'[' recPt = pointer ']' 									{$pt= new Pointer($recPt.pt);}
-		 								|  	addrT = ADDRTYPE '+' off = VALUE 							{$pt= new Pointer(MemoryRegion.getMemoryRegion($addrT.getText()),$off.getText());};
+		 								|  	addrT = ADDRTYPE '+' off = VALUE 							{$pt= new Pointer(MemoryRegion.getMemoryRegion($addrT.text),$off.text);};
 VALUETYPE	: 'U8' | 'S8' | 'U16' | 'S16' | 'U32' | 'S32' | 'U64' | 'S64' | 'FLT' | 'DBL' | 'PTR' ;
 ADDRTYPE	: 'main' | 'heap' | 'alias' | 'aslr' ;
 VALUE		: ('0x' )?[0-9A-F]+ ;
-FLOAT_VALUE	: [0-9]+'.'[0-9]+ ;
-STRING		: '"'.*'"';
+FLOAT_VALUE	: [0-9]+ '.' [0-9]+ ;
+STRING	: '"' (ESC | ~ ('\\' |'"' ) )* '"' ;
+ESC : '\\' ( 'n' | 'r' ) ;
 
 KEYPAD
-	: 'A' | 'B'
+	: 'A'
+	| 'B'
 	| 'X'
 	| 'Y'
 	| 'LEFT_STICK_PRESSED'
