@@ -151,9 +151,13 @@ public class CheatCodeMaker {
 		CodeParser parser = new CodeParser(tokens);
 		parser.setBuildParseTree(true);
 		CodesContext tree = parser.codes();
-
+		//parser.setErrorHandler(null);
 		CheatCodeMaker pc = new CheatCodeMaker(tree.cs);
 		CodeLines codeLines = pc.generateCode();
+
+		if (tree.exception != null) {
+			throw new RuntimeException("Error while genearting code", tree.exception);
+		}
 		return codeLines.toStringCode();
 
 	}

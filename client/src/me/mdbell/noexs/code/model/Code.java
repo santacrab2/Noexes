@@ -3,6 +3,8 @@ package me.mdbell.noexs.code.model;
 import org.apache.commons.lang3.builder.ReflectionToStringBuilder;
 import org.apache.commons.lang3.builder.ToStringStyle;
 
+import me.mdbell.noexs.code.CodeUtils;
+
 public class Code {
 
 	private String label;
@@ -13,10 +15,12 @@ public class Code {
 		super();
 	}
 
-	
-	
 	public void setLabel(String label) {
 		this.label = label;
+	}
+
+	public void setLabelWithQuotes(String label) {
+		this.label = CodeUtils.getStringLitteral(label);
 	}
 
 	public void setWriteValue(WriteValue writeValue) {

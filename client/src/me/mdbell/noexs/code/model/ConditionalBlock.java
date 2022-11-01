@@ -27,6 +27,12 @@ public class ConditionalBlock extends Block {
 		this.block = block;
 		this.elseBlock = elseBlock;
 	}
+	
+	
+
+	public void setElseBlock(Block elseBlock) {
+		this.elseBlock = elseBlock;
+	}
 
 	@Override
 	public List<IInstruction> getInstructions() {

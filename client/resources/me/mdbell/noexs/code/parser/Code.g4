@@ -18,25 +18,35 @@ codes	returns [Codes cs]
 code 	returns [Code c]
 
 @init {        $c= new Code();  }			
-									:  label=STRING {$c.setLabel($label.text);} 
-									           (v = writeValue {$c.setWriteValue($v.wv);} | b =expr {$c.setBlock($b.b);})  ;
+									:  label=STRING {$c.setLabelWithQuotes($label.text);} 
+									           	(v = writeValue {$c.setWriteValue($v.wv);} | b =expr {$c.setBlock($b.b);})  ;
 
+/** 
+ * Blocks
+ */
+ 
+expr		returns [Block b]     			: b1 = block {$b=$b1.b;}| c= cond_block {$b=$c.cb;};
 
-expr		returns [Block b]     	: b1 = block {$b=$b1.b;}| c= cond_block {$b=$c.b;};
-
-cond_block 		returns [Block b] 	: IF_BUTTON key = KEYPAD b1 = block {$b = new ConditionalBlock(new ConditionPressButton(Keypad.getKeypad($key.text)), $b1.b);};
+cond_block 	returns [ConditionalBlock cb] 	: IF_BUTTON key = KEYPAD b1 = block {$cb = new ConditionalBlock(new ConditionPressButton(Keypad.getKeypad($key.text)), $b1.b);} (ELSE eb= block {$cb.setElseBlock($eb.b);})? ;
 
 block	returns [Block b]
 
 @init {        $b= new Block();  }
-									:  '{'  (wv= writeValue ';'{$b.addInstruction($wv.wv);})+ '}'	;
-									
-									
+											:  '{'  (wv= writeValue ';'{$b.addInstruction($wv.wv);})+ '}'	;
+
+/** 
+ * Instructions
+ */
+ 
+ 																																																						
 writeValue returns [WriteValue wv]	:  p = pointer '=' '(' vt = VALUETYPE ')' v = (VALUE|FLOAT_VALUE)	{$wv= new WriteValue($p.pt, ValueType.getValueType($vt.text),$v.text);};
 pointer returns [Pointer pt]		:   	'[' recPtWOff = pointer ']' symb=('+'|'-') ptOff = VALUE 	{$pt= new Pointer($recPtWOff.pt,ArithmeticOperation.getArithmeticOperationFromSymbol($symb.text),$ptOff.text);}
 										| 	'[' recPt = pointer ']' 									{$pt= new Pointer($recPt.pt);}
 		 								|  	addrT = ADDRTYPE '+' off = VALUE 							{$pt= new Pointer(MemoryRegion.getMemoryRegion($addrT.text),$off.text);};
 
+/** 
+ * Litterals
+ */
 VALUETYPE	: 'U8' | 'S8' | 'U16' | 'S16' | 'U32' | 'S32' | 'U64' | 'S64' | 'FLT' | 'DBL' | 'PTR' ;
 ADDRTYPE	: 'main' | 'heap' | 'alias' | 'aslr' ;
 VALUE		: ('0x' )?[0-9A-F]+ ;
@@ -74,5 +84,6 @@ KEYPAD
 	;
 
 IF_BUTTON	: 'ifBut' ;
+ELSE		: 'else'  ;
 
 WS	: [ \t\r\n]+ -> skip ;
