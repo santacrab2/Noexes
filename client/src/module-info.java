@@ -5,12 +5,15 @@ module JNoexes {
 	requires org.objectweb.asm;
 	requires java.desktop;
 	requires java.prefs;
-	
+
 	requires javaxusb;
+
 	requires org.apache.commons.lang3;
-	
+	requires org.apache.commons.io;
+	requires org.apache.commons.collections4;
+
 	requires org.antlr.antlr4.runtime;
-	
+
 	exports me.mdbell.noexs.ui;
 
 	opens me.mdbell.noexs.ui.controllers to javafx.fxml;

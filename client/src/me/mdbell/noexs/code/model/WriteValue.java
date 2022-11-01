@@ -52,12 +52,14 @@ public class WriteValue {
 			case S8:
 			case S16:
 			case S32:
+			case S64:
 				Long ulVal = Long.parseUnsignedLong(value);
 				res = Long.toHexString(ulVal);
 				break;
 			case U8:
 			case U16:
 			case U32:
+			case U64:
 				Long lVal = Long.parseLong(value);
 				res = Long.toHexString(lVal);
 				break;

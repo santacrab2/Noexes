@@ -164,7 +164,7 @@ public class WatchlistController implements IController {
     }
 
     public void onSave(ActionEvent event) {
-        File f = mc.browseFile(true, null, "Save As...", "Watchlist File", "*.json");
+        File f = mc.browseFile(true, null, null, "Save As...", "Watchlist File", "*.json");
         if (f == null) {
             return;
         }
@@ -188,7 +188,7 @@ public class WatchlistController implements IController {
     }
 
     public void onLoad(ActionEvent event) {
-        File f = mc.browseFile(false, null, "Open...", "Watchlist File", "*.json");
+        File f = mc.browseFile(false, null, null, "Open...", "Watchlist File", "*.json");
         if(f == null){
             return;
         }

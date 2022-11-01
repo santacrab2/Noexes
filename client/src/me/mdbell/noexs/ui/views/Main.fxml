@@ -71,6 +71,11 @@
                         <fx:include fx:id="utilsTabPage" source="UtilsTab.fxml" />
                     </content>
                 </Tab>
+                <Tab fx:id="cheatMakerTab" text="Cheat Maker">
+                    <content>
+                        <fx:include fx:id="cheatMakerTabPage" source="CheatMakerTab.fxml" />
+                    </content>
+                </Tab>
             </tabs>
         </TabPane>
     </children>
