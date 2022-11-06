@@ -1,15 +1,16 @@
 package me.mdbell.noexs.ui.services;
 
-import me.mdbell.noexs.dump.DumpRegion;
-import me.mdbell.noexs.ui.NoexesFiles;
-import me.mdbell.noexs.dump.MemoryDump;
-import me.mdbell.noexs.ui.models.DataType;
-import me.mdbell.noexs.ui.models.SearchType;
-
 import java.io.Closeable;
 import java.io.File;
 import java.io.IOException;
+import java.time.temporal.TemporalAccessor;
 import java.util.List;
+
+import me.mdbell.noexs.dump.DumpRegion;
+import me.mdbell.noexs.dump.MemoryDump;
+import me.mdbell.noexs.ui.NoexesFiles;
+import me.mdbell.noexs.ui.models.DataType;
+import me.mdbell.noexs.ui.models.SearchType;
 
 public final class SearchResult implements Closeable {
 
@@ -28,8 +29,8 @@ public final class SearchResult implements Closeable {
 
     private SearchResult prev;
 
-    public SearchResult() throws IOException {
-        this.location = NoexesFiles.createTempFile("dmp");
+    public SearchResult(TemporalAccessor time, String suffix) throws IOException {
+        this.location = NoexesFiles.createTempFile(time, suffix, "dmp");
     }
 
     public File getLocation() {

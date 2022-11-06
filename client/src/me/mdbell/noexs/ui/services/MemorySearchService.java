@@ -1,29 +1,35 @@
 package me.mdbell.noexs.ui.services;
 
+import java.io.File;
+import java.io.IOException;
+import java.io.RandomAccessFile;
+import java.nio.ByteBuffer;
+import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Iterator;
+import java.util.List;
+
 import javafx.concurrent.Service;
 import javafx.concurrent.Task;
 import me.mdbell.noexs.core.Debugger;
 import me.mdbell.noexs.core.DebuggerStatus;
 import me.mdbell.noexs.core.MemoryInfo;
+import me.mdbell.noexs.dump.DumpIndex;
+import me.mdbell.noexs.dump.DumpOutputStream;
+import me.mdbell.noexs.dump.DumpRegion;
+import me.mdbell.noexs.dump.DumpRegionFactory;
+import me.mdbell.noexs.dump.DumpRegionSupplier;
+import me.mdbell.noexs.dump.MemoryDump;
 import me.mdbell.noexs.io.MappedList;
-import me.mdbell.noexs.dump.*;
-import me.mdbell.noexs.ui.NoexesFiles;
 import me.mdbell.noexs.misc.DumpAddressList;
+import me.mdbell.noexs.ui.NoexesFiles;
 import me.mdbell.noexs.ui.models.ConditionType;
 import me.mdbell.noexs.ui.models.DataType;
 import me.mdbell.noexs.ui.models.SearchType;
 import me.mdbell.util.NetUtils;
 import me.mdbell.util.Rolling;
 import me.mdbell.util.TimeUtils;
-
-import java.io.File;
-import java.io.IOException;
-import java.io.RandomAccessFile;
-import java.nio.ByteBuffer;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Iterator;
-import java.util.List;
 
 public class MemorySearchService extends Service<SearchResult> {
 
@@ -39,12 +45,12 @@ public class MemorySearchService extends Service<SearchResult> {
 
     private long knownValue;
 
-    private float floatValue;
-
     private SearchResult prevResult;
     // NEW
-    public long mainSearchStart;
-    public long mainSearchEnd;
+    private long mainSearchStart;
+    private long mainSearchEnd;
+    
+    private String fileDumpSuffix;
 
     public void clear() {
         supplier = null;
@@ -53,7 +59,6 @@ public class MemorySearchService extends Service<SearchResult> {
         type = null;
         compareType = null;
         knownValue = 0;
-        floatValue = 0.0f;
         if (prevResult != null) {
             try {
                 prevResult.close();
@@ -84,6 +89,20 @@ public class MemorySearchService extends Service<SearchResult> {
         this.dataType = type;
     }
 
+    
+    
+    public void setMainSearchStart(long mainSearchStart) {
+        this.mainSearchStart = mainSearchStart;
+    }
+
+    public void setMainSearchEnd(long mainSearchEnd) {
+        this.mainSearchEnd = mainSearchEnd;
+    }
+
+    public void setFileDumpSuffix(String fileDumpSuffix) {
+        this.fileDumpSuffix = fileDumpSuffix;
+    }
+
     public void setType(SearchType t) {
         this.type = t;
     }
@@ -96,22 +115,19 @@ public class MemorySearchService extends Service<SearchResult> {
         this.knownValue = value;
     }
 
-    public void setFloatValue(float floatValue) {
-        this.floatValue = floatValue;
-    }
-
     public void setPrevResult(SearchResult result) {
         this.prevResult = result;
     }
 
     @Override
     protected Task<SearchResult> createTask() {
-        return new SearchTask();
+        return new SearchTask(fileDumpSuffix);
     }
 
     private List<Long> createList(File where) {
         try {
-            return MappedList.createLongList(new RandomAccessFile(NoexesFiles.createTempFile("addrs"), "rw"));
+            //return MappedList.createLongList(new RandomAccessFile(NoexesFiles.createTempFile("addrs"), "rw"));
+            return MappedList.createLongList(new RandomAccessFile(where, "rw"));
         } catch (IOException e) {
             e.printStackTrace();
             return new ArrayList<>();
@@ -181,20 +197,28 @@ public class MemorySearchService extends Service<SearchResult> {
 
     private class SearchTask extends Task<SearchResult> {
 
-        //private static final int DUMP_BUFFER_SIZE = 10000;
+        // private static final int DUMP_BUFFER_SIZE = 10000;
         private static final int DUMP_BUFFER_SIZE = 100000;
         SearchResult res;
         private long curr = 0, total, prevAmt;
         private long lastUpdate;
         Rolling avg = new Rolling(10);
+        
+        String fileDumpSuffix;
+
+        public SearchTask(String fileDumpSuffix) {
+            super();
+            this.fileDumpSuffix = fileDumpSuffix;
+        }
 
         @Override
         protected SearchResult call() throws Exception {
-            res = new SearchResult();
+            LocalDateTime time = LocalDateTime.now();
+            res = new SearchResult(time, fileDumpSuffix);
             res.type = type;
             res.dataType = dataType;
             res.setPrev(prevResult);
-            res.addresses = createList(NoexesFiles.createTempFile("addrs"));
+            res.addresses = createList(NoexesFiles.createTempFile(time, fileDumpSuffix, "addrs"));
             if (prevResult != null) {
                 refineSearch();
             } else {

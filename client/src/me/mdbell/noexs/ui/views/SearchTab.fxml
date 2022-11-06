@@ -13,8 +13,7 @@
 <?import me.mdbell.javafx.control.AddressSpinner?>
 <?import me.mdbell.javafx.control.HexSpinner?>
 
-<AnchorPane fx:id="searchTabPage" minHeight="0.0" minWidth="0.0" prefHeight="470.0" prefWidth="1022.0" xmlns="http://javafx.com/javafx/19"
-   xmlns:fx="http://javafx.com/fxml/1" fx:controller="me.mdbell.noexs.ui.controllers.SearchController">
+<AnchorPane fx:id="searchTabPage" minHeight="0.0" minWidth="0.0" prefHeight="470.0" prefWidth="1022.0" xmlns="http://javafx.com/javafx/19" xmlns:fx="http://javafx.com/fxml/1" fx:controller="me.mdbell.noexs.ui.controllers.SearchController">
    <children>
       <TableView fx:id="searchResults" layoutX="536.0" layoutY="20.0" prefHeight="406.0" prefWidth="480.0">
          <columns>
@@ -24,8 +23,7 @@
             <TableColumn fx:id="diff" prefWidth="127.0" text="Diff" />
          </columns>
       </TableView>
-      <TitledPane fx:id="searchOptions" animated="false" collapsible="false" layoutX="14.0" layoutY="20.0" prefHeight="228.0" prefWidth="518.0"
-         text="Search Options">
+      <TitledPane fx:id="searchOptions" animated="false" collapsible="false" layoutX="14.0" layoutY="20.0" prefHeight="228.0" prefWidth="518.0" text="Search Options">
          <content>
             <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="198.0" prefWidth="498.0">
                <children>
@@ -43,11 +41,9 @@
                   <ComboBox fx:id="searchConditionDropdown" layoutX="21.0" layoutY="164.0" prefHeight="25.0" prefWidth="130.0" />
                   <HexSpinner fx:id="knownValue" editable="true" layoutX="356.0" layoutY="89.0" prefHeight="25.0" prefWidth="149.0" />
                   <Label layoutX="356.0" layoutY="72.0" text="Value" />
-                  <Button disable="true" layoutX="355.0" layoutY="121.0" mnemonicParsing="false" onAction="#convertToHex" prefHeight="25.0"
-                     prefWidth="149.0" text="Convert Decimal to Hex" visible="false" />
+                  <Button disable="true" layoutX="355.0" layoutY="121.0" mnemonicParsing="false" onAction="#convertToHex" prefHeight="25.0" prefWidth="149.0" text="Convert Decimal to Hex" visible="false" />
                   <Label fx:id="conditionLabel" layoutX="160.0" layoutY="168.0" />
-                  <Button layoutX="249.0" layoutY="121.0" mnemonicParsing="false" onAction="#convertValueToHex" prefHeight="25.0" prefWidth="100.0"
-                     text="Convert to Hex" />
+                  <Button layoutX="249.0" layoutY="121.0" mnemonicParsing="false" onAction="#convertValueToHex" prefHeight="25.0" prefWidth="100.0" text="Convert to Hex" />
                   <TextField fx:id="floatValue" layoutX="167.0" layoutY="88.0" prefHeight="25.0" prefWidth="182.0" text="0.0" />
                   <ChoiceBox fx:id="conversionType" layoutX="167.0" layoutY="121.0" prefHeight="25.0" prefWidth="74.0" />
                   <Label layoutX="168.0" layoutY="72.0" text="Value to convert" />
@@ -55,11 +51,9 @@
             </AnchorPane>
          </content>
       </TitledPane>
-      <Button fx:id="searchButton" layoutX="14.0" layoutY="268.0" mnemonicParsing="false" onAction="#onStartAction" prefHeight="39.0" prefWidth="120.0"
-         text="Search" />
+      <Button fx:id="searchButton" layoutX="14.0" layoutY="268.0" mnemonicParsing="false" onAction="#onStartAction" prefHeight="39.0" prefWidth="120.0" text="Search" />
       <Button layoutX="139.0" layoutY="268.0" mnemonicParsing="false" onAction="#onCancelAction" prefHeight="39.0" prefWidth="120.0" text="Cancel Search" />
-      <Button layoutX="389.0" layoutY="268.0" mnemonicParsing="false" onAction="#onRestartAction" prefHeight="39.0" prefWidth="120.0"
-         text="Restart Search" />
+      <Button layoutX="389.0" layoutY="268.0" mnemonicParsing="false" onAction="#onRestartAction" prefHeight="39.0" prefWidth="120.0" text="Restart Search" />
       <Button layoutX="264.0" layoutY="268.0" mnemonicParsing="false" onAction="#onUndoAction" prefHeight="39.0" prefWidth="120.0" text="Undo Search" />
       <Label layoutX="760.0" layoutY="437.0" text="Value:" />
       <HexSpinner fx:id="pokeValue" editable="true" layoutX="795.0" layoutY="433.0" prefHeight="25.0" prefWidth="149.0" />
@@ -71,7 +65,8 @@
       <AddressSpinner fx:id="mainsearchEnd" editable="true" layoutX="350.0" layoutY="363.0" prefHeight="25.0" prefWidth="149.0" />
       <Label layoutX="185.0" layoutY="343.0" text="Main Start" />
       <Label layoutX="350.0" layoutY="343.0" text="Main End" />
-      <Button layoutX="14.0" layoutY="351.0" mnemonicParsing="false" onAction="#onMainStartAction" prefHeight="39.0" prefWidth="149.0"
-         text="Search with Main dump" />
+      <Button layoutX="14.0" layoutY="351.0" mnemonicParsing="false" onAction="#onMainStartAction" prefHeight="39.0" prefWidth="149.0" text="Search with Main dump" />
+      <TextField fx:id="fileDumpSuffix" layoutX="185.0" layoutY="414.0" prefHeight="25.0" prefWidth="149.0" />
+      <Label layoutX="89.0" layoutY="418.0" text="File dump suffix :" />
    </children>
 </AnchorPane>

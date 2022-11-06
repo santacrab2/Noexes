@@ -66,6 +66,9 @@ public class SearchController implements IController {
 
     @FXML
     AddressSpinner mainsearchEnd;
+    
+    @FXML
+    TextField fileDumpSuffix;
 
     @FXML
     TextField floatValue;
@@ -380,8 +383,9 @@ public class SearchController implements IController {
         ConditionType compareType = searchConditionDropdown.getValue();
         searchService.setConnection(mc.getDebugger());
         searchService.setSupplier(getDumpRegionSupplier(mc.getDebugger()));
-        searchService.mainSearchStart = 0;
-        searchService.mainSearchEnd = 0;
+        searchService.setMainSearchStart(0);
+        searchService.setMainSearchEnd(0);
+        searchService.setFileDumpSuffix(null);
         initSearch(type, compareType, dataType, known);
     }
 
@@ -397,8 +401,9 @@ public class SearchController implements IController {
         ConditionType compareType = searchConditionDropdown.getValue();
         searchService.setConnection(mc.getDebugger());
         searchService.setSupplier(getDumpRegionSupplier(mc.getDebugger()));
-        searchService.mainSearchStart = mainStart.getValue();
-        searchService.mainSearchEnd = mainsearchEnd.getValue();
+        searchService.setMainSearchStart(mainStart.getValue());
+        searchService.setMainSearchEnd(mainsearchEnd.getValue());
+        searchService.setFileDumpSuffix(fileDumpSuffix.getText());
         initSearch(type, compareType, dataType, known);
     }
 
