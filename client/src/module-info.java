@@ -18,5 +18,5 @@ module JNoexes {
 
     opens me.mdbell.noexs.ui.controllers to javafx.fxml, com.google.gson;
     opens me.mdbell.javafx.control to javafx.fxml;
-    opens me.mdbell.noexs.code.model to org.apache.commons.lang3;
+    opens me.mdbell.noexs.code.model to org.apache.commons.lang3, com.google.gson;
 }
