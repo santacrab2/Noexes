@@ -2,6 +2,8 @@ package me.mdbell.util;
 
 import org.apache.commons.lang3.StringUtils;
 
+import me.mdbell.noexs.ui.models.AccessType;
+
 public class HexUtils {
 
 	private HexUtils() {
@@ -35,22 +37,12 @@ public class HexUtils {
 	public static String formatAccess(int access) {
 		StringBuilder sb = new StringBuilder();
 
-		if ((access & 1) != 0) {
-			sb.append('R');
-		} else {
-			sb.append('-');
-		}
-
-		if ((access & 2) != 0) {
-			sb.append('W');
-		} else {
-			sb.append('-');
-		}
-
-		if ((access & 4) != 0) {
-			sb.append('X');
-		} else {
-			sb.append('-');
+		for (AccessType accesType : AccessType.values()) {
+			if (accesType.hasAcces(access)) {
+				sb.append(accesType.getShortDesc());
+			} else {
+				sb.append('-');
+			}
 		}
 
 		return sb.toString();

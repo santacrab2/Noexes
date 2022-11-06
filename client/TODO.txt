@@ -4,6 +4,10 @@
 - All operations
 - Else
 - Test unitaires
+- Tab avec convertisseur Float=> Hex ou menu
+- A partir de la watchlist => Pousser dans pointersearch et Cheat Maker
+- Ajouter un nom au dump + date et heure
+- Ajout Get Bookmark
 
 
 https://www.cheatslips.com/wiki/home/code_types

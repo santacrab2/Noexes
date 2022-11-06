@@ -1,12 +1,20 @@
 package me.mdbell.noexs.ui.controllers;
 
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
+
 import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.collections.transformation.SortedList;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
-import javafx.scene.control.*;
+import javafx.scene.control.Alert;
+import javafx.scene.control.Label;
+import javafx.scene.control.ListView;
+import javafx.scene.control.TableColumn;
+import javafx.scene.control.TableView;
+import javafx.scene.control.TextField;
 import javafx.scene.layout.AnchorPane;
 import me.mdbell.javafx.control.FormattedTableCell;
 import me.mdbell.noexs.core.Debugger;
@@ -17,10 +25,6 @@ import me.mdbell.noexs.misc.ExpressionEvaluator;
 import me.mdbell.noexs.ui.menus.MemoryInfoContextMenu;
 import me.mdbell.noexs.ui.models.MemoryInfoTableModel;
 import me.mdbell.util.HexUtils;
-
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
-
 
 public class ToolsController implements IController {
 
@@ -65,7 +69,7 @@ public class ToolsController implements IController {
         }
     }, addr -> {
         Debugger debugger = mc.getDebugger();
-        if(!debugger.connected()) {
+        if (!debugger.connected()) {
             return 0;
         }
         return debugger.peek64(addr);
@@ -98,7 +102,8 @@ public class ToolsController implements IController {
 
         memInfoAddr.setCellFactory(param -> new FormattedTableCell<>(addr -> HexUtils.formatAddress(addr.longValue())));
         memInfoSize.setCellFactory(param -> new FormattedTableCell<>(size -> HexUtils.formatSize(size.longValue())));
-        memInfoPerm.setCellFactory(param -> new FormattedTableCell<>(access -> HexUtils.formatAccess(access.intValue())));
+        memInfoPerm
+                .setCellFactory(param -> new FormattedTableCell<>(access -> HexUtils.formatAccess(access.intValue())));
 
         pidList.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
             if (newValue == null) {
@@ -176,6 +181,24 @@ public class ToolsController implements IController {
         }
     }
 
+    public void attachToCurrentProcess() {
+        Debugger conn = mc.getDebugger();
+        if (conn.connected()) {
+            if (pidList.getItems().isEmpty()) {
+                setPidsList();
+            }
+
+            Long currentPid = conn.getCurrentPid();
+            pidList.getSelectionModel().select((Long) currentPid);
+            ;
+            displayTitleId(mc.getDebugger().getTitleId(currentPid));
+            attachProcess();
+
+        } else {
+            MainController.showMessage("You are not currently connected.", Alert.AlertType.WARNING);
+        }
+    }
+
     public void displayTitleId(long titleId) {
         Platform.runLater(() -> {
             toolsTitleId.setText("Title Id:" + (titleId == -1 ? "N/A" : HexUtils.formatTitleId(titleId)));
@@ -195,7 +218,7 @@ public class ToolsController implements IController {
         boolean heap = false;
         for (MemoryInfo m : info) {
             String name = "-";
-            if(m.getType() == MemoryType.HEAP && !heap) {
+            if (m.getType() == MemoryType.HEAP && !heap) {
                 heap = true;
                 name = "heap";
             }
@@ -220,7 +243,7 @@ public class ToolsController implements IController {
                 }
                 mod++;
             }
-            if(!name.equals("-")) {
+            if (!name.equals("-")) {
                 vars.put(name, m.getAddress());
             }
             if (m.getType() != MemoryType.UNMAPPED) {
@@ -229,7 +252,7 @@ public class ToolsController implements IController {
         }
     }
 
-    public ExpressionEvaluator getEvaluator(){
+    public ExpressionEvaluator getEvaluator() {
         return evaluator;
     }
 

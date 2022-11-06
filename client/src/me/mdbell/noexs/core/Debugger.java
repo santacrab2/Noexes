@@ -1,11 +1,5 @@
 package me.mdbell.noexs.core;
 
-import me.mdbell.noexs.misc.BreakpointFlagBuilder;
-import me.mdbell.noexs.misc.BreakpointType;
-import me.mdbell.noexs.misc.WatchpointFlagBuilder;
-import me.mdbell.noexs.ui.NoexsApplication;
-import me.mdbell.noexs.ui.models.DataType;
-
 import java.io.Closeable;
 import java.io.IOException;
 import java.io.OutputStream;
@@ -14,6 +8,12 @@ import java.nio.ByteOrder;
 import java.util.Arrays;
 import java.util.concurrent.Semaphore;
 
+import me.mdbell.noexs.misc.BreakpointFlagBuilder;
+import me.mdbell.noexs.misc.BreakpointType;
+import me.mdbell.noexs.misc.WatchpointFlagBuilder;
+import me.mdbell.noexs.ui.NoexsApplication;
+import me.mdbell.noexs.ui.models.DataType;
+
 public class Debugger implements Commands, Closeable {
 
     private IConnection conn;
@@ -21,7 +21,8 @@ public class Debugger implements Commands, Closeable {
     private Semaphore semaphore = new Semaphore(1);
     private int protocolVersion;
 
-    public static final int CURRENT_PROTOCOL_VERSION = (NoexsApplication.VERSION_MAJOR << 16) | (NoexsApplication.VERSION_MINOR) << 8;
+    public static final int CURRENT_PROTOCOL_VERSION = (NoexsApplication.VERSION_MAJOR << 16)
+            | (NoexsApplication.VERSION_MINOR) << 8;
 
     public Debugger(IConnection conn) {
         this.conn = conn;
@@ -58,10 +59,11 @@ public class Debugger implements Commands, Closeable {
             if (rc.failed()) {
                 throw new ConnectionException("This is impossible, so you've done something terribly wrong", rc);
             }
-            if(protocolVersion > CURRENT_PROTOCOL_VERSION) {
+            if (protocolVersion > CURRENT_PROTOCOL_VERSION) {
                 throw new ConnectionException(String.format("Unsupported protocol version:%08X", protocolVersion));
             }
-            protocolVersion |= patch; // we don't need to check the patch value, as it should always be backwards compatible.
+            protocolVersion |= patch; // we don't need to check the patch value, as it should always be backwards
+                                      // compatible.
             return DebuggerStatus.forId(status);
         } finally {
             release();
@@ -194,14 +196,14 @@ public class Debugger implements Commands, Closeable {
             int offset = (int) (addr - (addr & ~3));
             int mask = ((1 << size) - 1) << offset;
 
-            BreakpointFlagBuilder bp = new BreakpointFlagBuilder().setEnabled(true)
-                    .setAddressSelect(0xF).setBreakpointType(BreakpointType.LINKED_CONTEXT_IDR_MATCH);
-            WatchpointFlagBuilder wp = new WatchpointFlagBuilder().setEnabled(true)
-                    .setAccessContol(t).setAddressSelect(mask).setLinkedBreakpointNumber(bpId);
+            BreakpointFlagBuilder bp = new BreakpointFlagBuilder().setEnabled(true).setAddressSelect(0xF)
+                    .setBreakpointType(BreakpointType.LINKED_CONTEXT_IDR_MATCH);
+            WatchpointFlagBuilder wp = new WatchpointFlagBuilder().setEnabled(true).setAccessContol(t)
+                    .setAddressSelect(mask).setLinkedBreakpointNumber(bpId);
             rc = setBreakpoint(bpId, bp.getFlag(), 0);
             System.out.println("bp:" + rc);
             if (rc.succeeded()) {
-                rc = setBreakpoint(0x10 + id, wp.getFlag(), addr); //wp
+                rc = setBreakpoint(0x10 + id, wp.getFlag(), addr); // wp
                 System.out.println("wp:" + rc);
             }
             return rc;
@@ -348,7 +350,8 @@ public class Debugger implements Commands, Closeable {
     public MemoryInfo query(long address) {
         acquire();
         try {
-            if (prev != null && prev.getAddress() != 0 && address >= prev.getAddress() && address < prev.getNextAddress()) {
+            if (prev != null && prev.getAddress() != 0 && address >= prev.getAddress()
+                    && address < prev.getNextAddress()) {
                 return prev;
             }
 
@@ -446,7 +449,7 @@ public class Debugger implements Commands, Closeable {
             long tid = conn.readLong();
             Result rc = conn.readResult();
             if (rc.failed()) {
-                //TODO throw? idk
+                // TODO throw? idk
             }
             return tid;
         } finally {
@@ -463,6 +466,30 @@ public class Debugger implements Commands, Closeable {
             if (rc.failed()) {
                 throw new ConnectionException("This is impossible, so you've done something terribly wrong", rc);
             }
+        } finally {
+            release();
+        }
+    }
+
+    public void getBookmark() {
+        acquire();
+        try {
+            conn.writeCommand(COMMAND_GET_BOOKMARK);
+            conn.flush();
+            int count = conn.readInt();
+            System.out.println("Bookmark count : " + count);
+            conn.writeCommand(COMMAND_STATUS);
+            conn.flush();
+            int count2 = conn.readInt();
+            System.out.println("Bookmark count2 : " + count2);
+
+            Result rc = conn.readResult();
+
+            if (rc.failed()) {
+                conn.readResult(); // ignored
+                throw new ConnectionException(rc);
+            }
+
         } finally {
             release();
         }
@@ -541,11 +568,11 @@ public class Debugger implements Commands, Closeable {
     public long peek(DataType type, long addr) {
         switch (type) {
             case BYTE:
-                return peek8(addr);
+                return peek8(addr) & 0xffL;
             case SHORT:
-                return peek16(addr);
+                return peek16(addr) & 0xffffL;
             case INT:
-                return peek32(addr);
+                return peek32(addr) & 0xffffffffL;
             case LONG:
                 return peek64(addr);
         }

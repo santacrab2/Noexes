@@ -86,4 +86,8 @@ public class CheatMakerController implements IController {
 		}
 	}
 
+	public void onGetBookmark(ActionEvent event) {
+		mc.getDebugger().getBookmark();
+	}
+
 }

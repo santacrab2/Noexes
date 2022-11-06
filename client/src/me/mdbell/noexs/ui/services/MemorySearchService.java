@@ -42,6 +42,9 @@ public class MemorySearchService extends Service<SearchResult> {
     private float floatValue;
 
     private SearchResult prevResult;
+    // NEW
+    public long mainSearchStart;
+    public long mainSearchEnd;
 
     public void clear() {
         supplier = null;

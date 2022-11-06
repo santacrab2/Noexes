@@ -1,0 +1,78 @@
+//0x1B
+static Result _getbookmark(Gecko::Context& ctx){
+    // printf("_getbookmark\n");
+    u8 cont = 1;
+    if ((access("/switch/EdiZon/BMDump.dat", F_OK) != 0) && (access("/switch/Breeze/cheats/BMDump.dat", F_OK) != 0)) {
+        WRITE_CHECKED(ctx, 0)
+        READ_CHECKED(ctx, cont);
+        return FILE_ACCESS_ERROR;
+    }
+    if (access("/switch/EdiZon/BMDump.dat", F_OK) == 0) {
+        g_memdumpFile = fopen("/switch/EdiZon/BMDump.dat", "r+b");
+
+        u32 size, len, index;
+
+        fseek(g_memdumpFile, 0, SEEK_END);
+        size = (ftell(g_memdumpFile) - HEADERSIZE);
+        printf("size = %d\n", size);
+
+        index = 0;
+        while (size > 0) {
+            len = (size < GECKO_BUFFER_SIZE) ? size : GECKO_BUFFER_SIZE;
+            fseek(g_memdumpFile, HEADERSIZE + index, SEEK_SET);
+            fread(outbuffer + outbuffer_offset, 1, len, g_memdumpFile);
+            // compress option
+            s32 count = LZ_Compress(outbuffer + outbuffer_offset, outbuffer, len);
+            //
+            printf("count = %d\n", count);
+            WRITE_CHECKED(ctx, count);
+            WRITE_BUFFER_CHECKED(ctx, outbuffer, count);
+            READ_CHECKED(ctx, cont);
+            if (!cont) {
+                WRITE_CHECKED(ctx, 0);
+                READ_CHECKED(ctx, cont);
+                fclose(g_memdumpFile);
+                return USER_ABORT;
+            }
+            index += len;
+            size -= len;
+        }
+        fclose(g_memdumpFile);
+    }
+    if (access("/switch/Breeze/cheats/BMDump.dat", F_OK) == 0) {
+        g_memdumpFile = fopen("/switch/Breeze/cheats/BMDump.dat", "r+b");
+
+        u32 size, len, index;
+
+        fseek(g_memdumpFile, 0, SEEK_END);
+        size = (ftell(g_memdumpFile) - HEADERSIZE2);
+        printf("size = %d\n", size);
+
+        index = 0;
+        while (size > 0) {
+            len = (size < GECKO_BUFFER_SIZE) ? size : GECKO_BUFFER_SIZE;
+            fseek(g_memdumpFile, HEADERSIZE2 + index, SEEK_SET);
+            fread(outbuffer + outbuffer_offset, 1, len, g_memdumpFile);
+            // compress option
+            s32 count = LZ_Compress(outbuffer + outbuffer_offset, outbuffer, len);
+            //
+            printf("count = %d\n", count);
+            WRITE_CHECKED(ctx, count);
+            WRITE_BUFFER_CHECKED(ctx, outbuffer, count);
+            READ_CHECKED(ctx, cont);
+            if (!cont) {
+                WRITE_CHECKED(ctx, 0);
+                READ_CHECKED(ctx, cont);
+                fclose(g_memdumpFile);
+                return USER_ABORT;
+            }
+            index += len;
+            size -= len;
+        }
+        fclose(g_memdumpFile);
+    }
+
+    WRITE_CHECKED(ctx, 0);
+    READ_CHECKED(ctx, cont);
+    return 0;
+}

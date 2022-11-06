@@ -64,6 +64,12 @@ public class SearchController implements IController {
 
     @FXML
     AddressSpinner searchEnd;
+    
+    @FXML
+    AddressSpinner mainStart;
+
+    @FXML
+    AddressSpinner mainsearchEnd;
 
     @FXML
     TextField floatValue;
@@ -248,6 +254,11 @@ public class SearchController implements IController {
         setStart(start);
         setEnd(end);
     }
+    
+    public void mainsetSearchRange(long start, long end) {
+        mainsetStart(start);
+        mainsetEnd(end);
+    }
 
     public void setStart(long start) {
         searchStart.getValueFactory().setValue(start);
@@ -256,6 +267,16 @@ public class SearchController implements IController {
 
     public void setEnd(long end) {
         searchEnd.getValueFactory().setValue(end);
+        searchType.setValue(RangeType.RANGE);
+    }
+    
+    public void mainsetStart(long start) {
+        mainStart.getValueFactory().setValue(start);
+        searchType.setValue(RangeType.RANGE);
+    }
+
+    public void mainsetEnd(long end) {
+        mainsearchEnd.getValueFactory().setValue(end);
         searchType.setValue(RangeType.RANGE);
     }
 
@@ -341,7 +362,25 @@ public class SearchController implements IController {
         ConditionType compareType = searchConditionDropdown.getValue();
         searchService.setConnection(mc.getDebugger());
         searchService.setSupplier(getDumpRegionSupplier(mc.getDebugger()));
+        searchService.mainSearchStart = 0;
+        searchService.mainSearchEnd = 0;
+        initSearch(type, compareType, dataType, known);
+    }
 
+    public void onMainStartAction(ActionEvent event) {
+        if (isServiceRunning()) {
+            MainController.showMessage("Please wait for your current task to complete!", Alert.AlertType.WARNING);
+            return;
+        }
+        DataType dataType = dataTypeDropdown.getValue();
+        long known = knownValue.getValue();
+
+        SearchType type = searchConditionTypeDropdown.getValue();
+        ConditionType compareType = searchConditionDropdown.getValue();
+        searchService.setConnection(mc.getDebugger());
+        searchService.setSupplier(getDumpRegionSupplier(mc.getDebugger()));
+        searchService.mainSearchStart = mainStart.getValue();
+        searchService.mainSearchEnd = mainsearchEnd.getValue();
         initSearch(type, compareType, dataType, known);
     }
 
@@ -490,6 +529,16 @@ public class SearchController implements IController {
                 long start = searchStart.getValue();
                 long end = searchEnd.getValue();
                 return DumpRegionSupplier.createSupplierFromRange(conn, start, end);
+            case RANGE2:
+                long heapstart = searchStart.getValue();
+                long heapend = searchEnd.getValue();
+                long mainstart = mainStart.getValue();
+                long mainend = mainsearchEnd.getValue();
+                if (mainstart < heapstart) {
+                    return DumpRegionSupplier.createSupplierFrom2Range(conn, mainstart, mainend, heapstart, heapend);
+                } else {
+                    return DumpRegionSupplier.createSupplierFrom2Range(conn, heapstart, heapend, mainstart, mainend);
+                    }
             case ALL:
                 return DumpRegionSupplier.createSupplierFromInfo(conn, info -> info.isReadable() && info.isWriteable());
             case HEAP:

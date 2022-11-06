@@ -9,7 +9,7 @@
 <?import javafx.scene.control.TitledPane?>
 <?import javafx.scene.layout.AnchorPane?>
 
-<AnchorPane fx:id="toolsTabPage" disable="true" minHeight="0.0" minWidth="0.0" prefHeight="470.0" prefWidth="1022.0" xmlns="http://javafx.com/javafx/8.0.121" xmlns:fx="http://javafx.com/fxml/1" fx:controller="me.mdbell.noexs.ui.controllers.ToolsController">
+<AnchorPane fx:id="toolsTabPage" disable="true" minHeight="0.0" minWidth="0.0" prefHeight="470.0" prefWidth="1022.0" xmlns="http://javafx.com/javafx/19" xmlns:fx="http://javafx.com/fxml/1" fx:controller="me.mdbell.noexs.ui.controllers.ToolsController">
     <children>
         <TitledPane animated="false" collapsible="false" layoutX="487.0" layoutY="13.0" prefHeight="402.0" prefWidth="521.0" text="PID Selection">
             <content>
@@ -19,7 +19,8 @@
                         <Button layoutX="302.0" layoutY="25.0" mnemonicParsing="false" onAction="#setPidsList" prefHeight="25.0" prefWidth="210.0" text="Refresh Pids" />
                         <Button layoutX="302.0" layoutY="55.0" mnemonicParsing="false" onAction="#attachProcess" prefHeight="25.0" prefWidth="210.0" text="Attach to Process" />
                         <Button layoutX="302.0" layoutY="88.0" mnemonicParsing="false" onAction="#detachProcess" prefHeight="25.0" prefWidth="210.0" text="Detach from Process" />
-                  <Label fx:id="toolsTitleId" layoutX="302.0" layoutY="126.0" text="Title Id:" />
+                  		<Label fx:id="toolsTitleId" layoutX="302.0" layoutY="126.0" text="Title Id:" />
+                  		<Button layoutX="302.0" layoutY="334.0" mnemonicParsing="false" onAction="#attachToCurrentProcess" prefHeight="25.0" prefWidth="210.0" text="Attach to current process" />
                     </children>
                 </AnchorPane>
             </content>

@@ -109,6 +109,7 @@ public class ExpressionEvaluator {
                     if (!vars.containsVar((String)t.value)) {
                         throw new InvalidFormatException("Unknown variable:" + t.value);
                     }
+                    break;
                 case ARITHMETIC:
                     if (t.prev == null) {
                         throw new InvalidFormatException("Missing left param for op:" + t.value);

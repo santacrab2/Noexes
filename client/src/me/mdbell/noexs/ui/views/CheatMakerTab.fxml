@@ -20,6 +20,7 @@
                   <Button layoutX="155.0" layoutY="264.0" mnemonicParsing="false" onAction="#onLoadSource" text="Load" />
                   <Label layoutX="15.0" layoutY="267.0" prefHeight="17.0" prefWidth="57.0" text="Source :" />
                   <Label layoutX="503.0" layoutY="267.0" text="Cheat Code :" />
+                  <Button layoutX="274.0" layoutY="264.0" mnemonicParsing="false" onAction="#onGetBookmark" text="Book" />
                </children></AnchorPane>
         </content>
       </TitledPane>
