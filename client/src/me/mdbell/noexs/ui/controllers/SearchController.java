@@ -10,7 +10,6 @@ import javafx.collections.ObservableList;
 import javafx.concurrent.Service;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
-import javafx.geometry.Insets;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
 import javafx.scene.control.ChoiceBox;
@@ -24,14 +23,11 @@ import javafx.scene.control.TableView;
 import javafx.scene.control.TextField;
 import javafx.scene.control.TitledPane;
 import javafx.scene.layout.AnchorPane;
-import javafx.scene.layout.Background;
-import javafx.scene.layout.BackgroundFill;
-import javafx.scene.layout.CornerRadii;
-import javafx.scene.paint.Color;
 import me.mdbell.javafx.control.AddressSpinner;
 import me.mdbell.javafx.control.FormattedTableCell;
 import me.mdbell.javafx.control.HexSpinner;
 import me.mdbell.noexs.core.Debugger;
+import me.mdbell.noexs.core.EMemoryRegion;
 import me.mdbell.noexs.core.MemoryType;
 import me.mdbell.noexs.dump.DumpRegionSupplier;
 import me.mdbell.noexs.ui.models.ConditionType;
@@ -207,14 +203,37 @@ public class SearchController implements IController {
         });
         MenuItem watchList = new MenuItem("Watch List");
         watchList.setOnAction(event -> {
-            SearchValueModel m = searchResults.getSelectionModel().getSelectedItem();
-            if (m == null) {
+            List<SearchValueModel> ms = searchResults.getSelectionModel().getSelectedItems();
+            if (ms == null) {
                 return;
             }
-            mc.watch().addAddr(m.getAddr());
+            for (SearchValueModel m : ms) {
+                mc.watch().addAddr(m.getAddr());
+            }
             mc.setTab(MainController.Tab.WATCH_LIST);
         });
-        cm.getItems().addAll(memoryView, watchList);
+        MenuItem cheatMaker = new MenuItem("Cheat Maker");
+        cheatMaker.setOnAction(event -> {
+            List<SearchValueModel> ms = searchResults.getSelectionModel().getSelectedItems();
+            if (ms == null) {
+                return;
+            }
+
+            ToolsController tc = mc.toolsTabPageController;
+            for (SearchValueModel m : ms) {
+                long address = m.getAddr();
+                EMemoryRegion region = tc.getAddressMemoryRegion(address);
+                long offset = tc.getOffset(address, region);
+
+                String pointerStr = "[" + region + " + 0x" + HexUtils.formatAddress(offset)
+
+                        + "] = (U32) 0x" + HexUtils.formatLong(m.getNewValue());
+
+                mc.cheatMaker().cheatSource.appendText(pointerStr + "\n");
+            }
+            mc.setTab(MainController.Tab.CHEATS);
+        });
+        cm.getItems().addAll(memoryView, watchList, cheatMaker);
         searchResults.contextMenuProperty().setValue(cm);
         updateCondition();
     }

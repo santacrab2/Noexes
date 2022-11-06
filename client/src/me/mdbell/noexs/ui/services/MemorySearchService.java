@@ -181,6 +181,8 @@ public class MemorySearchService extends Service<SearchResult> {
 
     private class SearchTask extends Task<SearchResult> {
 
+        //private static final int DUMP_BUFFER_SIZE = 10000;
+        private static final int DUMP_BUFFER_SIZE = 100000;
         SearchResult res;
         private long curr = 0, total, prevAmt;
         private long lastUpdate;
@@ -361,7 +363,7 @@ public class MemorySearchService extends Service<SearchResult> {
             try {
                 dump = new MemoryDump(res.getLocation());
                 dump.setTid(conn.getCurrentTitleId());
-                dump.getInfos().addAll(Arrays.asList(conn.query(0, 10000)));
+                dump.getInfos().addAll(Arrays.asList(conn.query(0, DUMP_BUFFER_SIZE)));
                 dout = dump.openStream();
             } catch (IOException e) {
                 e.printStackTrace();

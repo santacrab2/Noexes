@@ -16,7 +16,7 @@ import org.apache.commons.lang3.StringUtils;
 //	
 //	---
 
-public enum ArithmeticOperation {
+public enum EArithmeticOperation {
     ADDITION("+", 0),
     SUBSTRACTION("-", 1),
     MULTIPLICATION("*", 2),
@@ -32,7 +32,7 @@ public enum ArithmeticOperation {
 
     private int arithmeticOperationCode;
 
-    private ArithmeticOperation(String symbol, int arithmeticOperationCode) {
+    private EArithmeticOperation(String symbol, int arithmeticOperationCode) {
         this.symbol = symbol;
         this.arithmeticOperationCode = arithmeticOperationCode;
     }
@@ -41,9 +41,9 @@ public enum ArithmeticOperation {
         return arithmeticOperationCode;
     }
 
-    public static ArithmeticOperation getArithmeticOperationFromSymbol(String symbol) {
-        ArithmeticOperation res = null;
-        for (ArithmeticOperation at : ArithmeticOperation.values()) {
+    public static EArithmeticOperation getArithmeticOperationFromSymbol(String symbol) {
+        EArithmeticOperation res = null;
+        for (EArithmeticOperation at : EArithmeticOperation.values()) {
             if (StringUtils.equals(symbol, at.symbol)) {
                 res = at;
                 break;

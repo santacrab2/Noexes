@@ -9,7 +9,7 @@ import javafx.scene.control.ContextMenu;
 import javafx.scene.control.MenuItem;
 import javafx.scene.control.TableView;
 import me.mdbell.noexs.ui.controllers.MainController;
-import me.mdbell.noexs.ui.models.AccessType;
+import me.mdbell.noexs.ui.models.EAccessType;
 import me.mdbell.noexs.ui.models.MemoryInfoTableModel;
 import me.mdbell.noexs.ui.models.Range;
 
@@ -173,7 +173,7 @@ public class MemoryInfoContextMenu extends ContextMenu {
                 break;
             }
 
-            boolean writeAccess = AccessType.WRITE.hasAcces(memInfo.accessProperty().getValue());
+            boolean writeAccess = EAccessType.WRITE.hasAcces(memInfo.accessProperty().getValue());
 
             if (writeAccess) {
                 if (inRegion && startAddress == null) {

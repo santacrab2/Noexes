@@ -1,6 +1,6 @@
 package me.mdbell.noexs.code;
 
-public enum Operation {
+public enum EOperation {
     STORE_STATIC_VALUE_TO_MEMORY(0),
     BEGIN_CONDITIONAL_BLOCK(1),
     END_CONDITIONAL_BLOCK(2),
@@ -14,7 +14,7 @@ public enum Operation {
 
     private int codeType;
 
-    private Operation(int codeType) {
+    private EOperation(int codeType) {
         this.codeType = codeType;
     }
 

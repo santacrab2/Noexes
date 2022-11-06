@@ -2,10 +2,10 @@ package me.mdbell.noexs.code;
 
 import org.apache.commons.lang3.StringUtils;
 
-import me.mdbell.noexs.code.model.ArithmeticOperation;
-import me.mdbell.noexs.code.model.DataType;
+import me.mdbell.noexs.code.model.EArithmeticOperation;
+import me.mdbell.noexs.code.model.EDataType;
 import me.mdbell.noexs.code.model.Keypad;
-import me.mdbell.noexs.code.model.MemoryRegion;
+import me.mdbell.noexs.code.model.ECodeMemoryRegion;
 
 public class OperationBuilder {
 
@@ -31,11 +31,11 @@ public class OperationBuilder {
      * @param value         V
      * @return
      */
-    public static String storeStaticValueToMemory(DataType dataType, MemoryRegion region, char registerToUse,
+    public static String storeStaticValueToMemory(EDataType dataType, ECodeMemoryRegion region, char registerToUse,
             String offset, String value) {
-        String res = buildOperationHead(Operation.STORE_STATIC_VALUE_TO_MEMORY, dataType, region, registerToUse);
+        String res = buildOperationHead(EOperation.STORE_STATIC_VALUE_TO_MEMORY, dataType, region, registerToUse);
         res += "00";
-        res += OperationUtils.padHexValue(offset, DataType.ADDR);
+        res += OperationUtils.padHexValue(offset, EDataType.ADDR);
         res += " " + OperationUtils.padHexValue(value, dataType);
         return res;
     }
@@ -52,7 +52,7 @@ public class OperationBuilder {
 //
 //	---	
     public static String endConditionalBlock(boolean elseEndType) {
-        String res = "" + Operation.END_CONDITIONAL_BLOCK.getCodeType();
+        String res = "" + EOperation.END_CONDITIONAL_BLOCK.getCodeType();
         res += getFlagValue(elseEndType);
         res += "000000";
         return res;
@@ -77,19 +77,19 @@ public class OperationBuilder {
 //	+ A: Immediate offset to use from register R.
 //
 //	---	
-    public static String loadRegisterWithMemoryValueFromFixedAddress(DataType dataType, MemoryRegion region,
+    public static String loadRegisterWithMemoryValueFromFixedAddress(EDataType dataType, ECodeMemoryRegion region,
             char registerToUse, String offset) {
-        String res = buildOperationHead(Operation.LOAD_REGISTER_WITH_MEMORY_VALUE, dataType, region, registerToUse);
+        String res = buildOperationHead(EOperation.LOAD_REGISTER_WITH_MEMORY_VALUE, dataType, region, registerToUse);
         res += "00";
-        res += OperationUtils.padHexValue(offset, DataType.ADDR);
+        res += OperationUtils.padHexValue(offset, EDataType.ADDR);
         return res;
     }
 
-    public static String loadRegisterWithMemoryValueFromRegisterAddress(DataType dataType, char registerToUse,
+    public static String loadRegisterWithMemoryValueFromRegisterAddress(EDataType dataType, char registerToUse,
             String offset) {
-        String res = buildOperationHead(Operation.LOAD_REGISTER_WITH_MEMORY_VALUE, dataType, null, registerToUse);
+        String res = buildOperationHead(EOperation.LOAD_REGISTER_WITH_MEMORY_VALUE, dataType, null, registerToUse);
         res += "10";
-        res += OperationUtils.padHexValue(offset, DataType.ADDR);
+        res += OperationUtils.padHexValue(offset, EDataType.ADDR);
         return res;
     }
 
@@ -107,9 +107,9 @@ public class OperationBuilder {
 //	+ V: Value to write to memory.
 //	
 //	---
-    public static String storeStaticValueToRegisterMemoryAddress(DataType dataType, char registerToUse,
+    public static String storeStaticValueToRegisterMemoryAddress(EDataType dataType, char registerToUse,
             boolean incrementRegisterFlag, boolean offsetRegisterEnable, char registerToUseAsOffset, String hexValue) {
-        String res = "" + Operation.STORE_STATIC_VALUE_TO_REGISTER_MEMORY_ADDRESS.getCodeType();
+        String res = "" + EOperation.STORE_STATIC_VALUE_TO_REGISTER_MEMORY_ADDRESS.getCodeType();
         res += dataType.getDataTypeCode();
         res += "0";
         res += registerToUse;
@@ -144,9 +144,9 @@ public class OperationBuilder {
 //
 //	---	
 
-    public static String legacyArithmetic(DataType dataType, char registerToUse, ArithmeticOperation arithmetic,
+    public static String legacyArithmetic(EDataType dataType, char registerToUse, EArithmeticOperation arithmetic,
             String hexValue) {
-        String res = "" + Operation.LEGACY_ARITHMETIC.getCodeType();
+        String res = "" + EOperation.LEGACY_ARITHMETIC.getCodeType();
         res += dataType.getDataTypeCode();
         res += "0";
         res += registerToUse;
@@ -199,13 +199,13 @@ public class OperationBuilder {
 //	    2000000: SR
 
     public static String beginKeypressConditionalBlock(Keypad[] keypads) {
-        String res = "" + Operation.BEGIN_KEYPRESS_CONDITIONAL_BLOCK.getCodeType();
+        String res = "" + EOperation.BEGIN_KEYPRESS_CONDITIONAL_BLOCK.getCodeType();
 
         long mask = 0;
         for (Keypad keypad : keypads) {
             mask |= keypad.getKeypadMask();
         }
-        res += OperationUtils.padHexValue(Long.toHexString(mask), DataType.T32, 7);
+        res += OperationUtils.padHexValue(Long.toHexString(mask), EDataType.T32, 7);
         return res;
     }
 
@@ -229,7 +229,7 @@ public class OperationBuilder {
         return res;
     }
 
-    private static String buildOperationHead(Operation op, DataType dataType, MemoryRegion region, char registerToUse) {
+    private static String buildOperationHead(EOperation op, EDataType dataType, ECodeMemoryRegion region, char registerToUse) {
         String regionStr = "0";
         if (region != null) {
             regionStr = Integer.toString(region.getPointerAdressType());

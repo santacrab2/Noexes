@@ -2,15 +2,15 @@ package me.mdbell.noexs.code;
 
 import org.apache.commons.lang3.StringUtils;
 
-import me.mdbell.noexs.code.model.DataType;
+import me.mdbell.noexs.code.model.EDataType;
 
 public class OperationUtils {
 
-    public static String padHexValue(String hexValue, DataType dataType) {
+    public static String padHexValue(String hexValue, EDataType dataType) {
         return padHexValue(hexValue, dataType, null);
     }
 
-    public static String padHexValue(String hexValue, DataType dataType, Integer forceGabarit) {
+    public static String padHexValue(String hexValue, EDataType dataType, Integer forceGabarit) {
 
         int digit = dataType.getGabarit();
         if (forceGabarit != null) {

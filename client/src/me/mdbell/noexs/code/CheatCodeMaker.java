@@ -11,7 +11,7 @@ import me.mdbell.noexs.code.model.Code;
 import me.mdbell.noexs.code.model.CodeLines;
 import me.mdbell.noexs.code.model.Codes;
 import me.mdbell.noexs.code.model.ConditionPressButton;
-import me.mdbell.noexs.code.model.DataType;
+import me.mdbell.noexs.code.model.EDataType;
 import me.mdbell.noexs.code.model.ElseCondition;
 import me.mdbell.noexs.code.model.EndCondition;
 import me.mdbell.noexs.code.model.IInstruction;
@@ -129,17 +129,17 @@ public class CheatCodeMaker {
         String res = null;
 
         if (positionTypeFirst) {
-            res = OperationBuilder.loadRegisterWithMemoryValueFromFixedAddress(DataType.T64,
+            res = OperationBuilder.loadRegisterWithMemoryValueFromFixedAddress(EDataType.T64,
                     p.getInheritedMemoryRegion(), registerToUse, p.getOffsetAsHex());
         } else {
-            res = OperationBuilder.loadRegisterWithMemoryValueFromRegisterAddress(DataType.T64, registerToUse,
+            res = OperationBuilder.loadRegisterWithMemoryValueFromRegisterAddress(EDataType.T64, registerToUse,
                     p.getOffsetAsHex());
         }
         return res;
     }
 
     private String generatePointerMove(Pointer p) {
-        return OperationBuilder.legacyArithmetic(DataType.T32, registerToUse, p.getArithmeticOperation(),
+        return OperationBuilder.legacyArithmetic(EDataType.T32, registerToUse, p.getArithmeticOperation(),
                 p.getOffsetAsHex());
     }
 

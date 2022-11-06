@@ -8,11 +8,11 @@ public class WriteValue implements IInstruction {
 
     private Pointer pointer;
 
-    private ValueType valueType;
+    private EValueType valueType;
 
     private String value;
 
-    public WriteValue(Pointer pointer, ValueType valueType, String value) {
+    public WriteValue(Pointer pointer, EValueType valueType, String value) {
         super();
         this.pointer = pointer;
         this.valueType = valueType;
@@ -27,11 +27,11 @@ public class WriteValue implements IInstruction {
         this.pointer = pointer;
     }
 
-    public ValueType getValueType() {
+    public EValueType getValueType() {
         return valueType;
     }
 
-    public void setValueType(ValueType valueType) {
+    public void setValueType(EValueType valueType) {
         this.valueType = valueType;
     }
 

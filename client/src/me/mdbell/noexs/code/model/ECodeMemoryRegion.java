@@ -8,12 +8,12 @@ import org.apache.commons.lang3.StringUtils;
  * @author Anthony
  *
  */
-public enum MemoryRegion {
+public enum ECodeMemoryRegion {
     MAIN(0), HEAP(1), ALIAS(2), ASLR(3);
 
     private int memoryRegionCode;
 
-    private MemoryRegion(int memoryRegionCode) {
+    private ECodeMemoryRegion(int memoryRegionCode) {
         this.memoryRegionCode = memoryRegionCode;
     }
 
@@ -21,8 +21,8 @@ public enum MemoryRegion {
         return memoryRegionCode;
     }
 
-    public static MemoryRegion getMemoryRegion(String memoryRegion) {
-        return MemoryRegion.valueOf(StringUtils.upperCase(memoryRegion));
+    public static ECodeMemoryRegion getMemoryRegion(String memoryRegion) {
+        return ECodeMemoryRegion.valueOf(StringUtils.upperCase(memoryRegion));
     }
 
 }

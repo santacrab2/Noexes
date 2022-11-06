@@ -6,14 +6,14 @@ package me.mdbell.noexs.code.model;
  * @author Anthony
  *
  */
-public enum DataType {
+public enum EDataType {
     T8(1, 2, 8), T16(2, 4, 8), T32(4, 8, 8), T64(8, 16, 16), ADDR(8, 10, 10);
 
     private int dataTypeCode;
     private int size;
     private int gabarit;
 
-    private DataType(int dataTypeCode, int size, int gabarit) {
+    private EDataType(int dataTypeCode, int size, int gabarit) {
         this.dataTypeCode = dataTypeCode;
         this.gabarit = gabarit;
         this.size = size;

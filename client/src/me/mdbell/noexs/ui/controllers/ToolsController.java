@@ -18,12 +18,14 @@ import javafx.scene.control.TextField;
 import javafx.scene.layout.AnchorPane;
 import me.mdbell.javafx.control.FormattedTableCell;
 import me.mdbell.noexs.core.Debugger;
+import me.mdbell.noexs.core.EMemoryRegion;
 import me.mdbell.noexs.core.MemoryInfo;
 import me.mdbell.noexs.core.MemoryType;
 import me.mdbell.noexs.core.Result;
 import me.mdbell.noexs.misc.ExpressionEvaluator;
 import me.mdbell.noexs.ui.menus.MemoryInfoContextMenu;
 import me.mdbell.noexs.ui.models.MemoryInfoTableModel;
+import me.mdbell.noexs.ui.models.MemoryInfoUtils;
 import me.mdbell.util.HexUtils;
 
 public class ToolsController implements IController {
@@ -216,29 +218,41 @@ public class ToolsController implements IController {
         }
         int mod = 0;
         boolean heap = false;
+        EMemoryRegion region = null;
         for (MemoryInfo m : info) {
             String name = "-";
             if (m.getType() == MemoryType.HEAP && !heap) {
                 heap = true;
                 name = "heap";
+                region = EMemoryRegion.HEAP;
+            }
+            if (m.getType() == MemoryType.HEAP) {
+                region = EMemoryRegion.HEAP;
+            } else if (region == EMemoryRegion.HEAP) {
+                region = null;
             }
             if (m.getType() == MemoryType.CODE_STATIC && m.getPerm() == 0b101) {
                 if (mod == 0 && moduleCount == 1) {
                     name = "main";
+                    region = EMemoryRegion.MAIN;
                 }
                 if (moduleCount > 1) {
                     switch (mod) {
                         case 0:
                             name = "rtld";
+                            region = EMemoryRegion.RTLD;
                             break;
                         case 1:
                             name = "main";
+                            region = EMemoryRegion.MAIN;
                             break;
                         case 2:
                             name = "sdk";
+                            region = EMemoryRegion.SDK;
                             break;
                         default:
                             name = "subsdk" + (mod - 2);
+                            region = EMemoryRegion.SUBSDK;
                     }
                 }
                 mod++;
@@ -247,11 +261,19 @@ public class ToolsController implements IController {
                 vars.put(name, m.getAddress());
             }
             if (m.getType() != MemoryType.UNMAPPED) {
-                memoryInfoList.add(new MemoryInfoTableModel(name, m));
+                memoryInfoList.add(new MemoryInfoTableModel(name, m, region));
             }
         }
     }
 
+    public EMemoryRegion getAddressMemoryRegion(long address) {
+        return MemoryInfoUtils.getAddressMemoryRegion(address, memoryInfoList);
+    }
+
+    public long getOffset(long address, EMemoryRegion region) {
+        return MemoryInfoUtils.getOffset(address, region, vars);
+    }
+    
     public ExpressionEvaluator getEvaluator() {
         return evaluator;
     }

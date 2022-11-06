@@ -8,6 +8,11 @@
 - A partir de la watchlist => Pousser dans pointersearch et Cheat Maker
 - Ajouter un nom au dump + date et heure
 - Ajout Get Bookmark
+- Ajouter dans la structure memoire le type de region : (enum) Base, Main, Heap, Other : ... => updateMemoryInfo
+--- A ajouter dans la liste des block
+--- Permettre de localiser un pointer
+--- Ajouter un objet qui permet de faire ca dans Tools getRegion(addr)
+- Ameliorer code connection
 
 
 https://www.cheatslips.com/wiki/home/code_types

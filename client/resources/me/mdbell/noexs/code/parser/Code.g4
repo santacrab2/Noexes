@@ -39,10 +39,10 @@ block	returns [Block b]
  */
  
  																																																						
-writeValue returns [WriteValue wv]	:  p = pointer '=' '(' vt = VALUETYPE ')' v = (VALUE|FLOAT_VALUE)	{$wv= new WriteValue($p.pt, ValueType.getValueType($vt.text),$v.text);};
-pointer returns [Pointer pt]		:   	'[' recPtWOff = pointer ']' symb=('+'|'-') ptOff = VALUE 	{$pt= new Pointer($recPtWOff.pt,ArithmeticOperation.getArithmeticOperationFromSymbol($symb.text),$ptOff.text);}
+writeValue returns [WriteValue wv]	:  p = pointer '=' '(' vt = VALUETYPE ')' v = (VALUE|FLOAT_VALUE)	{$wv= new WriteValue($p.pt, EValueType.getValueType($vt.text),$v.text);};
+pointer returns [Pointer pt]		:   	'[' recPtWOff = pointer ']' symb=('+'|'-') ptOff = VALUE 	{$pt= new Pointer($recPtWOff.pt,EArithmeticOperation.getArithmeticOperationFromSymbol($symb.text),$ptOff.text);}
 										| 	'[' recPt = pointer ']' 									{$pt= new Pointer($recPt.pt);}
-		 								|  	addrT = ADDRTYPE '+' off = VALUE 							{$pt= new Pointer(MemoryRegion.getMemoryRegion($addrT.text),$off.text);};
+		 								|  	addrT = ADDRTYPE '+' off = VALUE 							{$pt= new Pointer(ECodeMemoryRegion.getMemoryRegion($addrT.text),$off.text);};
 
 /** 
  * Litterals

@@ -1,12 +1,12 @@
 package me.mdbell.noexs.ui.models;
 
-public enum AccessType {
+public enum EAccessType {
     READ(1, "R"), WRITE(2, "W"), EXEXCUTE(4, "X");
 
     int byteMask;
     String shortDesc;
 
-    private AccessType(int byteMask, String shortDesc) {
+    private EAccessType(int byteMask, String shortDesc) {
         this.byteMask = byteMask;
         this.shortDesc = shortDesc;
     }

@@ -486,6 +486,10 @@ public class MainController implements NetworkConstants, IController {
     public WatchlistController watch() {
         return watchlistTabPageController;
     }
+    
+    public CheatMakerController cheatMaker() {
+        return cheatMakerTabPageController;
+    }
 
     public Stage getStage() {
         return stage;
