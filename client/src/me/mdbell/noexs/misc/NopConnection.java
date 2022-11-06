@@ -7,7 +7,7 @@ import java.io.IOException;
 public final class NopConnection implements IConnection {
     public static final NopConnection INSTANCE = new NopConnection();
 
-    private NopConnection(){
+    private NopConnection() {
 
     }
 

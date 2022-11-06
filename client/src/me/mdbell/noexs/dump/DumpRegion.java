@@ -26,9 +26,6 @@ public class DumpRegion {
 
     @Override
     public String toString() {
-        return "DumpRegion{" +
-                "start=" + HexUtils.formatAddress(start) +
-                ", end=" + HexUtils.formatAddress(end) +
-                '}';
+        return "DumpRegion{" + "start=" + HexUtils.formatAddress(start) + ", end=" + HexUtils.formatAddress(end) + '}';
     }
 }

@@ -20,91 +20,91 @@ import me.mdbell.util.HexUtils;
 
 public class UtilsController implements IController {
 
-	public Label infoLabel;
-	private MainController mc;
+    public Label infoLabel;
+    private MainController mc;
 
-	public TreeView<UsbDeviceInfo> deviceTree;
+    public TreeView<UsbDeviceInfo> deviceTree;
 
-	@FXML
-	public void initialize() {
-		deviceTree.getSelectionModel().selectedItemProperty()
-				.addListener(new ChangeListener<TreeItem<UsbDeviceInfo>>() {
-					@Override
-					public void changed(ObservableValue<? extends TreeItem<UsbDeviceInfo>> observable,
-							TreeItem<UsbDeviceInfo> oldValue, TreeItem<UsbDeviceInfo> newValue) {
-						if (newValue == null) {
-							return;
-						}
-						UsbDevice d = newValue.getValue().getDevice();
-						updateInfo(d);
-					}
-				});
-	}
+    @FXML
+    public void initialize() {
+        deviceTree.getSelectionModel().selectedItemProperty()
+                .addListener(new ChangeListener<TreeItem<UsbDeviceInfo>>() {
+                    @Override
+                    public void changed(ObservableValue<? extends TreeItem<UsbDeviceInfo>> observable,
+                            TreeItem<UsbDeviceInfo> oldValue, TreeItem<UsbDeviceInfo> newValue) {
+                        if (newValue == null) {
+                            return;
+                        }
+                        UsbDevice d = newValue.getValue().getDevice();
+                        updateInfo(d);
+                    }
+                });
+    }
 
-	private void updateInfo(UsbDevice d) {
-		if (d == null) {
-			infoLabel.setText("");
-			return;
-		}
-		try {
-			StringBuilder sb = new StringBuilder("[");
-			if (d.isUsbHub()) {
-				sb.append("HUB");
-			} else {
-				sb.append("DEVICE");
-			}
-			sb.append("] ");
-			UsbDeviceDescriptor desc = d.getUsbDeviceDescriptor();
-			if (d.isUsbHub()) {
-				UsbHub hub = (UsbHub) d;
-				sb.append("Attached Devices: ").append(hub.getAttachedUsbDevices().size()).append(" Total Ports: ")
-						.append(hub.getNumberOfPorts());
-			} else {
-				sb.append("Device Id:")
-						.append(HexUtils.pad('0', 4, Integer.toUnsignedString(desc.idVendor() & 0xFFFF, 16)))
-						.append(":")
-						.append(HexUtils.pad('0', 4, Integer.toUnsignedString(desc.idProduct() & 0xFFFF, 16)));
-				sb.append(" Is Switch:").append(UsbUtils.isSwitch(d));
-			}
-			infoLabel.setText(sb.toString());
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-	}
+    private void updateInfo(UsbDevice d) {
+        if (d == null) {
+            infoLabel.setText("");
+            return;
+        }
+        try {
+            StringBuilder sb = new StringBuilder("[");
+            if (d.isUsbHub()) {
+                sb.append("HUB");
+            } else {
+                sb.append("DEVICE");
+            }
+            sb.append("] ");
+            UsbDeviceDescriptor desc = d.getUsbDeviceDescriptor();
+            if (d.isUsbHub()) {
+                UsbHub hub = (UsbHub) d;
+                sb.append("Attached Devices: ").append(hub.getAttachedUsbDevices().size()).append(" Total Ports: ")
+                        .append(hub.getNumberOfPorts());
+            } else {
+                sb.append("Device Id:")
+                        .append(HexUtils.pad('0', 4, Integer.toUnsignedString(desc.idVendor() & 0xFFFF, 16)))
+                        .append(":")
+                        .append(HexUtils.pad('0', 4, Integer.toUnsignedString(desc.idProduct() & 0xFFFF, 16)));
+                sb.append(" Is Switch:").append(UsbUtils.isSwitch(d));
+            }
+            infoLabel.setText(sb.toString());
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
 
-	@Override
-	public void setMainController(MainController c) {
-		this.mc = c;
-	}
+    @Override
+    public void setMainController(MainController c) {
+        this.mc = c;
+    }
 
-	@Override
-	public void onConnect() {
+    @Override
+    public void onConnect() {
 
-	}
+    }
 
-	@Override
-	public void onDisconnect() {
+    @Override
+    public void onDisconnect() {
 
-	}
+    }
 
-	public void onRefresh(ActionEvent event) throws UsbException {
-		updateInfo(null);
-		UsbHub hub = UsbUtils.getRootHub();
-		TreeItem<UsbDeviceInfo> root = new TreeItem<>(new UsbDeviceInfo(hub));
-		scanHub(root, hub);
-		deviceTree.setRoot(root);
-	}
+    public void onRefresh(ActionEvent event) throws UsbException {
+        updateInfo(null);
+        UsbHub hub = UsbUtils.getRootHub();
+        TreeItem<UsbDeviceInfo> root = new TreeItem<>(new UsbDeviceInfo(hub));
+        scanHub(root, hub);
+        deviceTree.setRoot(root);
+    }
 
-	private void scanHub(TreeItem<UsbDeviceInfo> root, UsbHub hub) {
-		root.setExpanded(true);
-		List<UsbDevice> deviceList = hub.getAttachedUsbDevices();
-		for (UsbDevice d : deviceList) {
-			TreeItem<UsbDeviceInfo> node = new TreeItem<>(new UsbDeviceInfo(d));
-			if (d.isUsbHub()) {
-				scanHub(node, (UsbHub) d);
-			}
-			root.getChildren().add(node);
-		}
+    private void scanHub(TreeItem<UsbDeviceInfo> root, UsbHub hub) {
+        root.setExpanded(true);
+        List<UsbDevice> deviceList = hub.getAttachedUsbDevices();
+        for (UsbDevice d : deviceList) {
+            TreeItem<UsbDeviceInfo> node = new TreeItem<>(new UsbDeviceInfo(d));
+            if (d.isUsbHub()) {
+                scanHub(node, (UsbHub) d);
+            }
+            root.getChildren().add(node);
+        }
 
-	}
+    }
 }

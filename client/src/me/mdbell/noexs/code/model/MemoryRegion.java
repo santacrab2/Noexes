@@ -9,20 +9,20 @@ import org.apache.commons.lang3.StringUtils;
  *
  */
 public enum MemoryRegion {
-	MAIN(0), HEAP(1), ALIAS(2), ASLR(3);
+    MAIN(0), HEAP(1), ALIAS(2), ASLR(3);
 
-	private int memoryRegionCode;
+    private int memoryRegionCode;
 
-	private MemoryRegion(int memoryRegionCode) {
-		this.memoryRegionCode = memoryRegionCode;
-	}
+    private MemoryRegion(int memoryRegionCode) {
+        this.memoryRegionCode = memoryRegionCode;
+    }
 
-	public int getPointerAdressType() {
-		return memoryRegionCode;
-	}
+    public int getPointerAdressType() {
+        return memoryRegionCode;
+    }
 
-	public static MemoryRegion getMemoryRegion(String memoryRegion) {
-		return MemoryRegion.valueOf(StringUtils.upperCase(memoryRegion));
-	}
+    public static MemoryRegion getMemoryRegion(String memoryRegion) {
+        return MemoryRegion.valueOf(StringUtils.upperCase(memoryRegion));
+    }
 
 }

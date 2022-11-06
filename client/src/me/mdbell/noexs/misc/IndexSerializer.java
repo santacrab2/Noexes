@@ -12,14 +12,14 @@ import java.util.List;
 
 public final class IndexSerializer {
 
-    private IndexSerializer(){
+    private IndexSerializer() {
 
     }
 
     public static void write(List<me.mdbell.noexs.dump.DumpIndex> indices, Path to) throws IOException {
         try (XMLEncoder encoder = new XMLEncoder(Files.newOutputStream(to))) {
             encoder.writeObject(indices.size());
-            for(me.mdbell.noexs.dump.DumpIndex idx : indices) {
+            for (me.mdbell.noexs.dump.DumpIndex idx : indices) {
                 encoder.writeObject(idx.getAddress());
                 encoder.writeObject(idx.getFilePos());
                 encoder.writeObject(idx.getSize());
@@ -29,9 +29,9 @@ public final class IndexSerializer {
 
     public static List<me.mdbell.noexs.dump.DumpIndex> read(Path from) throws IOException {
         List<me.mdbell.noexs.dump.DumpIndex> indices = new ArrayList<>();
-        try(XMLDecoder decoder = new XMLDecoder(Files.newInputStream(from))) {
+        try (XMLDecoder decoder = new XMLDecoder(Files.newInputStream(from))) {
             int count = (Integer) decoder.readObject();
-            for(int i = 0; i < count; i++) {
+            for (int i = 0; i < count; i++) {
                 long addr = (Long) decoder.readObject();
                 long pos = (Long) decoder.readObject();
                 long size = (Long) decoder.readObject();

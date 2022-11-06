@@ -2,8 +2,7 @@ package me.mdbell.util;
 
 import org.objectweb.asm.*;
 
-
-public class PatternCompiler{
+public class PatternCompiler {
 
     public enum Condition {
         EQUALS, NOT_EQUALS, GREATER_THEN, LESS_THEN
@@ -38,10 +37,7 @@ public class PatternCompiler{
 
         @Override
         public String toString() {
-            return "PatternElement{" +
-                    "value=" + value +
-                    ", condition=" + condition +
-                    '}';
+            return "PatternElement{" + "value=" + value + ", condition=" + condition + '}';
         }
     }
 
@@ -56,7 +52,7 @@ public class PatternCompiler{
         {
             mv = createFindMethod(cw, pattern.length, loopStart, loopEnd);
 
-            //the checks
+            // the checks
             for (int i = 0; i < pattern.length; i++) {
                 PatternElement e = pattern[i];
                 if (e == null) {
@@ -65,11 +61,11 @@ public class PatternCompiler{
                 visitTest(mv, i, e.getValue(), loopContinue, e.getCondition());
             }
 
-            //pattern found
+            // pattern found
             mv.visitVarInsn(Opcodes.ILOAD, 3);
             mv.visitInsn(Opcodes.IRETURN);
 
-            //pattern not found
+            // pattern not found
             endFindMethod(mv, loopStart, loopEnd, loopContinue);
         }
         cw.visitEnd();
@@ -80,7 +76,8 @@ public class PatternCompiler{
     private static ClassWriter createWriter(String name) {
         ClassWriter cw = new ClassWriter(ClassWriter.COMPUTE_FRAMES);
         MethodVisitor mv;
-        cw.visit(52, Opcodes.ACC_PUBLIC | Opcodes.ACC_FINAL, name, null, "java/lang/Object", new String[]{Type.getInternalName(IPatternMatcher.class)});
+        cw.visit(52, Opcodes.ACC_PUBLIC | Opcodes.ACC_FINAL, name, null, "java/lang/Object",
+                new String[] { Type.getInternalName(IPatternMatcher.class) });
         mv = cw.visitMethod(Opcodes.ACC_PUBLIC, "<init>", "()V", null, null);
         mv.visitCode();
         mv.visitVarInsn(Opcodes.ALOAD, 0);
@@ -100,7 +97,8 @@ public class PatternCompiler{
     }
 
     private static int getConditionOp(Condition condition) {
-        //all of these need to be inverted as they should return if the condition is not met
+        // all of these need to be inverted as they should return if the condition is
+        // not met
         switch (condition) {
             case NOT_EQUALS:
                 return Opcodes.IF_ICMPEQ;
@@ -117,7 +115,7 @@ public class PatternCompiler{
     private static MethodVisitor createFindMethod(ClassWriter cw, int patternSize, Label start, Label end) {
         MethodVisitor mv = cw.visitMethod(Opcodes.ACC_PUBLIC, "match", "(Ljava/nio/ByteBuffer;)I", null, null);
         mv.visitCode();
-        //create array to test with
+        // create array to test with
         mv.visitIntInsn(Opcodes.SIPUSH, patternSize);
         mv.visitIntInsn(Opcodes.NEWARRAY, Opcodes.T_BYTE);
         mv.visitVarInsn(Opcodes.ASTORE, 2);
@@ -125,7 +123,8 @@ public class PatternCompiler{
         mv.visitVarInsn(Opcodes.ALOAD, 1);
         mv.visitMethodInsn(Opcodes.INVOKEVIRTUAL, "java/nio/ByteBuffer", "remaining", "()I", false);
         mv.visitIntInsn(Opcodes.SIPUSH, patternSize);
-        //check to see if we have enough bytes left to check, if not go to the end (pattern not found)
+        // check to see if we have enough bytes left to check, if not go to the end
+        // (pattern not found)
         mv.visitJumpInsn(Opcodes.IF_ICMPLT, end);
         mv.visitVarInsn(Opcodes.ALOAD, 1);
         mv.visitMethodInsn(Opcodes.INVOKEVIRTUAL, "java/nio/ByteBuffer", "position", "()I", false);

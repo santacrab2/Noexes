@@ -64,7 +64,7 @@ public class SearchController implements IController {
 
     @FXML
     AddressSpinner searchEnd;
-    
+
     @FXML
     AddressSpinner mainStart;
 
@@ -73,10 +73,10 @@ public class SearchController implements IController {
 
     @FXML
     TextField floatValue;
-    
+
     @FXML
     ChoiceBox<ConversionType> conversionType;
-    
+
     @FXML
     HexSpinner knownValue;
 
@@ -145,8 +145,8 @@ public class SearchController implements IController {
         searchConditionTypeDropdown.getItems().addAll(SearchType.values());
         searchConditionTypeDropdown.getSelectionModel().select(SearchType.KNOWN); // Default is SPEC Value
 
-        searchConditionTypeDropdown.getSelectionModel().selectedItemProperty().addListener(
-                (observable, oldValue, newValue) -> {
+        searchConditionTypeDropdown.getSelectionModel().selectedItemProperty()
+                .addListener((observable, oldValue, newValue) -> {
                     boolean b = newValue == SearchType.UNKNOWN;
                     knownValue.setDisable(b);
                     searchConditionDropdown.setDisable(b);
@@ -159,15 +159,14 @@ public class SearchController implements IController {
         searchConditionDropdown.getItems().addAll(ConditionType.values());
         searchConditionDropdown.getSelectionModel().select(ConditionType.EQUALS);
 
-        searchConditionDropdown.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> updateCondition());
-
+        searchConditionDropdown.getSelectionModel().selectedItemProperty()
+                .addListener((observable, oldValue, newValue) -> updateCondition());
 
         knownValue.valueProperty().addListener((observable, oldValue, newValue) -> updateCondition());
         knownValue.getEditor().textProperty().addListener((observable, oldValue, newValue) -> updateCondition());
-        
-        
+
         conversionType.getItems().addAll(ConversionType.values());
-        conversionType.getSelectionModel().select(ConversionType.U32); //TODO save/store this
+        conversionType.getSelectionModel().select(ConversionType.U32); // TODO save/store this
 
         resultList = FXCollections.observableArrayList();
 
@@ -179,10 +178,11 @@ public class SearchController implements IController {
             }
         });
 
-        Function<Number, String> valueFormatter = value ->
-                HexUtils.pad('0', result.getDataType().getSize() * 2, Long.toUnsignedString(value.longValue(), 16));
+        Function<Number, String> valueFormatter = value -> HexUtils.pad('0', result.getDataType().getSize() * 2,
+                Long.toUnsignedString(value.longValue(), 16));
 
-        searchAddr.setCellFactory(param -> new FormattedTableCell<>(value -> HexUtils.formatAddress(value.longValue())));
+        searchAddr
+                .setCellFactory(param -> new FormattedTableCell<>(value -> HexUtils.formatAddress(value.longValue())));
         oldValue.setCellFactory(param -> new FormattedTableCell<>(valueFormatter));
         newValue.setCellFactory(param -> new FormattedTableCell<>(valueFormatter));
         diff.setCellFactory(param -> new FormattedTableCell<>(value -> {
@@ -254,7 +254,7 @@ public class SearchController implements IController {
         setStart(start);
         setEnd(end);
     }
-    
+
     public void mainsetSearchRange(long start, long end) {
         mainsetStart(start);
         mainsetEnd(end);
@@ -269,7 +269,7 @@ public class SearchController implements IController {
         searchEnd.getValueFactory().setValue(end);
         searchType.setValue(RangeType.RANGE);
     }
-    
+
     public void mainsetStart(long start) {
         mainStart.getValueFactory().setValue(start);
         searchType.setValue(RangeType.RANGE);
@@ -287,30 +287,29 @@ public class SearchController implements IController {
         } catch (NumberFormatException ignored) {
         }
     }
-  
+
     public void convertValueToHex(ActionEvent event) {
         try {
-			switch(conversionType.getValue()) {
-			case FLT: 
-				Float f = Float.parseFloat(floatValue.getText());           
-			    knownValue.getValueFactory().setValue((long)Float.floatToIntBits(f));
-			    break;
-			case U32:
-				long l = Long.parseUnsignedLong(floatValue.getText());
-			    knownValue.getValueFactory().setValue(l);
-			    break;
-			case S32:
-				long sl = Long.parseLong(floatValue.getText());
-			    knownValue.getValueFactory().setValue(sl);
-			    break;
-			}
-		} catch (NumberFormatException e) {		
-			// TODO ERROR CASE
-		}
-    	
+            switch (conversionType.getValue()) {
+                case FLT:
+                    Float f = Float.parseFloat(floatValue.getText());
+                    knownValue.getValueFactory().setValue((long) Float.floatToIntBits(f));
+                    break;
+                case U32:
+                    long l = Long.parseUnsignedLong(floatValue.getText());
+                    knownValue.getValueFactory().setValue(l);
+                    break;
+                case S32:
+                    long sl = Long.parseLong(floatValue.getText());
+                    knownValue.getValueFactory().setValue(sl);
+                    break;
+            }
+        } catch (NumberFormatException e) {
+            // TODO ERROR CASE
+        }
+
     }
-    
-    
+
     public void poke(ActionEvent event) {
         if (isServiceRunning()) {
             MainController.showMessage("Please wait for your previous task to finish!", Alert.AlertType.WARNING);
@@ -386,7 +385,8 @@ public class SearchController implements IController {
 
     public void onRestartAction(ActionEvent event) {
         if (isServiceRunning()) {
-            MainController.showMessage("Please wait for your current search to complete (or cancel it)!", Alert.AlertType.WARNING);
+            MainController.showMessage("Please wait for your current search to complete (or cancel it)!",
+                    Alert.AlertType.WARNING);
             return;
         }
         searchService.clear();
@@ -423,7 +423,8 @@ public class SearchController implements IController {
 
     public void onUndoAction(ActionEvent event) {
         if (isServiceRunning()) {
-            MainController.showMessage("Please cancel/wait for the current task before undoing a search!", Alert.AlertType.WARNING);
+            MainController.showMessage("Please cancel/wait for the current task before undoing a search!",
+                    Alert.AlertType.WARNING);
             return;
         }
         if (result == null) {
@@ -435,7 +436,7 @@ public class SearchController implements IController {
             return;
         }
         SearchResult prev = result.getPrev();
-        result.setPrev(null); //to prevent the result from closing the previous one
+        result.setPrev(null); // to prevent the result from closing the previous one
         try {
             result.close();
         } catch (IOException e) {
@@ -446,8 +447,7 @@ public class SearchController implements IController {
         updatePageInfo();
     }
 
-    private void initSearch(SearchType type, ConditionType compareType,
-                            DataType dataType, long known) {
+    private void initSearch(SearchType type, ConditionType compareType, DataType dataType, long known) {
         searchService.setType(type);
         searchService.setCompareType(compareType);
         searchService.setDataType(dataType);
@@ -538,13 +538,15 @@ public class SearchController implements IController {
                     return DumpRegionSupplier.createSupplierFrom2Range(conn, mainstart, mainend, heapstart, heapend);
                 } else {
                     return DumpRegionSupplier.createSupplierFrom2Range(conn, heapstart, heapend, mainstart, mainend);
-                    }
+                }
             case ALL:
                 return DumpRegionSupplier.createSupplierFromInfo(conn, info -> info.isReadable() && info.isWriteable());
             case HEAP:
-                return DumpRegionSupplier.createSupplierFromInfo(conn, info -> info.isReadable() && info.getType() == MemoryType.HEAP);
+                return DumpRegionSupplier.createSupplierFromInfo(conn,
+                        info -> info.isReadable() && info.getType() == MemoryType.HEAP);
             case TLS:
-                return DumpRegionSupplier.createSupplierFromInfo(conn, info -> info.isReadable() && info.getType() == MemoryType.THREAD_LOCAL);
+                return DumpRegionSupplier.createSupplierFromInfo(conn,
+                        info -> info.isReadable() && info.getType() == MemoryType.THREAD_LOCAL);
         }
         return null;
     }

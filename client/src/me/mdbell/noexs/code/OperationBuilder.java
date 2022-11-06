@@ -22,23 +22,23 @@ public class OperationBuilder {
 //	+ V: Value to write.
 //
 //	---
-	/**
-	 * 
-	 * @param dataType      T
-	 * @param region        M
-	 * @param registerToUse R
-	 * @param offset        A
-	 * @param value         V
-	 * @return
-	 */
-	public static String storeStaticValueToMemory(DataType dataType, MemoryRegion region, char registerToUse,
-			String offset, String value) {
-		String res = buildOperationHead(Operation.STORE_STATIC_VALUE_TO_MEMORY, dataType, region, registerToUse);
-		res += "00";
-		res += OperationUtils.padHexValue(offset, DataType.ADDR);
-		res += " " + OperationUtils.padHexValue(value, dataType);
-		return res;
-	}
+    /**
+     * 
+     * @param dataType      T
+     * @param region        M
+     * @param registerToUse R
+     * @param offset        A
+     * @param value         V
+     * @return
+     */
+    public static String storeStaticValueToMemory(DataType dataType, MemoryRegion region, char registerToUse,
+            String offset, String value) {
+        String res = buildOperationHead(Operation.STORE_STATIC_VALUE_TO_MEMORY, dataType, region, registerToUse);
+        res += "00";
+        res += OperationUtils.padHexValue(offset, DataType.ADDR);
+        res += " " + OperationUtils.padHexValue(value, dataType);
+        return res;
+    }
 
 //	### Code Type 0x2: End Conditional Block
 //	Code type 0x2 marks the end of a conditional block (started by Code Type 0x1 or Code Type 0x8).
@@ -51,12 +51,12 @@ public class OperationBuilder {
 //	+ X: End type (0 = End, 1 = Else).
 //
 //	---	
-	public static String endConditionalBlock(boolean elseEndType) {
-		String res = "" + Operation.END_CONDITIONAL_BLOCK.getCodeType();
-		res += getFlagValue(elseEndType);
-		res += "000000";
-		return res;
-	}
+    public static String endConditionalBlock(boolean elseEndType) {
+        String res = "" + Operation.END_CONDITIONAL_BLOCK.getCodeType();
+        res += getFlagValue(elseEndType);
+        res += "000000";
+        return res;
+    }
 
 //	### Code Type 0x5: Load Register with Memory Value
 //	Code type 0x5 allows loading a value from memory into a register, either using a fixed address or by dereferencing the destination register.
@@ -77,21 +77,21 @@ public class OperationBuilder {
 //	+ A: Immediate offset to use from register R.
 //
 //	---	
-	public static String loadRegisterWithMemoryValueFromFixedAddress(DataType dataType, MemoryRegion region,
-			char registerToUse, String offset) {
-		String res = buildOperationHead(Operation.LOAD_REGISTER_WITH_MEMORY_VALUE, dataType, region, registerToUse);
-		res += "00";
-		res += OperationUtils.padHexValue(offset, DataType.ADDR);
-		return res;
-	}
+    public static String loadRegisterWithMemoryValueFromFixedAddress(DataType dataType, MemoryRegion region,
+            char registerToUse, String offset) {
+        String res = buildOperationHead(Operation.LOAD_REGISTER_WITH_MEMORY_VALUE, dataType, region, registerToUse);
+        res += "00";
+        res += OperationUtils.padHexValue(offset, DataType.ADDR);
+        return res;
+    }
 
-	public static String loadRegisterWithMemoryValueFromRegisterAddress(DataType dataType, char registerToUse,
-			String offset) {
-		String res = buildOperationHead(Operation.LOAD_REGISTER_WITH_MEMORY_VALUE, dataType, null, registerToUse);
-		res += "10";
-		res += OperationUtils.padHexValue(offset, DataType.ADDR);
-		return res;
-	}
+    public static String loadRegisterWithMemoryValueFromRegisterAddress(DataType dataType, char registerToUse,
+            String offset) {
+        String res = buildOperationHead(Operation.LOAD_REGISTER_WITH_MEMORY_VALUE, dataType, null, registerToUse);
+        res += "10";
+        res += OperationUtils.padHexValue(offset, DataType.ADDR);
+        return res;
+    }
 
 //	### Code Type 0x6: Store Static Value to Register Memory Address
 //	Code type 0x6 allows writing a fixed value to a memory address specified by a register.
@@ -107,20 +107,20 @@ public class OperationBuilder {
 //	+ V: Value to write to memory.
 //	
 //	---
-	public static String storeStaticValueToRegisterMemoryAddress(DataType dataType, char registerToUse,
-			boolean incrementRegisterFlag, boolean offsetRegisterEnable, char registerToUseAsOffset, String hexValue) {
-		String res = "" + Operation.STORE_STATIC_VALUE_TO_REGISTER_MEMORY_ADDRESS.getCodeType();
-		res += dataType.getDataTypeCode();
-		res += "0";
-		res += registerToUse;
-		res += getFlagValue(incrementRegisterFlag);
-		res += getFlagValue(offsetRegisterEnable);
-		res += getOptionalValue(offsetRegisterEnable, String.valueOf(registerToUseAsOffset), "0");
-		res += "0";
-		res += " " + OperationUtils.padHexValue(hexValue, dataType, 16);
-		return res;
+    public static String storeStaticValueToRegisterMemoryAddress(DataType dataType, char registerToUse,
+            boolean incrementRegisterFlag, boolean offsetRegisterEnable, char registerToUseAsOffset, String hexValue) {
+        String res = "" + Operation.STORE_STATIC_VALUE_TO_REGISTER_MEMORY_ADDRESS.getCodeType();
+        res += dataType.getDataTypeCode();
+        res += "0";
+        res += registerToUse;
+        res += getFlagValue(incrementRegisterFlag);
+        res += getFlagValue(offsetRegisterEnable);
+        res += getOptionalValue(offsetRegisterEnable, String.valueOf(registerToUseAsOffset), "0");
+        res += "0";
+        res += " " + OperationUtils.padHexValue(hexValue, dataType, 16);
+        return res;
 
-	}
+    }
 
 //	### Code Type 0x7: Legacy Arithmetic
 //	Code type 0x7 allows performing arithmetic on registers.
@@ -144,18 +144,18 @@ public class OperationBuilder {
 //
 //	---	
 
-	public static String legacyArithmetic(DataType dataType, char registerToUse, ArithmeticOperation arithmetic,
-			String hexValue) {
-		String res = "" + Operation.LEGACY_ARITHMETIC.getCodeType();
-		res += dataType.getDataTypeCode();
-		res += "0";
-		res += registerToUse;
-		res += arithmetic.getArithmeticOperationCode();
-		res += "000";
-		res += " " + OperationUtils.padHexValue(hexValue, dataType);
-		return res;
+    public static String legacyArithmetic(DataType dataType, char registerToUse, ArithmeticOperation arithmetic,
+            String hexValue) {
+        String res = "" + Operation.LEGACY_ARITHMETIC.getCodeType();
+        res += dataType.getDataTypeCode();
+        res += "0";
+        res += registerToUse;
+        res += arithmetic.getArithmeticOperationCode();
+        res += "000";
+        res += " " + OperationUtils.padHexValue(hexValue, dataType);
+        return res;
 
-	}
+    }
 
 //	Code Type 0x8: Begin Keypress Conditional Block
 //
@@ -198,43 +198,43 @@ public class OperationBuilder {
 //	    1000000: SL
 //	    2000000: SR
 
-	public static String beginKeypressConditionalBlock(Keypad[] keypads) {
-		String res = "" + Operation.BEGIN_KEYPRESS_CONDITIONAL_BLOCK.getCodeType();
+    public static String beginKeypressConditionalBlock(Keypad[] keypads) {
+        String res = "" + Operation.BEGIN_KEYPRESS_CONDITIONAL_BLOCK.getCodeType();
 
-		long mask = 0;
-		for (Keypad keypad : keypads) {
-			mask |= keypad.getKeypadMask();
-		}
-		res += OperationUtils.padHexValue(Long.toHexString(mask), DataType.T32, 7);
-		return res;
-	}
+        long mask = 0;
+        for (Keypad keypad : keypads) {
+            mask |= keypad.getKeypadMask();
+        }
+        res += OperationUtils.padHexValue(Long.toHexString(mask), DataType.T32, 7);
+        return res;
+    }
 
-	private static String getOptionalValue(boolean toBeSet, String value, String defaultValue) {
-		String res;
-		if (toBeSet) {
-			res = value;
-		} else {
-			res = defaultValue;
-		}
-		return res;
-	}
+    private static String getOptionalValue(boolean toBeSet, String value, String defaultValue) {
+        String res;
+        if (toBeSet) {
+            res = value;
+        } else {
+            res = defaultValue;
+        }
+        return res;
+    }
 
-	private static String getFlagValue(boolean flag) {
-		String res;
-		if (flag) {
-			res = "1";
-		} else {
-			res = "0";
-		}
-		return res;
-	}
+    private static String getFlagValue(boolean flag) {
+        String res;
+        if (flag) {
+            res = "1";
+        } else {
+            res = "0";
+        }
+        return res;
+    }
 
-	private static String buildOperationHead(Operation op, DataType dataType, MemoryRegion region, char registerToUse) {
-		String regionStr = "0";
-		if (region != null) {
-			regionStr = Integer.toString(region.getPointerAdressType());
-		}
+    private static String buildOperationHead(Operation op, DataType dataType, MemoryRegion region, char registerToUse) {
+        String regionStr = "0";
+        if (region != null) {
+            regionStr = Integer.toString(region.getPointerAdressType());
+        }
 
-		return StringUtils.join(op.getCodeType(), dataType.getDataTypeCode(), regionStr, registerToUse);
-	}
+        return StringUtils.join(op.getCodeType(), dataType.getDataTypeCode(), regionStr, registerToUse);
+    }
 }

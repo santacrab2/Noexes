@@ -7,72 +7,72 @@ import me.mdbell.util.HexUtils;
 
 public class Pointer {
 
-	private Pointer pointer;
+    private Pointer pointer;
 
-	private MemoryRegion memoryRegion;
+    private MemoryRegion memoryRegion;
 
-	private ArithmeticOperation arithmeticOperation;
+    private ArithmeticOperation arithmeticOperation;
 
-	private Long offset;
+    private Long offset;
 
-	public Pointer() {
+    public Pointer() {
 
-	}
+    }
 
-	public Pointer(Pointer pointer) {
-		super();
-		this.pointer = pointer;
-	}
+    public Pointer(Pointer pointer) {
+        super();
+        this.pointer = pointer;
+    }
 
-	public Pointer(Pointer pointer, ArithmeticOperation arithmeticType, String offsetStr) {
-		super();
-		this.pointer = pointer;
-		this.arithmeticOperation = arithmeticType;
-		this.offset = HexUtils.fromString(offsetStr);
-	}
+    public Pointer(Pointer pointer, ArithmeticOperation arithmeticType, String offsetStr) {
+        super();
+        this.pointer = pointer;
+        this.arithmeticOperation = arithmeticType;
+        this.offset = HexUtils.fromString(offsetStr);
+    }
 
-	public Pointer(MemoryRegion MemoryRegion, String offsetStr) {
-		super();
-		this.memoryRegion = MemoryRegion;
-		this.arithmeticOperation = ArithmeticOperation.ADDITION;
-		this.offset = HexUtils.fromString(offsetStr);
-	}
+    public Pointer(MemoryRegion MemoryRegion, String offsetStr) {
+        super();
+        this.memoryRegion = MemoryRegion;
+        this.arithmeticOperation = ArithmeticOperation.ADDITION;
+        this.offset = HexUtils.fromString(offsetStr);
+    }
 
-	public Pointer getPointer() {
-		return pointer;
-	}
+    public Pointer getPointer() {
+        return pointer;
+    }
 
-	public MemoryRegion getMemoryRegion() {
-		return memoryRegion;
-	}
+    public MemoryRegion getMemoryRegion() {
+        return memoryRegion;
+    }
 
-	public ArithmeticOperation getArithmeticOperation() {
-		return arithmeticOperation;
-	}
+    public ArithmeticOperation getArithmeticOperation() {
+        return arithmeticOperation;
+    }
 
-	public Long getOffset() {
-		return offset;
-	}
+    public Long getOffset() {
+        return offset;
+    }
 
-	public String getOffsetAsHex() {
-		return Long.toHexString(offset);
-	}
+    public String getOffsetAsHex() {
+        return Long.toHexString(offset);
+    }
 
-	public boolean isPositionFirst() {
-		return pointer == null;
-	}
+    public boolean isPositionFirst() {
+        return pointer == null;
+    }
 
-	public MemoryRegion getInheritedMemoryRegion() {
-		MemoryRegion res = memoryRegion;
-		if (res == null) {
-			res = pointer.getInheritedMemoryRegion();
-		}
+    public MemoryRegion getInheritedMemoryRegion() {
+        MemoryRegion res = memoryRegion;
+        if (res == null) {
+            res = pointer.getInheritedMemoryRegion();
+        }
 
-		return res;
-	}
+        return res;
+    }
 
-	@Override
-	public String toString() {
-		return ReflectionToStringBuilder.reflectionToString(this, ToStringStyle.SHORT_PREFIX_STYLE);
-	}
+    @Override
+    public String toString() {
+        return ReflectionToStringBuilder.reflectionToString(this, ToStringStyle.SHORT_PREFIX_STYLE);
+    }
 }

@@ -33,7 +33,7 @@ public class NoexsApplication extends Application {
         MainController c = loader.getController();
         c.setStage(stage);
         c.setTitle(null);
-        stage.setOnHidden(v ->{
+        stage.setOnHidden(v -> {
             c.stop();
             Platform.exit();
         });

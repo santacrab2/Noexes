@@ -27,7 +27,8 @@ public class PointerSearchResult implements Comparable<PointerSearchResult>, Clo
             prefix.append('[');
             suffix.append(']');
             if (psr.offset != 0) {
-                suffix.append(' ').append(prev.offset < 0 ? '-' : '+').append(" ").append(Long.toUnsignedString(Math.abs(prev.offset), 16));
+                suffix.append(' ').append(prev.offset < 0 ? '-' : '+').append(" ")
+                        .append(Long.toUnsignedString(Math.abs(prev.offset), 16));
             }
 
             psr = prev.prev;
@@ -72,10 +73,12 @@ public class PointerSearchResult implements Comparable<PointerSearchResult>, Clo
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
+        if (this == o)
+            return true;
+        if (o == null || getClass() != o.getClass())
+            return false;
         PointerSearchResult that = (PointerSearchResult) o;
-        return that.formatted(0).equals(formatted(0)); //TODO not this.
+        return that.formatted(0).equals(formatted(0)); // TODO not this.
     }
 
     @Override

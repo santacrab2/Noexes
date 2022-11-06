@@ -53,7 +53,7 @@ public class DisassemblerController implements IController {
     }
 
     void updateView() {
-        //TODO do this as a service
+        // TODO do this as a service
         byte[] buffer = new byte[2048];
         long addr = visibleAddress.getValue();
 
@@ -101,14 +101,14 @@ public class DisassemblerController implements IController {
         String op = selectedOp.getText();
         try {
             byte[] b = CsToolWrapper.assemble(op, addr);
-            if(b == null) {
+            if (b == null) {
                 return;
             }
             Result r = mc.getDebugger().writemem(b, addr);
             System.out.println(r);
-            if(r.succeeded()) {
+            if (r.succeeded()) {
                 updateView();
-            }else{
+            } else {
                 MainController.showMessage("Unable to assemble \"" + op + "\"", Alert.AlertType.ERROR);
             }
         } catch (IOException e) {

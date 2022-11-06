@@ -44,7 +44,7 @@ public final class SearchResult implements Closeable {
         return start;
     }
 
-    public DataType getDataType(){
+    public DataType getDataType() {
         return dataType;
     }
 
@@ -81,7 +81,7 @@ public final class SearchResult implements Closeable {
         if (size == 0) {
             return 0;
         }
-        if(size % PAGE_SIZE != 0) {
+        if (size % PAGE_SIZE != 0) {
             size += PAGE_SIZE;
         }
         return size / PAGE_SIZE;
@@ -89,13 +89,13 @@ public final class SearchResult implements Closeable {
 
     @Override
     public void close() throws IOException {
-        if(curr != null) {
+        if (curr != null) {
             curr.close();
         }
-        if(prev != null) {
+        if (prev != null) {
             prev.close();
         }
-        if(addresses instanceof Closeable) {
+        if (addresses instanceof Closeable) {
             ((Closeable) addresses).close();
         }
     }
@@ -104,7 +104,7 @@ public final class SearchResult implements Closeable {
         this.prev = prev;
     }
 
-    public SearchResult getPrev(){
+    public SearchResult getPrev() {
         return prev;
     }
 }

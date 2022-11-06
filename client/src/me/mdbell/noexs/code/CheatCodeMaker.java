@@ -23,142 +23,142 @@ import me.mdbell.noexs.code.parser.CodeParser.CodesContext;
 
 public class CheatCodeMaker {
 
-	private static char DEFAULT_REGISTER_TO_USE = 'F';
+    private static char DEFAULT_REGISTER_TO_USE = 'F';
 
-	private char registerToUse;
+    private char registerToUse;
 
-	private Codes codes;
+    private Codes codes;
 
-	public CheatCodeMaker(Codes codes, char registerToUse) {
-		super();
-		this.registerToUse = registerToUse;
-		this.codes = codes;
-	}
+    public CheatCodeMaker(Codes codes, char registerToUse) {
+        super();
+        this.registerToUse = registerToUse;
+        this.codes = codes;
+    }
 
-	public CheatCodeMaker(Codes codes) {
-		this(codes, DEFAULT_REGISTER_TO_USE);
-	}
+    public CheatCodeMaker(Codes codes) {
+        this(codes, DEFAULT_REGISTER_TO_USE);
+    }
 
-	private CodeLines generateCode(Code c) {
+    private CodeLines generateCode(Code c) {
 
-		CodeLines res = new CodeLines("[" + c.getLabel() + "]");
+        CodeLines res = new CodeLines("[" + c.getLabel() + "]");
 
-		WriteValue wv = c.getWriteValue();
-		if (wv != null) {
-			res.addCodeLines(generateInstructionWriteValue(wv));
-		}
+        WriteValue wv = c.getWriteValue();
+        if (wv != null) {
+            res.addCodeLines(generateInstructionWriteValue(wv));
+        }
 
-		Block block = c.getBlock();
-		if (block != null) {
-			res.addCodeLines(generateInstructionBlock(block));
-		}
-		return res;
-	}
+        Block block = c.getBlock();
+        if (block != null) {
+            res.addCodeLines(generateInstructionBlock(block));
+        }
+        return res;
+    }
 
-	private CodeLines generateCode() {
-		CodeLines res = new CodeLines();
-		List<Code> codesToGenerate = codes.getCodes();
-		for (Code c : codesToGenerate) {
-			res.addCodeLines(generateCode(c));
-		}
-		return res;
-	}
+    private CodeLines generateCode() {
+        CodeLines res = new CodeLines();
+        List<Code> codesToGenerate = codes.getCodes();
+        for (Code c : codesToGenerate) {
+            res.addCodeLines(generateCode(c));
+        }
+        return res;
+    }
 
-	private CodeLines generateInstructionWriteValue(WriteValue wv) {
-		CodeLines res = new CodeLines();
-		res.addCodeLines(generateMovesPartForPointer(wv.getPointer(), true));
-		res.addLineToEnd(generateSetValuePartForPointer(wv));
-		return res;
-	}
+    private CodeLines generateInstructionWriteValue(WriteValue wv) {
+        CodeLines res = new CodeLines();
+        res.addCodeLines(generateMovesPartForPointer(wv.getPointer(), true));
+        res.addLineToEnd(generateSetValuePartForPointer(wv));
+        return res;
+    }
 
-	private CodeLines generateInstructionBlock(Block block) {
-		CodeLines res = new CodeLines();
-		List<IInstruction> instructions = block.getInstructions();
-		for (IInstruction instruction : instructions) {
-			if (instruction instanceof WriteValue) {
-				res.addCodeLines(generateInstructionWriteValue((WriteValue) instruction));
-			} else if (instruction instanceof EndCondition) {
-				res.addLineToEnd(OperationBuilder.endConditionalBlock(false));
-			} else if (instruction instanceof ElseCondition) {
-				res.addLineToEnd(OperationBuilder.endConditionalBlock(true));
-			} else if (instruction instanceof ConditionPressButton) {
-				res.addLineToEnd(OperationBuilder
-						.beginKeypressConditionalBlock(((ConditionPressButton) instruction).getKeypad()));
-			}
+    private CodeLines generateInstructionBlock(Block block) {
+        CodeLines res = new CodeLines();
+        List<IInstruction> instructions = block.getInstructions();
+        for (IInstruction instruction : instructions) {
+            if (instruction instanceof WriteValue) {
+                res.addCodeLines(generateInstructionWriteValue((WriteValue) instruction));
+            } else if (instruction instanceof EndCondition) {
+                res.addLineToEnd(OperationBuilder.endConditionalBlock(false));
+            } else if (instruction instanceof ElseCondition) {
+                res.addLineToEnd(OperationBuilder.endConditionalBlock(true));
+            } else if (instruction instanceof ConditionPressButton) {
+                res.addLineToEnd(OperationBuilder
+                        .beginKeypressConditionalBlock(((ConditionPressButton) instruction).getKeypad()));
+            }
 
-			else {
-				System.err.println("Unkonwn instruction : " + instruction);
+            else {
+                System.err.println("Unkonwn instruction : " + instruction);
 
-			}
+            }
 
-			/**
-			 * CodeLines codeLines = switch (instruction) { case WriteValue wv
-			 * ->generateInstructionWriteValue(WriteValue wv); }
-			 **/
-		}
-		return res;
-	}
+            /**
+             * CodeLines codeLines = switch (instruction) { case WriteValue wv
+             * ->generateInstructionWriteValue(WriteValue wv); }
+             **/
+        }
+        return res;
+    }
 
-	private String generateSetValuePartForPointer(WriteValue wv) {
-		return OperationBuilder.storeStaticValueToRegisterMemoryAddress(wv.getValueType().getDataType(), registerToUse,
-				false, false, ' ', wv.getHexValue());
-	}
+    private String generateSetValuePartForPointer(WriteValue wv) {
+        return OperationBuilder.storeStaticValueToRegisterMemoryAddress(wv.getValueType().getDataType(), registerToUse,
+                false, false, ' ', wv.getHexValue());
+    }
 
-	private CodeLines generateMovesPartForPointer(Pointer p, boolean global) {
-		CodeLines res = new CodeLines();
-		if (!p.isPositionFirst()) {
-			if (global) {
-				if (p.getOffset() == null) {
-					res.addCodeLines(generateMovesPartForPointer(p.getPointer(), false));
-				} else {
-					res.addCodeLines(generateMovesPartForPointer(p.getPointer(), false));
-					res.addLineToEnd(generatePointerMove(p));
-				}
-			} else {
-				res.addCodeLines(generateMovesPartForPointer(p.getPointer(), false));
-				res.addLineToEnd(generatePointerJump(p, false));
-			}
-		} else {
-			res.addLineToEnd(generatePointerJump(p, true));
-		}
+    private CodeLines generateMovesPartForPointer(Pointer p, boolean global) {
+        CodeLines res = new CodeLines();
+        if (!p.isPositionFirst()) {
+            if (global) {
+                if (p.getOffset() == null) {
+                    res.addCodeLines(generateMovesPartForPointer(p.getPointer(), false));
+                } else {
+                    res.addCodeLines(generateMovesPartForPointer(p.getPointer(), false));
+                    res.addLineToEnd(generatePointerMove(p));
+                }
+            } else {
+                res.addCodeLines(generateMovesPartForPointer(p.getPointer(), false));
+                res.addLineToEnd(generatePointerJump(p, false));
+            }
+        } else {
+            res.addLineToEnd(generatePointerJump(p, true));
+        }
 
-		return res;
-	}
+        return res;
+    }
 
-	private String generatePointerJump(Pointer p, boolean positionTypeFirst) {
-		String res = null;
+    private String generatePointerJump(Pointer p, boolean positionTypeFirst) {
+        String res = null;
 
-		if (positionTypeFirst) {
-			res = OperationBuilder.loadRegisterWithMemoryValueFromFixedAddress(DataType.T64,
-					p.getInheritedMemoryRegion(), registerToUse, p.getOffsetAsHex());
-		} else {
-			res = OperationBuilder.loadRegisterWithMemoryValueFromRegisterAddress(DataType.T64, registerToUse,
-					p.getOffsetAsHex());
-		}
-		return res;
-	}
+        if (positionTypeFirst) {
+            res = OperationBuilder.loadRegisterWithMemoryValueFromFixedAddress(DataType.T64,
+                    p.getInheritedMemoryRegion(), registerToUse, p.getOffsetAsHex());
+        } else {
+            res = OperationBuilder.loadRegisterWithMemoryValueFromRegisterAddress(DataType.T64, registerToUse,
+                    p.getOffsetAsHex());
+        }
+        return res;
+    }
 
-	private String generatePointerMove(Pointer p) {
-		return OperationBuilder.legacyArithmetic(DataType.T32, registerToUse, p.getArithmeticOperation(),
-				p.getOffsetAsHex());
-	}
+    private String generatePointerMove(Pointer p) {
+        return OperationBuilder.legacyArithmetic(DataType.T32, registerToUse, p.getArithmeticOperation(),
+                p.getOffsetAsHex());
+    }
 
-	public static String generateCodeFromString(String cheatSource) {
+    public static String generateCodeFromString(String cheatSource) {
 
-		CodePointCharStream input = CharStreams.fromString(cheatSource);
-		CodeLexer lexer = new CodeLexer(input);
-		CommonTokenStream tokens = new CommonTokenStream(lexer);
-		CodeParser parser = new CodeParser(tokens);
-		parser.setBuildParseTree(true);
-		CodesContext tree = parser.codes();
-		//parser.setErrorHandler(null);
-		CheatCodeMaker pc = new CheatCodeMaker(tree.cs);
-		CodeLines codeLines = pc.generateCode();
+        CodePointCharStream input = CharStreams.fromString(cheatSource);
+        CodeLexer lexer = new CodeLexer(input);
+        CommonTokenStream tokens = new CommonTokenStream(lexer);
+        CodeParser parser = new CodeParser(tokens);
+        parser.setBuildParseTree(true);
+        CodesContext tree = parser.codes();
+        // parser.setErrorHandler(null);
+        CheatCodeMaker pc = new CheatCodeMaker(tree.cs);
+        CodeLines codeLines = pc.generateCode();
 
-		if (tree.exception != null) {
-			throw new RuntimeException("Error while genearting code", tree.exception);
-		}
-		return codeLines.toStringCode();
+        if (tree.exception != null) {
+            throw new RuntimeException("Error while genearting code", tree.exception);
+        }
+        return codeLines.toStringCode();
 
-	}
+    }
 }

@@ -49,7 +49,7 @@ public class UsbConnection implements IConnection {
     @Override
     public void writeByte(int i) {
         UsbIrp irp = writePipe.createUsbIrp();
-        irp.setData(new byte[]{(byte) i});
+        irp.setData(new byte[] { (byte) i });
         outputIrps.add(irp);
     }
 
@@ -62,7 +62,7 @@ public class UsbConnection implements IConnection {
 
     @Override
     public int readByte() {
-        byte[] b = {0};
+        byte[] b = { 0 };
         try {
             readPipe.syncSubmit(b);
         } catch (UsbException e) {

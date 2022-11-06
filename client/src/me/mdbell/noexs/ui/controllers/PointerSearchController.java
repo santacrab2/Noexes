@@ -77,7 +77,8 @@ public class PointerSearchController implements IController {
     public void initialize() {
         depthSpinner.setValueFactory(new SpinnerValueFactory.IntegerSpinnerValueFactory(1, 10));
 
-        threadsSpinner.setValueFactory(new SpinnerValueFactory.IntegerSpinnerValueFactory(1, Runtime.getRuntime().availableProcessors()));
+        threadsSpinner.setValueFactory(
+                new SpinnerValueFactory.IntegerSpinnerValueFactory(1, Runtime.getRuntime().availableProcessors()));
         threadsSpinner.getValueFactory().setValue(Settings.getPointerThreadCount());
 
         depthSpinner.getValueFactory().setValue(Settings.getPointerDepth());
@@ -151,7 +152,8 @@ public class PointerSearchController implements IController {
     }
 
     public void onBrowseDumpFile(ActionEvent event) {
-        mc.browseFile(false, null, dumpFilePath.textProperty(), "Please select a memory dump", "Memory Dump Files", "*.dmp");
+        mc.browseFile(false, null, dumpFilePath.textProperty(), "Please select a memory dump", "Memory Dump Files",
+                "*.dmp");
     }
 
     public void onSearchAction(ActionEvent event) {

@@ -5,16 +5,16 @@ import java.util.List;
 
 public class Codes {
 
-	private List<Code> codes = new ArrayList<>();
+    private List<Code> codes = new ArrayList<>();
 
-	public Codes() {
-	}
+    public Codes() {
+    }
 
-	public void addCode(Code code) {
-		codes.add(code);
-	}
+    public void addCode(Code code) {
+        codes.add(code);
+    }
 
-	public List<Code> getCodes() {
-		return codes;
-	}
+    public List<Code> getCodes() {
+        return codes;
+    }
 }

@@ -49,7 +49,6 @@ public class WatchlistController implements IController {
     private Semaphore semaphore = new Semaphore(1);
     private Gson gson = new GsonBuilder().setPrettyPrinting().create();
 
-
     @FXML
     public void initialize() {
         updateCol.setCellValueFactory(param -> param.getValue().updateProperty());
@@ -69,27 +68,27 @@ public class WatchlistController implements IController {
         addrCol.setCellFactory(TextFieldTableCell.forTableColumn());
         descCol.setCellFactory(TextFieldTableCell.forTableColumn());
         valueCol.setCellFactory(param -> new SpinnerTableCell<>(valueCol, new HexSpinner() {
-                    {
-                        setEditable(true);
-                        setSize(16);
-                    }
-                }) {
-                    @Override
-                    protected void updateItem(Long item, boolean empty) {
-                        super.updateItem(item, empty);
-                        if (item == null || empty) {
-                            return;
-                        }
-                        WatchlistModel model = getTableRow().getItem();
-                        if (model == null) {
-                            return;
-                        }
-                        getSpinner().setSize(model.getSize() * 2);
-                    }
+            {
+                setEditable(true);
+                setSize(16);
+            }
+        }) {
+            @Override
+            protected void updateItem(Long item, boolean empty) {
+                super.updateItem(item, empty);
+                if (item == null || empty) {
+                    return;
                 }
-        );
+                WatchlistModel model = getTableRow().getItem();
+                if (model == null) {
+                    return;
+                }
+                getSpinner().setSize(model.getSize() * 2);
+            }
+        });
 
-        watchlistTable.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> removeButton.setDisable(newValue == null));
+        watchlistTable.getSelectionModel().selectedItemProperty()
+                .addListener((observable, oldValue, newValue) -> removeButton.setDisable(newValue == null));
     }
 
     @Override
@@ -105,7 +104,7 @@ public class WatchlistController implements IController {
 
     @Override
     public void onDisconnect() {
-        //watchlistTabPage.setDisable(true);
+        // watchlistTabPage.setDisable(true);
     }
 
     public void addAddr(long addr) {
@@ -189,16 +188,17 @@ public class WatchlistController implements IController {
 
     public void onLoad(ActionEvent event) {
         File f = mc.browseFile(false, null, null, "Open...", "Watchlist File", "*.json");
-        if(f == null){
+        if (f == null) {
             return;
         }
 
         watchlistTable.getItems().clear();
-        Type listOfTestObject = new TypeToken<List<SerializedWatchlistItem>>(){}.getType();
+        Type listOfTestObject = new TypeToken<List<SerializedWatchlistItem>>() {
+        }.getType();
         try {
             FileReader reader = new FileReader(f);
             List<SerializedWatchlistItem> list = gson.fromJson(reader, listOfTestObject);
-            list.forEach( item ->{
+            list.forEach(item -> {
                 WatchlistModel model = new WatchlistModel();
                 model.setUpdate(item.update);
                 model.setLocked(item.locked);

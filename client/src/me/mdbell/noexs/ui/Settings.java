@@ -18,23 +18,23 @@ public class Settings {
 
     private static final Preferences prefs = Preferences.userNodeForPackage(Settings.class);
 
-    private Settings(){
+    private Settings() {
 
     }
 
-    public static File getChooserDir(){
+    public static File getChooserDir() {
         File f = new File(prefs.get(CHOOSE_FILE_KEY, "./"));
-        if(!f.exists()) {
+        if (!f.exists()) {
             f = new File("./");
         }
         return f;
     }
 
-    public static void setChooserFile(File f){
+    public static void setChooserFile(File f) {
         prefs.put(CHOOSE_FILE_KEY, f.getAbsolutePath());
     }
 
-    public static String getConnectionHost(){
+    public static String getConnectionHost() {
         return prefs.get(HOST_KEY, NetworkConstants.DEFAULT_HOST);
     }
 
@@ -50,7 +50,7 @@ public class Settings {
         return prefs.getInt(POINTER_DEPTH_KEY, 1);
     }
 
-    public static void setPointerDepth(int depth){
+    public static void setPointerDepth(int depth) {
         prefs.putInt(POINTER_DEPTH_KEY, depth);
     }
 
@@ -62,11 +62,11 @@ public class Settings {
         return prefs.getInt(POINTER_THREAD_KEY, Runtime.getRuntime().availableProcessors());
     }
 
-    public static boolean shouldSwapEndian(){
+    public static boolean shouldSwapEndian() {
         return prefs.getBoolean(MEM_VIEW_ENDIAN_KEY, false);
     }
 
-    public static void setPointerThreadCount(int count){
+    public static void setPointerThreadCount(int count) {
         prefs.putInt(POINTER_THREAD_KEY, count);
     }
 

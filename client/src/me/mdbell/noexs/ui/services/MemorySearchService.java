@@ -38,7 +38,7 @@ public class MemorySearchService extends Service<SearchResult> {
     private ConditionType compareType;
 
     private long knownValue;
-    
+
     private float floatValue;
 
     private SearchResult prevResult;
@@ -95,14 +95,12 @@ public class MemorySearchService extends Service<SearchResult> {
     public void setKnownValue(long value) {
         this.knownValue = value;
     }
-    
-    
 
     public void setFloatValue(float floatValue) {
-		this.floatValue = floatValue;
-	}
+        this.floatValue = floatValue;
+    }
 
-	public void setPrevResult(SearchResult result) {
+    public void setPrevResult(SearchResult result) {
         this.prevResult = result;
     }
 
@@ -244,9 +242,10 @@ public class MemorySearchService extends Service<SearchResult> {
                             addAddress(addr);
                         }
                         addr = addrs.next();
-                    } else while (l > addr && addrs.hasNext()) {
-                        addr = addrs.next();
-                    }
+                    } else
+                        while (l > addr && addrs.hasNext()) {
+                            addr = addrs.next();
+                        }
                 }
                 update(idx.getSize());
             }
@@ -272,9 +271,7 @@ public class MemorySearchService extends Service<SearchResult> {
             long size = res.curr.getSize();
             long start = supplier.getStart();
             for (DumpIndex idx : indices) {
-                if (isCancelled() ||
-                    idx.getAddress() >= supplier.getEnd() ||
-                    idx.getEndAddress() <= start) {
+                if (isCancelled() || idx.getAddress() >= supplier.getEnd() || idx.getEndAddress() <= start) {
                     continue;
                 }
                 updateMessage("Searching...");
@@ -292,7 +289,8 @@ public class MemorySearchService extends Service<SearchResult> {
 
         private DumpRegionSupplier computeRegions(SearchResult prev) {
             if (prev.regions != null) {
-                return DumpRegionSupplier.createSupplier(prev.getStart(), prev.getEnd(), prev.regions, ((long) prev.size()) * prev.dataType.getSize());
+                return DumpRegionSupplier.createSupplier(prev.getStart(), prev.getEnd(), prev.regions,
+                        ((long) prev.size()) * prev.dataType.getSize());
             }
             MemoryInfo[] infos = conn.query(prev.getStart(), 10000);
             List<Long> addresses = prev.getAddresses();
@@ -350,7 +348,7 @@ public class MemorySearchService extends Service<SearchResult> {
             }
             boolean resume = conn.getStatus() == DebuggerStatus.PAUSED;
 
-            //pause the game
+            // pause the game
             conn.pause();
 
             long totalSize = supplier.getSize();
@@ -363,7 +361,7 @@ public class MemorySearchService extends Service<SearchResult> {
             try {
                 dump = new MemoryDump(res.getLocation());
                 dump.setTid(conn.getCurrentTitleId());
-                dump.getInfos().addAll(Arrays.asList(conn.query(0,10000)));
+                dump.getInfos().addAll(Arrays.asList(conn.query(0, 10000)));
                 dout = dump.openStream();
             } catch (IOException e) {
                 e.printStackTrace();
@@ -392,10 +390,8 @@ public class MemorySearchService extends Service<SearchResult> {
                     long remaining = totalSize - read;
                     updateProgress(read, totalSize);
                     updateMessage(String.format("Dumping - DL: %s/s T: %s R: %s ETA: %s",
-                            NetUtils.formatSize((long) (average)),
-                            NetUtils.formatSize(totalSize),
-                            NetUtils.formatSize(remaining),
-                            TimeUtils.formatTime((long) (remaining / average * 1000))));
+                            NetUtils.formatSize((long) (average)), NetUtils.formatSize(totalSize),
+                            NetUtils.formatSize(remaining), TimeUtils.formatTime((long) (remaining / average * 1000))));
 
                 }
             }

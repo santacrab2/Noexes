@@ -32,31 +32,31 @@ public class MemoryInfoTableModel {
         this.access = new SimpleIntegerProperty(info.getPerm());
     }
 
-    public SimpleStringProperty nameProperty(){
+    public SimpleStringProperty nameProperty() {
         return name;
     }
 
-    public SimpleLongProperty addrProperty(){
+    public SimpleLongProperty addrProperty() {
         return addr;
     }
 
-    public long getAddr(){
+    public long getAddr() {
         return addr.get();
     }
 
-    public SimpleLongProperty sizeProperty(){
+    public SimpleLongProperty sizeProperty() {
         return size;
     }
 
-    public NumberBinding endProperty(){
+    public NumberBinding endProperty() {
         return end;
     }
 
-    public SimpleObjectProperty<MemoryType> typeProperty(){
+    public SimpleObjectProperty<MemoryType> typeProperty() {
         return type;
     }
 
-    public SimpleIntegerProperty accessProperty(){
+    public SimpleIntegerProperty accessProperty() {
         return access;
     }
 

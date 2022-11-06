@@ -20,11 +20,9 @@ public class PointerSearchService extends Service<Set<PointerSearchResult>> {
     private long maxOffset, address;
     private int maxDepth, threadCount;
 
-
     public void setDumpPath(Path dumpPath) {
         this.dumpPath = dumpPath;
     }
-
 
     public void setMaxOffset(long maxOffset) {
         this.maxOffset = maxOffset;
@@ -98,7 +96,7 @@ public class PointerSearchService extends Service<Set<PointerSearchResult>> {
         private List<PointerSearchResult>[] results;
 
         public PointerRecursiveTask(SearchTask owner, MemoryDump dump, List<DumpIndex> indices,
-                                    List<PointerSearchResult>[] results, int depth) {
+                List<PointerSearchResult>[] results, int depth) {
             this.owner = owner;
             this.dump = dump;
             this.depth = depth;
@@ -106,8 +104,8 @@ public class PointerSearchService extends Service<Set<PointerSearchResult>> {
             this.results = results;
         }
 
-        PointerRecursiveTask(SearchTask owner, MemoryDump dump, DumpIndex idx,
-                             List<PointerSearchResult>[] results, int depth) {
+        PointerRecursiveTask(SearchTask owner, MemoryDump dump, DumpIndex idx, List<PointerSearchResult>[] results,
+                int depth) {
             this.owner = owner;
             this.dump = dump;
             this.depth = depth;
@@ -130,18 +128,19 @@ public class PointerSearchService extends Service<Set<PointerSearchResult>> {
         }
 
         private void computeSingle() throws IOException, InterruptedException {
-            List<PointerSearchResult>res = new ArrayList<>();
+            List<PointerSearchResult> res = new ArrayList<>();
             ByteBuffer buffer = dump.getBuffer(idx);
             if (depth == 0) {
                 search(res, idx.getAddress(), buffer, address);
             } else {
-                searchDepth(depth, results[depth - 1],res, idx.getAddress(), buffer);
+                searchDepth(depth, results[depth - 1], res, idx.getAddress(), buffer);
             }
             results[depth].addAll(res);
             owner.add(buffer.capacity());
         }
 
-        private void searchDepth(int depth, List<PointerSearchResult> toSearch, List<PointerSearchResult> toAdd, long base, ByteBuffer buffer) {
+        private void searchDepth(int depth, List<PointerSearchResult> toSearch, List<PointerSearchResult> toAdd,
+                long base, ByteBuffer buffer) {
             while (buffer.hasRemaining() && !owner.isCancelled()) {
                 long addr = base + buffer.position();
                 long test = buffer.getLong();

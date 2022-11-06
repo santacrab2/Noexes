@@ -12,7 +12,7 @@ import java.util.List;
 
 public abstract class MappedList<T> extends AbstractList<T> implements Closeable {
 
-    private static final long BUFFER_SIZE = 1024 * 1024 * 50; //50MB
+    private static final long BUFFER_SIZE = 1024 * 1024 * 50; // 50MB
 
     private RandomAccessFile raf;
     private List<MappedByteBuffer> buffers = new ArrayList<>();
@@ -45,7 +45,8 @@ public abstract class MappedList<T> extends AbstractList<T> implements Closeable
     private synchronized void checkSize(int index) {
         try {
             while (index >= buffers.size()) {
-                MappedByteBuffer buffer = raf.getChannel().map(FileChannel.MapMode.READ_WRITE, index * BUFFER_SIZE, BUFFER_SIZE);
+                MappedByteBuffer buffer = raf.getChannel().map(FileChannel.MapMode.READ_WRITE, index * BUFFER_SIZE,
+                        BUFFER_SIZE);
                 buffers.add(buffer);
             }
         } catch (IOException e) {

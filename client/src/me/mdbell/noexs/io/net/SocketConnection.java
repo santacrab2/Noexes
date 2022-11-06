@@ -5,6 +5,7 @@ import me.mdbell.noexs.core.IConnection;
 
 import java.io.*;
 import java.net.Socket;
+
 //TODO handle exceptions in this class properly
 public class SocketConnection implements IConnection {
 

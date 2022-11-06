@@ -53,7 +53,7 @@ public class MemoryDump implements Closeable {
             dump.writeLong(idx.size);
         }
         pos = dump.getFilePointer();
-        for(int i = 0; i < infos.size(); i++) {
+        for (int i = 0; i < infos.size(); i++) {
             MemoryInfo info = infos.get(i);
             dump.writeLong(info.getAddress());
             dump.writeLong(info.getSize());
@@ -88,7 +88,7 @@ public class MemoryDump implements Closeable {
         }
 
         dump.seek(infoPtr);
-        for(int i = 0; i < infoCount; i++) {
+        for (int i = 0; i < infoCount; i++) {
             long addr = dump.readLong();
             long size = dump.readLong();
             int type = dump.readInt();
@@ -111,7 +111,7 @@ public class MemoryDump implements Closeable {
         System.gc();
     }
 
-    public List<MemoryInfo> getInfos(){
+    public List<MemoryInfo> getInfos() {
         return infos;
     }
 
@@ -189,12 +189,11 @@ public class MemoryDump implements Closeable {
         }
     }
 
-
-    public long getTid(){
+    public long getTid() {
         return tid;
     }
 
-    public void setTid(long tid){
+    public void setTid(long tid) {
         this.tid = tid;
     }
 

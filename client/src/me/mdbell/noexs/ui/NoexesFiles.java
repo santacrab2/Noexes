@@ -5,14 +5,14 @@ import java.io.IOException;
 
 public class NoexesFiles {
 
-    private NoexesFiles(){
+    private NoexesFiles() {
 
     }
 
     private static final File tmp = new File("./tmp");
 
-    static{
-        if(!tmp.exists()) {
+    static {
+        if (!tmp.exists()) {
             tmp.mkdirs();
         }
     }
@@ -23,7 +23,7 @@ public class NoexesFiles {
         return res;
     }
 
-    public static File createTempDir(){
+    public static File createTempDir() {
         File res = new File(tmp, "" + System.currentTimeMillis());
         res.mkdirs();
         return res;

@@ -6,28 +6,28 @@ import me.mdbell.noexs.io.usb.UsbUtils;
 
 public class UsbDeviceInfo {
 
-	private UsbDevice device;
+    private UsbDevice device;
 
-	public UsbDeviceInfo(UsbDevice device) {
-		super();
-		this.device = device;
-	}
+    public UsbDeviceInfo(UsbDevice device) {
+        super();
+        this.device = device;
+    }
 
-	public UsbDevice getDevice() {
-		return device;
-	}
+    public UsbDevice getDevice() {
+        return device;
+    }
 
-	@Override
-	public String toString() {
-		String isSwitchDevice = "";
-		if (isSwitch()) {
-			isSwitchDevice = " [SWITCH]";
-		}
+    @Override
+    public String toString() {
+        String isSwitchDevice = "";
+        if (isSwitch()) {
+            isSwitchDevice = " [SWITCH]";
+        }
 
-		return device + isSwitchDevice;
-	}
+        return device + isSwitchDevice;
+    }
 
-	public boolean isSwitch() {
-		return UsbUtils.isSwitch(device);
-	}
+    public boolean isSwitch() {
+        return UsbUtils.isSwitch(device);
+    }
 }
