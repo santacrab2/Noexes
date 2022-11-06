@@ -215,6 +215,17 @@ public class SearchController implements IController {
             }
             mc.setTab(MainController.Tab.WATCH_LIST);
         });
+        MenuItem pointerSearch = new MenuItem("Pointer Search");
+        pointerSearch.setOnAction(event -> {
+            SearchValueModel m = searchResults.getSelectionModel().getSelectedItem();
+            if (m == null) {
+                return;
+            }
+            mc.pointer().addressSpinner.getValueFactory().setValue(m.getAddr());
+            mc.setTab(MainController.Tab.POINTER_SEARCH);
+        });
+        
+        
         MenuItem cheatMaker = new MenuItem("Cheat Maker");
         cheatMaker.setOnAction(event -> {
             List<SearchValueModel> ms = searchResults.getSelectionModel().getSelectedItems();
@@ -236,7 +247,7 @@ public class SearchController implements IController {
             }
             mc.setTab(MainController.Tab.CHEATS);
         });
-        cm.getItems().addAll(memoryView, watchList, cheatMaker);
+        cm.getItems().addAll(memoryView, watchList, pointerSearch, cheatMaker);
         searchResults.contextMenuProperty().setValue(cm);
         updateCondition();
     }
