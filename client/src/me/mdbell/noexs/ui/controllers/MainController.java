@@ -11,6 +11,10 @@ import java.util.TimerTask;
 import java.util.concurrent.Semaphore;
 import java.util.function.Consumer;
 
+import org.apache.logging.log4j.Level;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
 import javafx.application.Platform;
 import javafx.beans.property.StringProperty;
 import javafx.event.ActionEvent;
@@ -41,6 +45,8 @@ import me.mdbell.noexs.ui.models.ConnectionType;
 import me.mdbell.noexs.ui.services.DebuggerConnectionService;
 
 public class MainController implements NetworkConstants, IController {
+
+    private static final Logger logger = LogManager.getLogger(MainController.class);
 
     public ChoiceBox<ConnectionType> connectionType;
     public CheckBox autoResume;
@@ -221,7 +227,24 @@ public class MainController implements NetworkConstants, IController {
         } else {
             sb.append(module.getMessage(rc.getDesc()));
         }
-        showMessage(infoMessage + sb.toString(), alertType);
+        String message = infoMessage + sb.toString();
+        showMessage(message, alertType);
+        Level messageLevel = Level.INFO;
+        switch (alertType) {
+            case ERROR:
+                messageLevel = Level.ERROR;
+                break;
+            case CONFIRMATION:
+            case INFORMATION:
+            case NONE:
+                messageLevel = Level.INFO;
+                break;
+            case WARNING:
+                messageLevel = Level.WARN;
+                break;
+        }
+        logger.log(messageLevel, "Show message : {}", message);
+
     }
 
     public static void showMessage(String infoMessage, Alert.AlertType alertType) {
@@ -302,6 +325,7 @@ public class MainController implements NetworkConstants, IController {
             Platform.runLater(() -> setStatus(message));
             return;
         }
+        logger.info("Main controller new status : {}", message);
         statusLbl.setText(message);
     }
 
@@ -396,7 +420,7 @@ public class MainController implements NetworkConstants, IController {
             } catch (Exception ignored) {
             }
         } else {
-            System.out.println("Invalid state, cannot disconnect!");
+            logger.error("Invalid state, cannot disconnect!");
         }
         ipAddr.setDisable(disabled);
         connectionType.setDisable(disabled);
@@ -486,7 +510,7 @@ public class MainController implements NetworkConstants, IController {
     public WatchlistController watch() {
         return watchlistTabPageController;
     }
-    
+
     public CheatMakerController cheatMaker() {
         return cheatMakerTabPageController;
     }

@@ -1,8 +1,12 @@
 package me.mdbell.noexs.ui.controllers;
 
+import java.io.File;
 import java.io.IOException;
 import java.util.List;
 import java.util.function.Function;
+
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import javafx.beans.property.DoubleProperty;
 import javafx.collections.FXCollections;
@@ -42,6 +46,8 @@ import me.mdbell.util.HexUtils;
 
 public class SearchController implements IController {
 
+    private static final Logger logger = LogManager.getLogger(SearchController.class);
+
     private MainController mc;
 
     @FXML
@@ -66,7 +72,7 @@ public class SearchController implements IController {
 
     @FXML
     AddressSpinner mainsearchEnd;
-    
+
     @FXML
     TextField fileDumpSuffix;
 
@@ -224,8 +230,7 @@ public class SearchController implements IController {
             mc.pointer().addressSpinner.getValueFactory().setValue(m.getAddr());
             mc.setTab(MainController.Tab.POINTER_SEARCH);
         });
-        
-        
+
         MenuItem cheatMaker = new MenuItem("Cheat Maker");
         cheatMaker.setOnAction(event -> {
             List<SearchValueModel> ms = searchResults.getSelectionModel().getSelectedItems();
@@ -394,8 +399,6 @@ public class SearchController implements IController {
         ConditionType compareType = searchConditionDropdown.getValue();
         searchService.setConnection(mc.getDebugger());
         searchService.setSupplier(getDumpRegionSupplier(mc.getDebugger()));
-        searchService.setMainSearchStart(0);
-        searchService.setMainSearchEnd(0);
         searchService.setFileDumpSuffix(null);
         initSearch(type, compareType, dataType, known);
     }
@@ -412,8 +415,6 @@ public class SearchController implements IController {
         ConditionType compareType = searchConditionDropdown.getValue();
         searchService.setConnection(mc.getDebugger());
         searchService.setSupplier(getDumpRegionSupplier(mc.getDebugger()));
-        searchService.setMainSearchStart(mainStart.getValue());
-        searchService.setMainSearchEnd(mainsearchEnd.getValue());
         searchService.setFileDumpSuffix(fileDumpSuffix.getText());
         initSearch(type, compareType, dataType, known);
     }
@@ -480,6 +481,34 @@ public class SearchController implements IController {
         result = prev;
         searchService.setPrevResult(result);
         updatePageInfo();
+    }
+
+    public void onLoadSearch(ActionEvent event) {
+        File f = mc.browseFile(false, null, null, "Open...", "Search file", "*.srch");
+        if (f == null) {
+            return;
+        }
+        mc.setStatus("Loading search : " + f.getPath());
+
+        logger.info("Loading search : {}", f);
+        try {
+            SearchResult sr = SearchResult.load(f);
+            logger.info("SearchResult loaded : {}", sr);
+            result = sr;
+            searchService.setPrevResult(result);
+            mc.setStatus("Done! Total Result:" + result.size());
+            resultList.clear();
+            currentPage = 0;
+            searchOptions.setDisable(false);
+            if (result.getType() == SearchType.UNKNOWN) {
+                searchConditionTypeDropdown.setValue(SearchType.PREVIOUS);
+                searchConditionDropdown.setValue(ConditionType.NOT_EQUAL);
+            }
+            updatePageInfo();
+        } catch (IOException e) {
+            mc.setStatus("Loading search error : " + f.getPath());
+            logger.error("Error while loading search : {}", f, e);
+        }
     }
 
     private void initSearch(SearchType type, ConditionType compareType, DataType dataType, long known) {

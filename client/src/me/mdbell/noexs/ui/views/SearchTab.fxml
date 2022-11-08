@@ -61,12 +61,13 @@
       <Button fx:id="pageLeft" disable="true" layoutX="536.0" layoutY="433.0" mnemonicParsing="false" onAction="#onPageLeft" text="←" />
       <Button fx:id="pageRight" disable="true" layoutX="570.0" layoutY="433.0" mnemonicParsing="false" onAction="#onPageRight" text="→" />
       <Label fx:id="pageLabel" layoutX="604.0" layoutY="437.0" text="Page: 0/0 (0)" />
-      <AddressSpinner fx:id="mainStart" editable="true" layoutX="185.0" layoutY="363.0" prefHeight="25.0" prefWidth="149.0" />
-      <AddressSpinner fx:id="mainsearchEnd" editable="true" layoutX="350.0" layoutY="363.0" prefHeight="25.0" prefWidth="149.0" />
-      <Label layoutX="185.0" layoutY="343.0" text="Main Start" />
-      <Label layoutX="350.0" layoutY="343.0" text="Main End" />
-      <Button layoutX="14.0" layoutY="351.0" mnemonicParsing="false" onAction="#onMainStartAction" prefHeight="39.0" prefWidth="149.0" text="Search with Main dump" />
-      <TextField fx:id="fileDumpSuffix" layoutX="185.0" layoutY="414.0" prefHeight="25.0" prefWidth="149.0" />
-      <Label layoutX="89.0" layoutY="418.0" text="File dump suffix :" />
+      <AddressSpinner fx:id="mainStart" editable="true" layoutX="185.0" layoutY="340.0" prefHeight="25.0" prefWidth="149.0" />
+      <AddressSpinner fx:id="mainsearchEnd" editable="true" layoutX="350.0" layoutY="340.0" prefHeight="25.0" prefWidth="149.0" />
+      <Label layoutX="185.0" layoutY="320.0" text="Main Start" />
+      <Label layoutX="350.0" layoutY="320.0" text="Main End" />
+      <Button layoutX="14.0" layoutY="328.0" mnemonicParsing="false" onAction="#onMainStartAction" prefHeight="39.0" prefWidth="149.0" text="Search with Main dump" />
+      <TextField fx:id="fileDumpSuffix" layoutX="185.0" layoutY="378.0" prefHeight="25.0" prefWidth="149.0" />
+      <Label layoutX="89.0" layoutY="382.0" text="File dump suffix :" />
+      <Button layoutX="22.0" layoutY="414.0" mnemonicParsing="false" onAction="#onLoadSearch" prefHeight="25.0" prefWidth="84.0" text="Load Search" />
    </children>
 </AnchorPane>

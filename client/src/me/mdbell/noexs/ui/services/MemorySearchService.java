@@ -2,13 +2,15 @@ package me.mdbell.noexs.ui.services;
 
 import java.io.File;
 import java.io.IOException;
-import java.io.RandomAccessFile;
 import java.nio.ByteBuffer;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
+
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import javafx.concurrent.Service;
 import javafx.concurrent.Task;
@@ -33,6 +35,8 @@ import me.mdbell.util.TimeUtils;
 
 public class MemorySearchService extends Service<SearchResult> {
 
+    private static final Logger logger = LogManager.getLogger(MemorySearchService.class);
+
     private DumpRegionSupplier supplier;
     private Debugger conn;
 
@@ -46,10 +50,7 @@ public class MemorySearchService extends Service<SearchResult> {
     private long knownValue;
 
     private SearchResult prevResult;
-    // NEW
-    private long mainSearchStart;
-    private long mainSearchEnd;
-    
+
     private String fileDumpSuffix;
 
     public void clear() {
@@ -89,16 +90,6 @@ public class MemorySearchService extends Service<SearchResult> {
         this.dataType = type;
     }
 
-    
-    
-    public void setMainSearchStart(long mainSearchStart) {
-        this.mainSearchStart = mainSearchStart;
-    }
-
-    public void setMainSearchEnd(long mainSearchEnd) {
-        this.mainSearchEnd = mainSearchEnd;
-    }
-
     public void setFileDumpSuffix(String fileDumpSuffix) {
         this.fileDumpSuffix = fileDumpSuffix;
     }
@@ -126,10 +117,11 @@ public class MemorySearchService extends Service<SearchResult> {
 
     private List<Long> createList(File where) {
         try {
-            //return MappedList.createLongList(new RandomAccessFile(NoexesFiles.createTempFile("addrs"), "rw"));
-            return MappedList.createLongList(new RandomAccessFile(where, "rw"));
-        } catch (IOException e) {
-            e.printStackTrace();
+            // return MappedList.createLongList(new
+            // RandomAccessFile(NoexesFiles.createTempFile("addrs"), "rw"));
+            return MappedList.createLongList(where, "rw");
+        } catch (Throwable e) {
+            logger.error("Error on list creation", e);
             return new ArrayList<>();
         }
     }
@@ -203,7 +195,7 @@ public class MemorySearchService extends Service<SearchResult> {
         private long curr = 0, total, prevAmt;
         private long lastUpdate;
         Rolling avg = new Rolling(10);
-        
+
         String fileDumpSuffix;
 
         public SearchTask(String fileDumpSuffix) {
@@ -219,11 +211,15 @@ public class MemorySearchService extends Service<SearchResult> {
             res.dataType = dataType;
             res.setPrev(prevResult);
             res.addresses = createList(NoexesFiles.createTempFile(time, fileDumpSuffix, "addrs"));
+
             if (prevResult != null) {
                 refineSearch();
             } else {
                 fullSearch();
             }
+
+            res.save();
+
             return res;
         }
 
@@ -368,7 +364,7 @@ public class MemorySearchService extends Service<SearchResult> {
         }
 
         MemoryDump createDump(SearchResult res, DumpRegionSupplier supplier) throws IOException {
-
+            logger.info("Create dump for search : {}", res);
             if (NoexesFiles.getTempDir().getFreeSpace() < supplier.getSize()) {
                 throw new IOException("Not enough free space for dump!");
             }
@@ -385,16 +381,21 @@ public class MemorySearchService extends Service<SearchResult> {
             MemoryDump dump;
             DumpOutputStream dout;
             try {
-                dump = new MemoryDump(res.getLocation());
-                dump.setTid(conn.getCurrentTitleId());
+                long tid = conn.getCurrentTitleId();
+                File location = res.getLocation();
+                logger.info("Create dump : {} for tid : {}", location, tid);
+                dump = new MemoryDump(location);
+                dump.setTid(tid);
                 dump.getInfos().addAll(Arrays.asList(conn.query(0, DUMP_BUFFER_SIZE)));
                 dout = dump.openStream();
+
             } catch (IOException e) {
                 e.printStackTrace();
                 return null;
             }
             while (!isCancelled()) {
                 DumpRegion r = supplier.get();
+                logger.debug("Dumping region : {}", r);
                 if (r == null) {
                     break;
                 }
@@ -424,6 +425,7 @@ public class MemorySearchService extends Service<SearchResult> {
             if (dout != null) {
                 dout.close();
             }
+            logger.debug("Dump finished");
             if (resume) {
                 conn.resume();
             }

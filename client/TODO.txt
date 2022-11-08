@@ -5,15 +5,17 @@
 - Else
 - Test unitaires
 - Tab avec convertisseur Float=> Hex ou menu
-- A partir de la watchlist => Pousser dans pointersearch et Cheat Maker
 - Ajout Get Bookmark
 - Ajouter dans la structure memoire le type de region : (enum) Base, Main, Heap, Other : ... => updateMemoryInfo
 --- A ajouter dans la liste des block
 --- Permettre de localiser un pointer
 --- Ajouter un objet qui permet de faire ca dans Tools getRegion(addr)
 - Ameliorer code connection
-- Relire un dump à partir fichier
-
+--> Pb sur end (manque un bloc) et start
+- Pointer Search => Sauvegarde (raw ou relatif), Conversion addr MAIN/HEAP + (2 colonnes ), comparaison avec un autre fichier
+ -------- Export vers cheats
+ --------- Export : conf Dmp + addrs
+-> Ajouter des logs !
 
 https://www.cheatslips.com/wiki/home/code_types
 https://github.com/Atmosphere-NX/Atmosphere/blob/master/docs/features/cheats.md
