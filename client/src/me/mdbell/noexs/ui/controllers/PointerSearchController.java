@@ -2,8 +2,12 @@ package me.mdbell.noexs.ui.controllers;
 
 import java.nio.file.Paths;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Set;
+
+import org.apache.commons.collections4.CollectionUtils;
 
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -11,14 +15,17 @@ import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
 import javafx.scene.control.CheckBox;
+import javafx.scene.control.ContextMenu;
 import javafx.scene.control.ListCell;
 import javafx.scene.control.ListView;
+import javafx.scene.control.MenuItem;
 import javafx.scene.control.Spinner;
 import javafx.scene.control.SpinnerValueFactory;
 import javafx.scene.control.TextField;
 import me.mdbell.javafx.control.AddressSpinner;
 import me.mdbell.javafx.control.HexSpinner;
 import me.mdbell.noexs.ui.Settings;
+import me.mdbell.noexs.ui.models.SearchValueModel;
 import me.mdbell.noexs.ui.services.PointerSearchResult;
 import me.mdbell.noexs.ui.services.PointerSearchService;
 
@@ -146,6 +153,20 @@ public class PointerSearchController implements IController {
 
         filterMaxAddress.valueProperty().addListener((observable, oldValue, newValue) -> updateFilter());
         filterMinAddress.valueProperty().addListener((observable, oldValue, newValue) -> updateFilter());
+        
+        
+        ContextMenu cm = new ContextMenu();
+        MenuItem memoryView = new MenuItem("Memory Viewer");
+        memoryView.setOnAction(event -> {
+           PointerSearchResult psr = resultList.getSelectionModel().getSelectedItem();
+            if (psr == null) {
+                return;
+            }
+            mc.memory().setViewAddress(psr.getAddress());
+            mc.setTab(MainController.Tab.MEMORY_VIEWER);
+        });
+        cm.getItems().addAll(memoryView);
+        resultList.contextMenuProperty().set(cm);
     }
 
     private void updateFilter() {
@@ -164,6 +185,7 @@ public class PointerSearchController implements IController {
         } else {
             results.addAll(unfilteredResults);
         }
+        //Collections.sort(results);
     }
 
     private void updateSearchButton() {
@@ -197,7 +219,10 @@ public class PointerSearchController implements IController {
         searchService.setOnSucceeded(event1 -> {
             Set<PointerSearchResult> results = (Set<PointerSearchResult>) event1.getSource().getValue();
             this.unfilteredResults.clear();
+            
+            //List<PointerSearchResult> orederResults = setToOrderedList(results);
             this.unfilteredResults.addAll(results);
+            Collections.sort(this.unfilteredResults,(p1,p2) -> (p1.getAddress() < p2.getAddress() ? -1 : (p1.getAddress() > p2.getAddress() ? 1 : 0)));
             mc.setStatus("Search Completed!");
             toggleInput(false);
             updateFilter();
@@ -207,6 +232,12 @@ public class PointerSearchController implements IController {
         searchService.restart();
 
         toggleInput(true);
+    }
+
+    private List<PointerSearchResult> setToOrderedList(Set<PointerSearchResult> results) {
+        List<PointerSearchResult> orederResults = new ArrayList<>(results);
+        Collections.sort(orederResults);
+        return orederResults;
     }
 
     public void onCancelAction(ActionEvent event) {
