@@ -239,12 +239,13 @@ public class SearchController implements IController {
             }
 
             ToolsController tc = mc.toolsTabPageController;
+            int cheatIndex = 0;
             for (SearchValueModel m : ms) {
                 long address = m.getAddr();
                 EMemoryRegion region = tc.getAddressMemoryRegion(address);
                 long offset = tc.getOffset(address, region);
-
-                String pointerStr = "[" + region + " + 0x" + HexUtils.formatAddress(offset)
+                String pointerStr ="\"Set pointer "+ ++cheatIndex + "\"\n";
+                pointerStr += "[" + region + " + 0x" + HexUtils.formatAddress(offset)
 
                         + "] = (U32) 0x" + HexUtils.formatLong(m.getNewValue());
 

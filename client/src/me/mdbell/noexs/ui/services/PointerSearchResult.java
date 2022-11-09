@@ -1,9 +1,8 @@
 package me.mdbell.noexs.ui.services;
 
+import me.mdbell.noexs.core.EMemoryRegion;
+import me.mdbell.noexs.ui.controllers.ToolsController;
 import me.mdbell.util.HexUtils;
-
-import java.io.Closeable;
-import java.util.Objects;
 
 public class PointerSearchResult implements Comparable<PointerSearchResult>, Cloneable {
 
@@ -18,7 +17,29 @@ public class PointerSearchResult implements Comparable<PointerSearchResult>, Clo
         this.depth = 0;
     }
 
-    public String formatted(long main) {
+    
+    
+    public String formattedRegion(ToolsController tc) {
+        EMemoryRegion region = tc.getAddressMemoryRegion(address);
+        long offset = tc.getOffset(address, region);
+        String base = region + " + 0x" + HexUtils.formatLong(offset);
+        return formatted(base);
+    }
+    
+    public String formattedMain(long main) {
+        long rel = address - main;
+        String base = "main" + (rel >= 0 ? "+" : "-") + Long.toUnsignedString(Math.abs(rel), 16);
+        return formatted(base);
+    }
+    
+    public String formattedRaw() {
+        String base = HexUtils.formatAddress(address);
+        return formatted(base);
+        
+    }
+    
+    
+    public String formatted(String base) {
         StringBuilder prefix = new StringBuilder();
         StringBuilder suffix = new StringBuilder();
 
@@ -34,17 +55,7 @@ public class PointerSearchResult implements Comparable<PointerSearchResult>, Clo
             psr = prev.prev;
         }
 
-        String str = "[";
-
-        if (main != 0) {
-            long rel = address - main;
-            str = str + "main" + (rel >= 0 ? "+" : "-") + Long.toUnsignedString(Math.abs(rel), 16);
-
-        } else {
-            str = str + HexUtils.formatAddress(address);
-        }
-
-        str = str + "]";
+        String str = "[" + base + "]";
 
         if (offset != 0) {
             str = str + " " + (offset < 0 ? " - " : "+ ") + Long.toUnsignedString(Math.abs(offset), 16);
@@ -78,12 +89,12 @@ public class PointerSearchResult implements Comparable<PointerSearchResult>, Clo
         if (o == null || getClass() != o.getClass())
             return false;
         PointerSearchResult that = (PointerSearchResult) o;
-        return that.formatted(0).equals(formatted(0)); // TODO not this.
+        return that.formattedRaw().equals(formattedRaw()); // TODO not this.
     }
 
     @Override
     public int hashCode() {
-        return formatted(0).hashCode();
+        return formattedRaw().hashCode();
     }
 
     @Override

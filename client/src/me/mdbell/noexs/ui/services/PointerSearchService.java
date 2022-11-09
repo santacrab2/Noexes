@@ -69,7 +69,7 @@ public class PointerSearchService extends Service<Set<PointerSearchResult>> {
             ForkJoinPool pool = new ForkJoinPool(threadCount);
             try {
                 MemoryDump dump = openDump(dumpPath);
-                List<PointerSearchResult>[] results = new List[maxDepth];
+                List<PointerSearchResult>[] results = new List[maxDepth]; // TODO MAPEDLIST
                 total = dump.getSize() * maxDepth;
                 for (depth = 0; depth < maxDepth && !isCancelled(); depth++) {
                     results[depth] = new ArrayList<>();

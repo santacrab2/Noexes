@@ -6,7 +6,7 @@
 - Test unitaires
 - Tab avec convertisseur Float=> Hex ou menu
 - Ajout Get Bookmark
-- Ajouter dans la structure memoire le type de region : (enum) Base, Main, Heap, Other : ... => updateMemoryInfo
+- Ajouter dans la structure memoire le type de region : (enum) Base, Main, Heap, Other : ... => updateMemeoryInfo
 --- A ajouter dans la liste des block
 --- Permettre de localiser un pointer
 --- Ajouter un objet qui permet de faire ca dans Tools getRegion(addr)
@@ -16,6 +16,8 @@
  -------- Export vers cheats
  --------- Export : conf Dmp + addrs
 -> Ajouter des logs !
+
+-> Search Tab => Generer cheat avec valeur dans le champs value (ajouter un item dans la liste) 
 
 https://www.cheatslips.com/wiki/home/code_types
 https://github.com/Atmosphere-NX/Atmosphere/blob/master/docs/features/cheats.md

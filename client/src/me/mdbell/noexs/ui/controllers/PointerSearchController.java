@@ -63,6 +63,9 @@ public class PointerSearchController implements IController {
     CheckBox filterCheckbox;
 
     @FXML
+    CheckBox autoOffsetCheckbox;
+
+    @FXML
     AddressSpinner relativeAddress;
 
     private List<PointerSearchResult> unfilteredResults = new ArrayList<>();
@@ -72,6 +75,21 @@ public class PointerSearchController implements IController {
     private MainController mc;
 
     private final PointerSearchService searchService = new PointerSearchService();
+
+    private String formatPointer(PointerSearchResult item) {
+        String text = "";
+        if (autoOffsetCheckbox.isSelected()) {
+            text = item.formattedRegion(mc.tools());
+        } else {
+            Long relativeAddressValue = relativeAddress.getValue();
+            if (relativeAddressValue == null || relativeAddressValue == 0) {
+                text = item.formattedRaw();
+            } else {
+                text = item.formattedMain(relativeAddressValue);
+            }
+        }
+        return text;
+    }
 
     @FXML
     public void initialize() {
@@ -86,7 +104,7 @@ public class PointerSearchController implements IController {
 
         resultList.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
             if (newValue != null) {
-                resultText.setText(newValue.formatted(relativeAddress.getValue()));
+                resultText.setText(formatPointer(newValue));
             } else {
                 resultText.setText("");
             }
@@ -99,9 +117,12 @@ public class PointerSearchController implements IController {
                 if (empty || item == null) {
                     setText(null);
                 } else {
-                    setText(item.formatted(relativeAddress.getValue()));
+                    String text = formatPointer(item);
+
+                    setText(text);
                 }
             }
+
         });
 
         dumpFilePath.textProperty().addListener((observable, oldValue, newValue) -> updateSearchButton());
@@ -112,6 +133,10 @@ public class PointerSearchController implements IController {
         resultList.setItems(results);
 
         relativeAddress.valueProperty().addListener((observable, oldValue, newValue) -> updateFilter());
+
+        autoOffsetCheckbox.selectedProperty().addListener((observable, oldValue, newValue) -> {
+            updateFilter();
+        });
 
         filterCheckbox.selectedProperty().addListener((observable, oldValue, newValue) -> {
             filterMaxAddress.setDisable(!newValue);
