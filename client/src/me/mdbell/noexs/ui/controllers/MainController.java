@@ -183,7 +183,10 @@ public class MainController implements NetworkConstants, IController {
     public void onConnect() {
         setConnectBtnText("Disconnect");
         connectionService.cancel();
-        setStatus("Connected");
+        long currentPid = debugger.getCurrentPid();
+        long attachedPid = debugger.getAttachedPid();
+
+        setStatus("Connected. Current pid : " + currentPid + " Attached pid : " + attachedPid);
 
         DebuggerStatus status = debugger.getStatus();
         setTitle(status.getStatus());

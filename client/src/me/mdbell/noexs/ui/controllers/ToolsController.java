@@ -130,6 +130,14 @@ public class ToolsController implements IController {
     @Override
     public void onConnect() {
         toolsTabPage.setDisable(false);
+        setPidsList();
+        long attachedPid = mc.getDebugger().getAttachedPid();
+        if (attachedPid != 0) {
+            populateMemory();
+            displayTitleId(mc.getDebugger().getTitleId(attachedPid));
+        } else {
+            memoryInfoList.clear();
+        }
     }
 
     @Override
@@ -172,13 +180,36 @@ public class ToolsController implements IController {
             long selectedPid = pidList.getSelectionModel().getSelectedItem();
 
             if (selectedPid != 0) {
-                Result attached = conn.attach(selectedPid);
-                if (attached.failed()) {
-                    MainController.showMessage("Attach failed.", attached, Alert.AlertType.ERROR);
-                } else {
-                    mc.setStatus("Attached to process");
+                boolean attachAlreadyDone = false;
+                long attachedPid = conn.getAttachedPid();
+                if (attachedPid != 0) {
+                    if (attachedPid != selectedPid) {
+                        conn.detach();
+                    } else {
+                        attachAlreadyDone = true;
+                    }
+                }
+
+                boolean attachOk = true;
+                if (!attachAlreadyDone) {
+                    Result attached = conn.attach(selectedPid);
+                    if (attached.failed()) {
+                        attachOk = false;
+                        MainController.showMessage("Attach failed.", attached, Alert.AlertType.ERROR);
+                    }
+                }
+
+                if (attachOk) {
+
+                    String status = "Attached to process pid : " + selectedPid;
+                    if (attachAlreadyDone) {
+                        status += " (Already attached)";
+                    }
+
+                    mc.setStatus(status);
                     mc.setTitle("Attached to: 0x" + HexUtils.formatTitleId(conn.getTitleId(selectedPid)));
-                    mc.memory().populateMemory();
+                    populateMemory();
+
                 }
             } else {
                 MainController.showMessage("Invalid pid selected.", Alert.AlertType.ERROR);
@@ -197,7 +228,7 @@ public class ToolsController implements IController {
 
             Long currentPid = conn.getCurrentPid();
             pidList.getSelectionModel().select((Long) currentPid);
-            ;
+
             displayTitleId(mc.getDebugger().getTitleId(currentPid));
             attachProcess();
 
@@ -323,5 +354,13 @@ public class ToolsController implements IController {
         }
         Range range = new Range(startAddress, stopAddress);
         return range;
+    }
+
+    public void populateMemory() {
+        Debugger conn = mc.getDebugger();
+        if (!conn.connected()) {
+            return;
+        }
+        updateMemoryInfo(conn.query(0, 10000));
     }
 }

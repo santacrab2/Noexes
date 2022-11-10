@@ -12,6 +12,11 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import me.mdbell.noexs.core.debugger.EDebCommand;
+import me.mdbell.noexs.core.debugger.RDebAttachInput;
+import me.mdbell.noexs.core.debugger.RDebCurrentPidOutput;
+import me.mdbell.noexs.core.debugger.RDebGetAttachedPidOutput;
+import me.mdbell.noexs.core.debugger.RDebGetTitleIdInput;
+import me.mdbell.noexs.core.debugger.RDebGetTitleIdOutput;
 import me.mdbell.noexs.core.debugger.RDebPoke16Input;
 import me.mdbell.noexs.core.debugger.RDebPoke32Input;
 import me.mdbell.noexs.core.debugger.RDebPoke64Input;
@@ -336,9 +341,7 @@ public class Debugger implements Commands, Closeable {
         logger.debug("COMMAND : Attach to pid :{}", pid);
         acquire();
         try {
-            conn.writeCommand(COMMAND_ATTACH);
-            conn.writeLong(pid);
-            conn.flush();
+            DebuggerUtils.runCommand(conn, EDebCommand.COMMAND_ATTACH, new RDebAttachInput(pid));
             return conn.readResult();
         } finally {
             release();
@@ -396,12 +399,10 @@ public class Debugger implements Commands, Closeable {
     }
 
     public long getCurrentPid() {
-        logger.debug("COMMAND : get current pid");
         acquire();
         try {
-            conn.writeCommand(COMMAND_CURRENT_PID);
-            conn.flush();
-            long pid = conn.readLong();
+            RDebCurrentPidOutput currentPid = DebuggerUtils.runCommand(conn, EDebCommand.COMMAND_CURRENT_PID);
+            long pid = currentPid.pid();
             Result rc = conn.readResult();
             if (rc.failed()) {
                 pid = 0;
@@ -416,9 +417,8 @@ public class Debugger implements Commands, Closeable {
     public long getAttachedPid() {
         acquire();
         try {
-            conn.writeCommand(COMMAND_GET_ATTACHED_PID);
-            conn.flush();
-            long pid = conn.readLong();
+            RDebGetAttachedPidOutput attachedPid = DebuggerUtils.runCommand(conn, EDebCommand.COMMAND_GET_ATTACHED_PID);
+            long pid = attachedPid.pid();
             Result rc = conn.readResult();
             if (rc.failed()) {
                 throw new ConnectionException("This is impossible, so you've done something terribly wrong", rc);
@@ -452,10 +452,9 @@ public class Debugger implements Commands, Closeable {
     public long getTitleId(long pid) {
         acquire();
         try {
-            conn.writeCommand(COMMAND_GET_TITLEID);
-            conn.writeLong(pid);
-            conn.flush();
-            long tid = conn.readLong();
+            RDebGetTitleIdOutput res = DebuggerUtils.runCommand(conn, EDebCommand.COMMAND_GET_TITLEID,
+                    new RDebGetTitleIdInput(pid));
+            long tid = res.tid();
             Result rc = conn.readResult();
             if (rc.failed()) {
                 // TODO throw? idk

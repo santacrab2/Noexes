@@ -300,15 +300,6 @@ public class MemoryViewerController implements IController {
         // memViewTabPage.setDisable(true);
     }
 
-    public void populateMemory() {
-        Debugger conn = mainController.getDebugger();
-        if (!conn.connected()) {
-            return;
-        }
-        // TODO not do this here.
-        mainController.tools().updateMemoryInfo(conn.query(0, 10000));
-    }
-
     PatternTokenizer tokenizer = new PatternTokenizer();
     PatternCompiler compiler = new PatternCompiler();
 
