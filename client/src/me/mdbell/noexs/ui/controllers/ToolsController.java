@@ -1,7 +1,10 @@
 package me.mdbell.noexs.ui.controllers;
 
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
+
+import org.apache.commons.lang3.StringUtils;
 
 import javafx.application.Platform;
 import javafx.collections.FXCollections;
@@ -24,8 +27,10 @@ import me.mdbell.noexs.core.MemoryType;
 import me.mdbell.noexs.core.Result;
 import me.mdbell.noexs.misc.ExpressionEvaluator;
 import me.mdbell.noexs.ui.menus.MemoryInfoContextMenu;
+import me.mdbell.noexs.ui.models.EAccessType;
 import me.mdbell.noexs.ui.models.MemoryInfoTableModel;
 import me.mdbell.noexs.ui.models.MemoryInfoUtils;
+import me.mdbell.noexs.ui.models.Range;
 import me.mdbell.util.HexUtils;
 
 public class ToolsController implements IController {
@@ -273,7 +278,7 @@ public class ToolsController implements IController {
     public long getOffset(long address, EMemoryRegion region) {
         return MemoryInfoUtils.getOffset(address, region, vars);
     }
-    
+
     public ExpressionEvaluator getEvaluator() {
         return evaluator;
     }
@@ -285,5 +290,38 @@ public class ToolsController implements IController {
         } catch (Exception e) {
             MainController.showMessage(e);
         }
+    }
+
+    public Range searchWrtitableRange(EMemoryRegion regionNameToSearch) {
+
+        List<MemoryInfoTableModel> memInfos = memInfoTable.getItems();
+        boolean inRegion = false;
+        Long startAddress = null;
+        Long stopAddress = null;
+        for (MemoryInfoTableModel memInfo : memInfos) {
+            String regionName = memInfo.nameProperty().getValue();
+            if (StringUtils.startsWithIgnoreCase(regionName, regionNameToSearch.name())) {
+                inRegion = true;
+            } else if (inRegion && !StringUtils.equalsIgnoreCase(regionName, "-")) {
+                inRegion = false;
+                break;
+            }
+
+            boolean writeAccess = memInfo.hasAccess(EAccessType.WRITE);
+            if (writeAccess) {
+                if (inRegion && startAddress == null) {
+                    startAddress = memInfo.getAddr();
+                }
+                if (inRegion && startAddress != null) {
+                    stopAddress = memInfo.getEnd();
+                }
+            }
+        }
+
+        if (startAddress == null) {
+            return null;
+        }
+        Range range = new Range(startAddress, stopAddress);
+        return range;
     }
 }

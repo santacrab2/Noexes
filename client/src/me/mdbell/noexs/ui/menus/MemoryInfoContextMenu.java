@@ -8,6 +8,7 @@ import org.apache.commons.lang3.StringUtils;
 import javafx.scene.control.ContextMenu;
 import javafx.scene.control.MenuItem;
 import javafx.scene.control.TableView;
+import me.mdbell.noexs.core.EMemoryRegion;
 import me.mdbell.noexs.ui.controllers.MainController;
 import me.mdbell.noexs.ui.models.EAccessType;
 import me.mdbell.noexs.ui.models.MemoryInfoTableModel;
@@ -48,14 +49,14 @@ public class MemoryInfoContextMenu extends ContextMenu {
         });
 
         mainsearchAuto.setOnAction(event -> {
-            Range range = searchWrtitableRange(memInfoTable.getItems(), "main");
+            Range range = mc.get().tools().searchWrtitableRange(EMemoryRegion.MAIN);
             if (range != null) {
                 mc.get().search().setSearchRange(range.getStart(), range.getEnd());
             }
         });
 
         heapsearchAuto.setOnAction(event -> {
-            Range range = searchWrtitableRange(memInfoTable.getItems(), "heap");
+            Range range = mc.get().tools().searchWrtitableRange(EMemoryRegion.HEAP);
             if (range != null) {
                 mc.get().search().setSearchRange(range.getStart(), range.getEnd());
             }
@@ -63,11 +64,11 @@ public class MemoryInfoContextMenu extends ContextMenu {
         });
 
         mainHeapSearchAuto.setOnAction(event -> {
-            Range range = searchWrtitableRange(memInfoTable.getItems(), "main");
+            Range range = mc.get().tools().searchWrtitableRange(EMemoryRegion.MAIN);
             if (range != null) {
                 mc.get().search().mainsetSearchRange(range.getStart(), range.getEnd());
             }
-            Range range2 = searchWrtitableRange(memInfoTable.getItems(), "heap");
+            Range range2 = mc.get().tools().searchWrtitableRange(EMemoryRegion.HEAP);
             if (range != null) {
                 mc.get().search().setSearchRange(range2.getStart(), range2.getEnd());
             }
@@ -159,36 +160,5 @@ public class MemoryInfoContextMenu extends ContextMenu {
                 disassembler);
     }
 
-    private Range searchWrtitableRange(List<MemoryInfoTableModel> memInfos, String regionNameToSearch) {
-
-        boolean inRegion = false;
-        Long startAddress = null;
-        Long stopAddress = null;
-        for (MemoryInfoTableModel memInfo : memInfos) {
-            String regionName = memInfo.nameProperty().getValue();
-            if (StringUtils.equalsIgnoreCase(regionName, regionNameToSearch)) {
-                inRegion = true;
-            } else if (inRegion && !StringUtils.equalsIgnoreCase(regionName, "-")) {
-                inRegion = false;
-                break;
-            }
-
-            boolean writeAccess = EAccessType.WRITE.hasAcces(memInfo.accessProperty().getValue());
-
-            if (writeAccess) {
-                if (inRegion && startAddress == null) {
-                    startAddress = memInfo.getAddr();
-                }
-                if (inRegion && startAddress != null) {
-                    stopAddress = memInfo.getEnd();
-                }
-            }
-        }
-
-        if (startAddress == null) {
-            return null;
-        }
-        Range range = new Range(startAddress, stopAddress);
-        return range;
-    }
+   
 }

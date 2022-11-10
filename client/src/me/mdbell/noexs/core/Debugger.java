@@ -8,14 +8,25 @@ import java.nio.ByteOrder;
 import java.util.Arrays;
 import java.util.concurrent.Semaphore;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
+import me.mdbell.noexs.core.debugger.EDebCommand;
+import me.mdbell.noexs.core.debugger.RDebPoke16Input;
+import me.mdbell.noexs.core.debugger.RDebPoke32Input;
+import me.mdbell.noexs.core.debugger.RDebPoke64Input;
+import me.mdbell.noexs.core.debugger.RDebPoke8Input;
+import me.mdbell.noexs.core.debugger.RDebStatusOutput;
 import me.mdbell.noexs.misc.BreakpointFlagBuilder;
 import me.mdbell.noexs.misc.BreakpointType;
 import me.mdbell.noexs.misc.WatchpointFlagBuilder;
 import me.mdbell.noexs.ui.NoexsApplication;
 import me.mdbell.noexs.ui.models.DataType;
+import me.mdbell.util.HexUtils;
 
 public class Debugger implements Commands, Closeable {
 
+    private static final Logger logger = LogManager.getLogger(Debugger.class);
     private IConnection conn;
     private MemoryInfo prev;
     private Semaphore semaphore = new Semaphore(1);
@@ -48,12 +59,13 @@ public class Debugger implements Commands, Closeable {
     public DebuggerStatus getStatus() {
         acquire();
         try {
-            conn.writeCommand(COMMAND_STATUS);
-            conn.flush();
-            int status = conn.readByte();
-            int major = conn.readByte();
-            int minor = conn.readByte();
-            int patch = conn.readByte();
+            RDebStatusOutput statusOutput = DebuggerUtils.runCommand(conn, EDebCommand.COMMAND_STATUS);
+
+            int status = statusOutput.status();
+            int major = statusOutput.major();
+            int minor = statusOutput.minor();
+            int patch = statusOutput.patch();
+
             this.protocolVersion = (major << 16) | (minor << 8);
             Result rc = conn.readResult();
             if (rc.failed()) {
@@ -90,10 +102,8 @@ public class Debugger implements Commands, Closeable {
     public void poke8(long addr, int value) {
         acquire();
         try {
-            conn.writeCommand(COMMAND_POKE8);
-            conn.writeLong(addr);
-            conn.writeByte(value);
-            conn.flush();
+
+            DebuggerUtils.runCommand(conn, EDebCommand.COMMAND_POKE8, new RDebPoke8Input(addr, (byte) value));
             Result rc = conn.readResult();
             if (rc.failed()) {
                 throw new ConnectionException(rc);
@@ -113,10 +123,7 @@ public class Debugger implements Commands, Closeable {
     public void poke16(long addr, int value) {
         acquire();
         try {
-            conn.writeCommand(COMMAND_POKE16);
-            conn.writeLong(addr);
-            conn.writeShort(value);
-            conn.flush();
+            DebuggerUtils.runCommand(conn, EDebCommand.COMMAND_POKE16, new RDebPoke16Input(addr, (short) value));
             Result rc = conn.readResult();
             if (rc.failed()) {
                 throw new ConnectionException(rc);
@@ -135,10 +142,7 @@ public class Debugger implements Commands, Closeable {
     public void poke32(long addr, int value) {
         acquire();
         try {
-            conn.writeCommand(COMMAND_POKE32);
-            conn.writeLong(addr);
-            conn.writeInt(value);
-            conn.flush();
+            DebuggerUtils.runCommand(conn, EDebCommand.COMMAND_POKE32, new RDebPoke32Input(addr, (int) value));
             Result rc = conn.readResult();
             if (rc.failed()) {
                 throw new ConnectionException(rc);
@@ -156,10 +160,7 @@ public class Debugger implements Commands, Closeable {
     public void poke64(long addr, long value) {
         acquire();
         try {
-            conn.writeCommand(COMMAND_POKE32);
-            conn.writeLong(addr);
-            conn.writeLong(value);
-            conn.flush();
+            DebuggerUtils.runCommand(conn, EDebCommand.COMMAND_POKE64, new RDebPoke64Input(addr, (long) value));
             Result rc = conn.readResult();
             if (rc.failed()) {
                 throw new ConnectionException(rc);
@@ -324,14 +325,15 @@ public class Debugger implements Commands, Closeable {
     }
 
     public Result resume() {
-        return getResult(COMMAND_CONTINUE);
+        return getResult(EDebCommand.COMMAND_CONTINUE);
     }
 
     public Result pause() {
-        return getResult(COMMAND_PAUSE);
+        return getResult(EDebCommand.COMMAND_PAUSE);
     }
 
     public Result attach(long pid) {
+        logger.debug("COMMAND : Attach to pid :{}", pid);
         acquire();
         try {
             conn.writeCommand(COMMAND_ATTACH);
@@ -344,10 +346,11 @@ public class Debugger implements Commands, Closeable {
     }
 
     public Result detach() {
-        return getResult(COMMAND_DETATCH);
+        return getResult(EDebCommand.COMMAND_DETATCH);
     }
 
     public MemoryInfo query(long address) {
+        logger.debug("COMMAND : Query Memory  address:{}", HexUtils.formatAddress(address));
         acquire();
         try {
             if (prev != null && prev.getAddress() != 0 && address >= prev.getAddress()
@@ -358,13 +361,16 @@ public class Debugger implements Commands, Closeable {
             conn.writeCommand(COMMAND_QUERY_MEMORY);
             conn.writeLong(address);
             conn.flush();
-            return prev = readInfo();
+            prev = readInfo();
+            logger.debug("COMMAND Result :{} ", prev);
+            return prev;
         } finally {
             release();
         }
     }
 
     public MemoryInfo[] query(long start, int max) {
+        logger.debug("COMMAND : Query Memory Multi start:{}, max:{}", start, max);
         acquire();
         try {
             conn.writeCommand(COMMAND_QUERY_MEMORY_MULTI);
@@ -382,6 +388,7 @@ public class Debugger implements Commands, Closeable {
                 }
             }
             conn.readResult(); // ignored here, it gets checked in readInfo()
+            logger.debug("COMMAND Result :{} memory info", count);
             return Arrays.copyOf(res, count);
         } finally {
             release();
@@ -389,6 +396,7 @@ public class Debugger implements Commands, Closeable {
     }
 
     public long getCurrentPid() {
+        logger.debug("COMMAND : get current pid");
         acquire();
         try {
             conn.writeCommand(COMMAND_CURRENT_PID);
@@ -398,6 +406,7 @@ public class Debugger implements Commands, Closeable {
             if (rc.failed()) {
                 pid = 0;
             }
+            logger.debug("COMMAND Result : pid={}", pid);
             return pid;
         } finally {
             release();
@@ -458,16 +467,9 @@ public class Debugger implements Commands, Closeable {
     }
 
     private void disconnect() {
-        acquire();
-        try {
-            conn.writeCommand(COMMAND_DISCONNECT);
-            conn.flush();
-            Result rc = conn.readResult();
-            if (rc.failed()) {
-                throw new ConnectionException("This is impossible, so you've done something terribly wrong", rc);
-            }
-        } finally {
-            release();
+        Result rc = getResult(EDebCommand.COMMAND_DISCONNECT);
+        if (rc.failed()) {
+            throw new ConnectionException("This is impossible, so you've done something terribly wrong", rc);
         }
     }
 
@@ -554,11 +556,10 @@ public class Debugger implements Commands, Closeable {
         return new MemoryInfo(addr, size, type, perm);
     }
 
-    private Result getResult(int cmd) {
+    private Result getResult(EDebCommand cmd) {
         acquire();
         try {
-            conn.writeCommand(cmd);
-            conn.flush();
+            DebuggerUtils.runCommand(conn, cmd);
             return conn.readResult();
         } finally {
             release();

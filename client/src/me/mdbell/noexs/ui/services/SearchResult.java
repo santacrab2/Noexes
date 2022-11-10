@@ -21,8 +21,10 @@ import me.mdbell.noexs.dump.DumpRegion;
 import me.mdbell.noexs.dump.MemoryDump;
 import me.mdbell.noexs.io.MappedList;
 import me.mdbell.noexs.ui.NoexesFiles;
+import me.mdbell.noexs.ui.models.ConditionType;
 import me.mdbell.noexs.ui.models.DataType;
 import me.mdbell.noexs.ui.models.SearchType;
+import me.mdbell.util.HexUtils;
 
 public final class SearchResult implements Closeable {
 
@@ -36,8 +38,10 @@ public final class SearchResult implements Closeable {
     List<Long> addresses;
     List<DumpRegion> regions;
     DataType dataType;
-
     SearchType type;
+
+    ConditionType compareType;
+    long knownValue;
 
     long start;
     long end;
@@ -139,12 +143,14 @@ public final class SearchResult implements Closeable {
         public String prevLocation;
         public String addressLocation;
         public long addressesSize;
+        public ConditionType compareType;
+        public String knownValue;
 
         protected SerializedSearchResult() {
 
         }
     }
-    
+
     public String getFilename() {
         return FilenameUtils.removeExtension(location.getPath()) + ".srch";
     }
@@ -161,6 +167,8 @@ public final class SearchResult implements Closeable {
             ss.type = this.type;
             ss.start = this.start;
             ss.end = this.end;
+            ss.compareType = this.compareType;
+            ss.knownValue = HexUtils.format(this.dataType, this.knownValue, true);
             if (this.prev != null && this.prev.location != null) {
                 ss.prevLocation = this.prev.getFilename();
             }
@@ -192,6 +200,8 @@ public final class SearchResult implements Closeable {
             res.type = ssr.type;
             res.start = ssr.start;
             res.end = ssr.end;
+            res.compareType = ssr.compareType;
+            res.knownValue = HexUtils.fromString(ssr.knownValue);
             if (StringUtils.isNotBlank(ssr.prevLocation)) {
                 logger.debug("Reading previsou search : {}", ssr.prevLocation);
                 res.prev = load(new File(ssr.prevLocation));
@@ -199,7 +209,7 @@ public final class SearchResult implements Closeable {
             }
             if (StringUtils.isNotBlank(ssr.addressLocation)) {
                 logger.debug("Reading addresses from file : {}", ssr.addressLocation);
-                res.addresses = MappedList.createLongList(new File(ssr.addressLocation), "rw", (int)ssr.addressesSize);
+                res.addresses = MappedList.createLongList(new File(ssr.addressLocation), "rw", (int) ssr.addressesSize);
             } else {
                 // TODO
             }
@@ -213,7 +223,7 @@ public final class SearchResult implements Closeable {
     @Override
     public String toString() {
         return "SearchResult [location=" + location + ", dataType=" + dataType + ", type=" + type + ", start=" + start
-                + ", end=" + end + "]";
+                + ", end=" + end + ", knownValue=" + knownValue + ", compareType=" + compareType + "]";
     }
 
 }

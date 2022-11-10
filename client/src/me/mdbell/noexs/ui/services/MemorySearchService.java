@@ -191,7 +191,7 @@ public class MemorySearchService extends Service<SearchResult> {
     private class SearchTask extends Task<SearchResult> {
 
         // private static final int DUMP_BUFFER_SIZE = 10000;
-        private static final int DUMP_BUFFER_SIZE = 100000;
+        private static final int DUMP_BUFFER_SIZE = 10000;
         SearchResult res;
         private long curr = 0, total, prevAmt;
         private long lastUpdate;
@@ -217,6 +217,8 @@ public class MemorySearchService extends Service<SearchResult> {
             res.dataType = dataType;
             res.setPrev(prevResult);
             res.addresses = createList(NoexesFiles.createTempFile(time, fileDumpSuffixFinal, "addrs"));
+            res.compareType = compareType;
+            res.knownValue = knownValue;
 
             if (fullSearch) {
                 fullSearch();
@@ -389,7 +391,7 @@ public class MemorySearchService extends Service<SearchResult> {
             try {
                 long tid = conn.getCurrentTitleId();
                 File location = res.getLocation();
-                logger.info("Create dump : {} for tid : {}", location, tid);
+                logger.info("Create dump : {} for tid : {} with supplier : {}", location, tid, supplier.getDescription());
                 dump = new MemoryDump(location);
                 dump.setTid(tid);
                 dump.getInfos().addAll(Arrays.asList(conn.query(0, DUMP_BUFFER_SIZE)));

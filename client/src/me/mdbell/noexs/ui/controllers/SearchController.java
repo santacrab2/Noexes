@@ -37,6 +37,7 @@ import me.mdbell.noexs.dump.DumpRegionSupplier;
 import me.mdbell.noexs.ui.models.ConditionType;
 import me.mdbell.noexs.ui.models.ConversionType;
 import me.mdbell.noexs.ui.models.DataType;
+import me.mdbell.noexs.ui.models.Range;
 import me.mdbell.noexs.ui.models.RangeType;
 import me.mdbell.noexs.ui.models.SearchType;
 import me.mdbell.noexs.ui.models.SearchValueModel;
@@ -244,7 +245,7 @@ public class SearchController implements IController {
                 long address = m.getAddr();
                 EMemoryRegion region = tc.getAddressMemoryRegion(address);
                 long offset = tc.getOffset(address, region);
-                String pointerStr ="\"Set pointer "+ ++cheatIndex + "\"\n";
+                String pointerStr = "\"Set pointer " + ++cheatIndex + "\"\n";
                 pointerStr += "[" + region + " + 0x" + HexUtils.formatAddress(offset)
 
                         + "] = (U32) 0x" + HexUtils.formatLong(m.getNewValue());
@@ -400,7 +401,7 @@ public class SearchController implements IController {
         ConditionType compareType = searchConditionDropdown.getValue();
         searchService.setConnection(mc.getDebugger());
         searchService.setSupplier(getDumpRegionSupplier(mc.getDebugger()));
-        searchService.setFileDumpSuffix(null);
+        searchService.setFileDumpSuffix(fileDumpSuffix.getText());
         initSearch(type, compareType, dataType, known);
     }
 
@@ -594,7 +595,16 @@ public class SearchController implements IController {
                 long start = searchStart.getValue();
                 long end = searchEnd.getValue();
                 return DumpRegionSupplier.createSupplierFromRange(conn, start, end);
-            case RANGE2:
+            case MAIN_AND_HEAP:
+
+                Range mainRange = mc.tools().searchWrtitableRange(EMemoryRegion.MAIN);
+                Range heapRange = mc.tools().searchWrtitableRange(EMemoryRegion.HEAP);
+
+                searchStart.getValueFactory().setValue(heapRange.getStart());
+                searchEnd.getValueFactory().setValue(heapRange.getEnd());
+                mainStart.getValueFactory().setValue(mainRange.getStart());
+                mainsearchEnd.getValueFactory().setValue(mainRange.getEnd());
+
                 long heapstart = searchStart.getValue();
                 long heapend = searchEnd.getValue();
                 long mainstart = mainStart.getValue();

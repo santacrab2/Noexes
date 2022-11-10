@@ -9,7 +9,6 @@ import javafx.beans.property.SimpleStringProperty;
 import me.mdbell.noexs.core.EMemoryRegion;
 import me.mdbell.noexs.core.MemoryInfo;
 import me.mdbell.noexs.core.MemoryType;
-import me.mdbell.util.HexUtils;
 
 public class MemoryInfoTableModel {
 
@@ -70,6 +69,8 @@ public class MemoryInfoTableModel {
     public EMemoryRegion getMemoryRegion() {
         return memoryRegion;
     }
-    
-    
+
+    public boolean hasAccess(EAccessType accestype) {
+        return accestype.hasAcces(accessProperty().get());
+    }
 }
