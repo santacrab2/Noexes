@@ -147,23 +147,24 @@ public abstract class DumpRegionSupplier implements Supplier<DumpRegion> {
             }
         };
     }
-
-    public static DumpRegionSupplier createSupplierFrom2Range(Debugger conn, long start, long exstart, long exend,
-            long end) {
+    //mainstart, mainend, heapstart, heapend
+    public static DumpRegionSupplier createSupplierFrom2Range(Debugger conn, long mainstart, long mainend, long heapstart,
+            long heapend) {
         return new DumpRegionSupplier() {
 
             @Override
             public long getStart() {
-                return start;
+                return mainstart;
             }
 
             @Override
             public long getEnd() {
-                return end;
+                return heapend;
             }
 
+            @Override
             public long getSize() {
-                return (end - exend + exstart - start);
+                return ((heapend - heapstart) + (mainend - mainstart));
             }
 
             MemoryInfo[] info;
@@ -172,7 +173,7 @@ public abstract class DumpRegionSupplier implements Supplier<DumpRegion> {
             @Override
             public DumpRegion get() {
                 if (info == null) {
-                    info = conn.query(start, 10000);
+                    info = conn.query(mainstart, 10000);
                 }
                 MemoryInfo curr;
                 do {
@@ -180,13 +181,13 @@ public abstract class DumpRegionSupplier implements Supplier<DumpRegion> {
                         return null;
                     }
                     curr = info[i++];
-                } while (!curr.isReadable() || !curr.isWriteable() || curr.getNextAddress() < start
-                        || ((curr.getAddress() >= exstart) && (curr.getNextAddress() < exend)));
-                if (curr.getAddress() >= end) {
+                } while (!curr.isReadable() || !curr.isWriteable() || curr.getNextAddress() < mainstart
+                        || ((curr.getAddress() >= mainend) && (curr.getNextAddress() < heapstart)));
+                if (curr.getAddress() >= heapend) {
                     return null;
                 }
-                return new DumpRegion(Math.min(Math.max(curr.getAddress(), start), Math.max(exend, curr.getAddress())),
-                        Math.max(Math.min(curr.getNextAddress(), end), Math.min(exstart, curr.getNextAddress())));
+                return new DumpRegion(Math.min(Math.max(curr.getAddress(), mainstart), Math.max(heapstart, curr.getAddress())),
+                        Math.max(Math.min(curr.getNextAddress(), heapend), Math.min(mainend, curr.getNextAddress())));
             }
         };
     }

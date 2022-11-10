@@ -1,8 +1,23 @@
 package me.mdbell.noexs.ui.controllers;
 
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
+import java.io.IOException;
+import java.lang.reflect.Type;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.TimerTask;
+import java.util.concurrent.Semaphore;
+
+import org.apache.commons.io.FileUtils;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.reflect.TypeToken;
+
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
@@ -19,18 +34,9 @@ import me.mdbell.noexs.ui.models.DataType;
 import me.mdbell.noexs.ui.models.WatchlistModel;
 import me.mdbell.util.HexUtils;
 
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileReader;
-import java.io.IOException;
-import java.lang.reflect.Type;
-import java.nio.file.Files;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.TimerTask;
-import java.util.concurrent.Semaphore;
-
 public class WatchlistController implements IController {
+
+    private static final Logger logger = LogManager.getLogger(WatchlistController.class);
 
     public Button addButton;
     public Button removeButton;
@@ -180,9 +186,9 @@ public class WatchlistController implements IController {
         });
         String json = gson.toJson(list);
         try {
-            Files.write(f.toPath(), json.getBytes());
+            FileUtils.writeStringToFile(f, json, "UTF-8");
         } catch (IOException e) {
-            e.printStackTrace();
+            logger.error("Error while saving watch list", e);
         }
     }
 

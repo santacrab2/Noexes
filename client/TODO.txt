@@ -17,7 +17,14 @@
  --------- Export : conf Dmp + addrs
 -> Ajouter des logs !
 
--> Search Tab => Generer cheat avec valeur dans le champs value (ajouter un item dans la liste) 
+-> Search Tab => Generer cheat avec valeur dans le champs value (ajouter un item dans la liste)
+
+-> Menu du wathc list vers pointer, idem pour memory viewer
+
+-> Taille totale incorrecte lors de la recherche
+
+-> Nouvelles recherche sur un dump existant 
+-> Dump relative sans le suffix a corriger
 
 https://www.cheatslips.com/wiki/home/code_types
 https://github.com/Atmosphere-NX/Atmosphere/blob/master/docs/features/cheats.md

@@ -9,6 +9,7 @@ import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
 
+import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -206,16 +207,21 @@ public class MemorySearchService extends Service<SearchResult> {
         @Override
         protected SearchResult call() throws Exception {
             LocalDateTime time = LocalDateTime.now();
-            res = new SearchResult(time, fileDumpSuffix);
+            String fileDumpSuffixFinal = fileDumpSuffix;
+            boolean fullSearch = prevResult == null;
+            if (fullSearch) {
+                fileDumpSuffixFinal = StringUtils.appendIfMissing(fileDumpSuffixFinal, "_full");
+            }
+            res = new SearchResult(time, fileDumpSuffixFinal);
             res.type = type;
             res.dataType = dataType;
             res.setPrev(prevResult);
-            res.addresses = createList(NoexesFiles.createTempFile(time, fileDumpSuffix, "addrs"));
+            res.addresses = createList(NoexesFiles.createTempFile(time, fileDumpSuffixFinal, "addrs"));
 
-            if (prevResult != null) {
-                refineSearch();
-            } else {
+            if (fullSearch) {
                 fullSearch();
+            } else {
+                refineSearch();
             }
 
             res.save();

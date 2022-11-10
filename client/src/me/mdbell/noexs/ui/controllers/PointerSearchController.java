@@ -1,13 +1,17 @@
 package me.mdbell.noexs.ui.controllers;
 
+import java.io.File;
+import java.io.IOException;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Comparator;
 import java.util.List;
 import java.util.Set;
+import java.util.function.Function;
 
-import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.io.FileUtils;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -19,17 +23,19 @@ import javafx.scene.control.ContextMenu;
 import javafx.scene.control.ListCell;
 import javafx.scene.control.ListView;
 import javafx.scene.control.MenuItem;
+import javafx.scene.control.SelectionMode;
 import javafx.scene.control.Spinner;
 import javafx.scene.control.SpinnerValueFactory;
 import javafx.scene.control.TextField;
 import me.mdbell.javafx.control.AddressSpinner;
 import me.mdbell.javafx.control.HexSpinner;
 import me.mdbell.noexs.ui.Settings;
-import me.mdbell.noexs.ui.models.SearchValueModel;
 import me.mdbell.noexs.ui.services.PointerSearchResult;
 import me.mdbell.noexs.ui.services.PointerSearchService;
 
 public class PointerSearchController implements IController {
+
+    private static final Logger logger = LogManager.getLogger(PointerSearchController.class);
 
     @FXML
     AddressSpinner addressSpinner;
@@ -138,6 +144,7 @@ public class PointerSearchController implements IController {
 
         results = FXCollections.observableArrayList();
         resultList.setItems(results);
+        resultList.getSelectionModel().setSelectionMode(SelectionMode.MULTIPLE);
 
         relativeAddress.valueProperty().addListener((observable, oldValue, newValue) -> updateFilter());
 
@@ -153,20 +160,116 @@ public class PointerSearchController implements IController {
 
         filterMaxAddress.valueProperty().addListener((observable, oldValue, newValue) -> updateFilter());
         filterMinAddress.valueProperty().addListener((observable, oldValue, newValue) -> updateFilter());
-        
-        
+
         ContextMenu cm = new ContextMenu();
         MenuItem memoryView = new MenuItem("Memory Viewer");
         memoryView.setOnAction(event -> {
-           PointerSearchResult psr = resultList.getSelectionModel().getSelectedItem();
+            PointerSearchResult psr = resultList.getSelectionModel().getSelectedItem();
             if (psr == null) {
                 return;
             }
             mc.memory().setViewAddress(psr.getAddress());
             mc.setTab(MainController.Tab.MEMORY_VIEWER);
         });
-        cm.getItems().addAll(memoryView);
+
+        MenuItem exportPointers = new MenuItem("Export All Pointers Raw");
+        exportPointers.setOnAction(event -> {
+            String pointerType = "Raw";
+            String extension = "*.rptr";
+
+            Function<PointerSearchResult, String> pointerFormatter = psr -> psr.formattedRaw();
+
+            savePointers(resultList.getItems(), pointerType, extension, pointerFormatter);
+
+        });
+
+        MenuItem exportSelectedPointers = new MenuItem("Export Selected Pointers Raw");
+        exportSelectedPointers.setOnAction(event -> {
+            String pointerType = "Raw";
+            String extension = "*.rptr";
+
+            Function<PointerSearchResult, String> pointerFormatter = psr -> psr.formattedRaw();
+
+            savePointers(resultList.getSelectionModel().getSelectedItems(), pointerType, extension, pointerFormatter);
+
+        });
+
+        MenuItem exportRelativePointers = new MenuItem("Export All Pointers Relative");
+        exportRelativePointers.setOnAction(event -> {
+            String pointerType = "Relative";
+            String extension = "*.ptr";
+
+            Function<PointerSearchResult, String> pointerFormatter = psr -> psr.formattedRegion(mc.tools());
+            savePointers(resultList.getItems(), pointerType, extension, pointerFormatter);
+        });
+
+        MenuItem exportSelectedRelativePointers = new MenuItem("Export Selected Pointers Relative");
+        exportSelectedRelativePointers.setOnAction(event -> {
+            String pointerType = "Relative";
+            String extension = "*.ptr";
+
+            Function<PointerSearchResult, String> pointerFormatter = psr -> psr.formattedRegion(mc.tools());
+            savePointers(resultList.getSelectionModel().getSelectedItems(), pointerType, extension, pointerFormatter);
+        });
+
+        MenuItem preservePointers = new MenuItem("Preserve the pointers already found in file ...");
+        preservePointers.setOnAction(event -> {
+            File f = mc.browseFile(false, null, null, "Load", "Relative pointers", "*.ptr");
+            if (f == null) {
+                return;
+            }
+
+            List<PointerSearchResult> intersection = new ArrayList<>();
+
+            try {
+                List<String> pointersInFile = FileUtils.readLines(f, "UTF-8");
+                for (PointerSearchResult psr : resultList.getItems()) {
+                    String formattedPointer = psr.formattedRegion(mc.tools());
+                    boolean found = pointersInFile.contains(formattedPointer);
+                    logger.debug("Check pointer : {} -> found={}", formattedPointer, found);
+                    if (found) {
+                        intersection.add(psr);
+                    }
+                }
+            } catch (IOException e) {
+                logger.error("Error while loding pointers ", e);
+            }
+
+            logger.info("Found {} similar to file {}", intersection.size(), f.getPath());
+
+            this.unfilteredResults.clear();
+            this.unfilteredResults.addAll(intersection);
+            updateFilter();
+
+        });
+
+        cm.getItems().addAll(memoryView, exportSelectedPointers, exportPointers, exportSelectedRelativePointers,
+                exportRelativePointers, preservePointers);
+
         resultList.contextMenuProperty().set(cm);
+    }
+
+    private void savePointers(List<PointerSearchResult> lpsr, String pointerType, String extension,
+            Function<PointerSearchResult, String> pointerFormatter) {
+        if (lpsr == null) {
+            return;
+        }
+
+        File f = mc.browseFile(true, null, null, "Save As...", pointerType + " pointers", extension);
+        if (f == null) {
+            return;
+        }
+
+        StringBuilder strPointers = new StringBuilder();
+        for (PointerSearchResult psr : lpsr) {
+            strPointers.append(pointerFormatter.apply(psr)).append("\n");
+        }
+
+        try {
+            FileUtils.writeStringToFile(f, strPointers.toString(), "UTF-8");
+        } catch (IOException e) {
+            logger.error("Error while saving " + pointerType + " pointers ", e);
+        }
     }
 
     private void updateFilter() {
@@ -185,7 +288,7 @@ public class PointerSearchController implements IController {
         } else {
             results.addAll(unfilteredResults);
         }
-        //Collections.sort(results);
+        // Collections.sort(results);
     }
 
     private void updateSearchButton() {
@@ -219,10 +322,8 @@ public class PointerSearchController implements IController {
         searchService.setOnSucceeded(event1 -> {
             Set<PointerSearchResult> results = (Set<PointerSearchResult>) event1.getSource().getValue();
             this.unfilteredResults.clear();
-            
-            //List<PointerSearchResult> orederResults = setToOrderedList(results);
             this.unfilteredResults.addAll(results);
-            Collections.sort(this.unfilteredResults,(p1,p2) -> (p1.getAddress() < p2.getAddress() ? -1 : (p1.getAddress() > p2.getAddress() ? 1 : 0)));
+            sortResultList(this.unfilteredResults);
             mc.setStatus("Search Completed!");
             toggleInput(false);
             updateFilter();
@@ -232,6 +333,11 @@ public class PointerSearchController implements IController {
         searchService.restart();
 
         toggleInput(true);
+    }
+
+    private void sortResultList(List<PointerSearchResult> resultList) {
+        Collections.sort(resultList,
+                (p1, p2) -> (p1.getAddress() < p2.getAddress() ? -1 : (p1.getAddress() > p2.getAddress() ? 1 : 0)));
     }
 
     private List<PointerSearchResult> setToOrderedList(Set<PointerSearchResult> results) {
