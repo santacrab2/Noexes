@@ -328,7 +328,7 @@ public class MainController implements NetworkConstants, IController {
             Platform.runLater(() -> setStatus(message));
             return;
         }
-        logger.info("Main controller new status : {}", message);
+        //logger.info("Main controller new status : {}", message);
         statusLbl.setText(message);
     }
 

@@ -4,19 +4,15 @@
 - All operations
 - Else
 - Test unitaires
-- Tab avec convertisseur Float=> Hex ou menu
 - Ajout Get Bookmark
 - Ajouter dans la structure memoire le type de region : (enum) Base, Main, Heap, Other : ... => updateMemeoryInfo
 --- A ajouter dans la liste des block
 --- Permettre de localiser un pointer
 --- Ajouter un objet qui permet de faire ca dans Tools getRegion(addr)
-- Ameliorer code connection
 --> Pb sur end (manque un bloc) et start
 - Pointer Search => Sauvegarde (raw ou relatif), Conversion addr MAIN/HEAP + (2 colonnes ), comparaison avec un autre fichier
  -------- Export vers cheats
  --------- Export : conf Dmp + addrs
--> Ajouter des logs !
-
 -> Search Tab => Generer cheat avec valeur dans le champs value (ajouter un item dans la liste)
 
 -> Menu du wathc list vers pointer, idem pour memory viewer

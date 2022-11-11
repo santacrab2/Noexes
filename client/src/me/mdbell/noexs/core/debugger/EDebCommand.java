@@ -17,11 +17,11 @@ public enum EDebCommand {
     // int COMMAND_QUERY_MEMORY_MULTI = 0x0D;
     COMMAND_CURRENT_PID(0x0E, null, RDebCurrentPidOutput.class),
     COMMAND_GET_ATTACHED_PID(0x0F, null, RDebGetAttachedPidOutput.class),
-    // int COMMAND_GET_PIDS = 0x10;
+    COMMAND_GET_PIDS(0x10, null, RDebGetPidsOutput.class),
     COMMAND_GET_TITLEID(0x11, RDebGetTitleIdInput.class, RDebGetTitleIdOutput.class),
-    COMMAND_DISCONNECT(0x12);
+    COMMAND_DISCONNECT(0x12),
     // int COMMAND_READ_MULTI = 0x13;
-    // int COMMAND_SET_BREAKPOINT = 0x14;
+    COMMAND_SET_BREAKPOINT(0x14, RDebSetBreakpointInput.class, null);
 
     private int code;
 

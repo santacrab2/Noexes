@@ -1,5 +1,6 @@
 package me.mdbell.noexs.core;
 
+import java.lang.reflect.Array;
 import java.lang.reflect.RecordComponent;
 import java.util.ArrayList;
 import java.util.List;
@@ -8,8 +9,8 @@ import org.apache.commons.lang3.reflect.ConstructorUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import me.mdbell.noexs.core.debugger.EDebDataType;
 import me.mdbell.noexs.core.debugger.EDebCommand;
+import me.mdbell.noexs.core.debugger.EDebDataType;
 
 public class DebuggerUtils {
 
@@ -19,8 +20,21 @@ public class DebuggerUtils {
         RecordComponent[] recordComponents = recordCls.getRecordComponents();
         List<Object> values = new ArrayList<>();
         for (RecordComponent rc : recordComponents) {
-            EDebDataType dt = EDebDataType.getDatatype(rc.getType());
-            Object value = dt.getReadValueMethod().apply(connection);
+            Class<?> type = rc.getType();
+            Object value = null;
+            EDebDataType dt = null;
+            if (type.isArray()) {
+                dt = EDebDataType.getDatatype(type.componentType());
+                int count = connection.readInt();
+                value = Array.newInstance(type.componentType(), count);
+                for (int i = 0; i < count; i++) {
+                    Object arrayValue = dt.getReadValueMethod().apply(connection);
+                    Array.set(value, i, arrayValue);
+                }
+            } else {
+                dt = EDebDataType.getDatatype(type);
+                value = dt.getReadValueMethod().apply(connection);
+            }
             values.add(value);
             logger.debug("Field Read : {}->{}:{}={}", rc.getName(), rc.getType(), dt, value);
         }

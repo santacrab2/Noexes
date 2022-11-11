@@ -15,12 +15,14 @@ import me.mdbell.noexs.core.debugger.EDebCommand;
 import me.mdbell.noexs.core.debugger.RDebAttachInput;
 import me.mdbell.noexs.core.debugger.RDebCurrentPidOutput;
 import me.mdbell.noexs.core.debugger.RDebGetAttachedPidOutput;
+import me.mdbell.noexs.core.debugger.RDebGetPidsOutput;
 import me.mdbell.noexs.core.debugger.RDebGetTitleIdInput;
 import me.mdbell.noexs.core.debugger.RDebGetTitleIdOutput;
 import me.mdbell.noexs.core.debugger.RDebPoke16Input;
 import me.mdbell.noexs.core.debugger.RDebPoke32Input;
 import me.mdbell.noexs.core.debugger.RDebPoke64Input;
 import me.mdbell.noexs.core.debugger.RDebPoke8Input;
+import me.mdbell.noexs.core.debugger.RDebSetBreakpointInput;
 import me.mdbell.noexs.core.debugger.RDebStatusOutput;
 import me.mdbell.noexs.misc.BreakpointFlagBuilder;
 import me.mdbell.noexs.misc.BreakpointType;
@@ -221,11 +223,8 @@ public class Debugger implements Commands, Closeable {
     public Result setBreakpoint(int id, long flags, long addr) {
         acquire();
         try {
-            conn.writeCommand(COMMAND_SET_BREAKPOINT);
-            conn.writeInt(id);
-            conn.writeLong(addr);
-            conn.writeLong(flags);
-            conn.flush();
+            DebuggerUtils.runCommand(conn, EDebCommand.COMMAND_SET_BREAKPOINT,
+                    new RDebSetBreakpointInput(id, addr, flags));
             return conn.readResult();
         } finally {
             release();
@@ -432,13 +431,9 @@ public class Debugger implements Commands, Closeable {
     public long[] getPids() {
         acquire();
         try {
-            conn.writeCommand(COMMAND_GET_PIDS);
-            conn.flush();
-            int count = conn.readInt();
-            long[] pids = new long[count];
-            for (int i = 0; i < count; i++) {
-                pids[i] = conn.readLong();
-            }
+            
+            RDebGetPidsOutput getPids = DebuggerUtils.runCommand(conn, EDebCommand.COMMAND_GET_PIDS);
+            long[] pids = getPids.pids();
             Result rc = conn.readResult();
             if (rc.failed()) {
                 throw new ConnectionException(rc);
