@@ -151,7 +151,9 @@ public class MemorySearchService extends Service<SearchResult> {
             case KNOWN:
                 return compare(value, knownValue);
             case DIFFERENT:
-                return compare(Math.abs(value - prev), knownValue);
+                long diff = value - prev;
+                long absDiff = (diff<0)?-diff: diff;
+                return compare(absDiff, knownValue);
             default:
                 throw new UnsupportedOperationException("Unsupported condition type:" + type);
         }

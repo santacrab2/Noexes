@@ -538,6 +538,7 @@ public class SearchController implements IController {
             mc.setStatus("Search failed!");
             Throwable t = value.getSource().getException();
             t.printStackTrace();
+            logger.error("Search filaure", t);
             MainController.showMessage(t);
             searchOptions.setDisable(false);
         });

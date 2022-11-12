@@ -1,16 +1,12 @@
 package me.mdbell.noexs.ui.menus;
 
-import java.util.List;
 import java.util.function.Supplier;
-
-import org.apache.commons.lang3.StringUtils;
 
 import javafx.scene.control.ContextMenu;
 import javafx.scene.control.MenuItem;
 import javafx.scene.control.TableView;
 import me.mdbell.noexs.core.EMemoryRegion;
 import me.mdbell.noexs.ui.controllers.MainController;
-import me.mdbell.noexs.ui.models.EAccessType;
 import me.mdbell.noexs.ui.models.MemoryInfoTableModel;
 import me.mdbell.noexs.ui.models.Range;
 
@@ -26,6 +22,7 @@ public class MemoryInfoContextMenu extends ContextMenu {
         MenuItem mainsearchBoth = new MenuItem("Main Search (Start & End)");
         MenuItem mainsearchStart = new MenuItem("Main Search(Start)");
         MenuItem mainsearchEnd = new MenuItem("Main Search (End)");
+        MenuItem ptrMainAuto = new MenuItem("Pointer Search Auto Main");
         MenuItem ptrMain = new MenuItem("Pointer Search (Main)");
         MenuItem ptrFilter = new MenuItem("Pointer Search (Filter Min & Max)");
         MenuItem ptrFilterStart = new MenuItem("Pointer Search (Filter Min)");
@@ -52,6 +49,15 @@ public class MemoryInfoContextMenu extends ContextMenu {
             Range range = mc.get().tools().searchWrtitableRange(EMemoryRegion.MAIN);
             if (range != null) {
                 mc.get().search().setSearchRange(range.getStart(), range.getEnd());
+            }
+        });
+
+        ptrMainAuto.setOnAction(event -> {
+            Range range = mc.get().tools().searchWrtitableRange(EMemoryRegion.MAIN);
+            if (range != null) {
+                mc.get().pointer().setFilterMin(range.getStart());
+                mc.get().pointer().setFilterMax(range.getEnd());
+                mc.get().pointer().setFilterActivated(true);
             }
         });
 
@@ -156,9 +162,8 @@ public class MemoryInfoContextMenu extends ContextMenu {
             mc.get().setTab(MainController.Tab.DISASSEMBLER);
         });
         getItems().addAll(searchBoth, searchStart, searchEnd, mainsearchAuto, heapsearchAuto, mainHeapSearchAuto,
-                mainsearchStart, mainsearchEnd, ptrMain, ptrFilter, ptrFilterStart, ptrFilterEnd, memoryView,
-                disassembler);
+                mainsearchStart, mainsearchEnd, ptrMainAuto, ptrMain, ptrFilter, ptrFilterStart, ptrFilterEnd,
+                memoryView, disassembler);
     }
 
-   
 }

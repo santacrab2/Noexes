@@ -6,17 +6,20 @@ import java.util.List;
 
 public class PointerSearchResultNode {
 
-    private List<PointerSearchResultNode> psrnl = new ArrayList<>();
+    private List<PointerSearchResultNode> intermediatePsrnl = new ArrayList<>();
+    private PointerSearchResultNode[] psrnlToSearch = null;
+   
+
     long minAddress = Long.MAX_VALUE;
     long maxAddress = 0;
 
-    private static final int MAX_ITEM_PER_NODE = 10;
+    private static final float MAX_ITEMS_PER_NODE_RATIO = 1.5f;
 
-    public List<PointerSearchResult> getPointersMatching(long addressToTest, long maxOffset) {
+    public List<PointerSearchResult> getPointersMatching(long addressToTest, long maxOffset, boolean onlyPositiveOffset) {
         List<PointerSearchResult> res = null;
-        if (((minAddress - addressToTest) < 0) && ((addressToTest - maxAddress) < maxOffset)) {
-            for (PointerSearchResultNode psrn : psrnl) {
-                List<PointerSearchResult> resInt = psrn.getPointersMatching(addressToTest, maxOffset);
+        if (((minAddress - addressToTest) < maxOffset) && ((addressToTest - maxAddress) < maxOffset)) {
+            for (PointerSearchResultNode psrn : getPsrnlToSearch()) {
+                List<PointerSearchResult> resInt = psrn.getPointersMatching(addressToTest, maxOffset, onlyPositiveOffset);
                 if (resInt != null) {
                     if (res == null) {
                         res = new ArrayList<>();
@@ -27,11 +30,19 @@ public class PointerSearchResultNode {
         }
         return res;
     }
+    
+    private PointerSearchResultNode[] getPsrnlToSearch() {
+        if (psrnlToSearch == null) {
+            psrnlToSearch = intermediatePsrnl.toArray(new PointerSearchResultNode[] {});
+        }
+        return psrnlToSearch;
+    }
 
     public void addPointersNode(PointerSearchResultNode psr) {
-        psrnl.add(psr);
+        intermediatePsrnl.add(psr);
         minAddress = Math.min(psr.minAddress, minAddress);
         maxAddress = Math.max(psr.maxAddress, maxAddress);
+        psrnlToSearch = null;
     }
 
     public void addPointersNodes(List<PointerSearchResultNode> psrnl) {
@@ -40,8 +51,7 @@ public class PointerSearchResultNode {
         }
     }
 
-    public static PointerSearchResultNode buildRootTree(List<PointerSearchResult> psrl) {
-
+    public static PointerSearchResultNode buildRootTree(List<PointerSearchResult> psrl, int maxItems) {
         PointerSearchResultNode res = null;
         Collections.sort(psrl, (p1, p2) -> (p1.address < p2.address ? -1 : (p1.address > p2.address ? 1 : 0)));
         List<PointerSearchResultNode> leafs = new ArrayList<>();
@@ -50,26 +60,29 @@ public class PointerSearchResultNode {
         for (PointerSearchResult psr : psrl) {
             if (currentLeaf == null) {
                 currentLeaf = new PointerSearchResultLeaf();
+                leafs.add(currentLeaf);
             }
             currentLeaf.addPointers(psr);
-            if (++counter > MAX_ITEM_PER_NODE) {
+            if (++counter > maxItems) {
                 currentLeaf = null;
                 counter = 0;
             }
         }
-
-        return buildNodes(leafs);
+        res = buildNodes(leafs, maxItems);
+        
+        
+        return res;
 
     }
 
-    public static PointerSearchResultNode buildNodes(List<PointerSearchResultNode> psrl) {
+    public static PointerSearchResultNode buildNodes(List<PointerSearchResultNode> psrl, int maxItems) {
         PointerSearchResultNode res = new PointerSearchResultNode();
-        if (psrl.size() <= MAX_ITEM_PER_NODE) {
+        if (psrl.size() <= maxItems) {
             res.addPointersNodes(psrl);
         } else {
-            List<List<PointerSearchResultNode>> splitted = spitListTo(psrl, MAX_ITEM_PER_NODE);
+            List<List<PointerSearchResultNode>> splitted = spitListTo(psrl, maxItems);
             for (List<PointerSearchResultNode> intList : splitted) {
-                res.addPointersNode(buildNodes(intList));
+                res.addPointersNode(buildNodes(intList, (int) (maxItems * MAX_ITEMS_PER_NODE_RATIO)));
             }
         }
 

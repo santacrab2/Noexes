@@ -3,6 +3,7 @@ package me.mdbell.noexs.ui.controllers;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Paths;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -56,6 +57,12 @@ public class PointerSearchController implements IController {
     TextField dumpFilePath;
 
     @FXML
+    CheckBox postiveOffset;
+
+    @FXML
+    CheckBox dumpSearch;
+
+    @FXML
     TextField resultText;
 
     @FXML
@@ -91,7 +98,7 @@ public class PointerSearchController implements IController {
 
     private String formatPointer(PointerSearchResult item) {
         String text = "";
-        if (autoOffsetCheckbox.isSelected()) {
+        if (autoOffsetCheckbox.isSelected() && !mc.tools().memInfoTable.getItems().isEmpty()) {
             text = item.formattedRegion(mc.tools());
         } else {
             Long relativeAddressValue = relativeAddress.getValue();
@@ -312,6 +319,9 @@ public class PointerSearchController implements IController {
         searchService.setMaxOffset(offsetSpinner.getValue());
         searchService.setAddress(addressSpinner.getValue());
         searchService.setThreadCount(threadsSpinner.getValue());
+        searchService.setPositiveOffset(postiveOffset.isSelected());
+        searchService.setTime(LocalDateTime.now());
+        searchService.setDumpSearch(dumpSearch.isSelected());
 
         searchService.setOnFailed(event1 -> {
             mc.setStatus("Search Failed!");
@@ -320,7 +330,7 @@ public class PointerSearchController implements IController {
         });
 
         searchService.setOnSucceeded(event1 -> {
-            Set<PointerSearchResult> results = (Set<PointerSearchResult>) event1.getSource().getValue();
+            List<PointerSearchResult> results = (List<PointerSearchResult>) event1.getSource().getValue();
             this.unfilteredResults.clear();
             this.unfilteredResults.addAll(results);
             sortResultList(this.unfilteredResults);
@@ -385,6 +395,10 @@ public class PointerSearchController implements IController {
 
     public void setFilterMax(long address) {
         filterMaxAddress.getValueFactory().setValue(address);
+    }
+
+    public void setFilterActivated(boolean activated) {
+        filterCheckbox.setSelected(activated);
     }
 
     public void setRelativeAddress(long address) {

@@ -23,6 +23,10 @@
 -> Nouvelles recherche sur un dump existant 
 -> Dump relative sans le suffix a corriger
 
+-> Optimiser la fonction convertToLong pour quelle retourne un tableau de Long
+-> Optimiser math.abs
+-> ne pas faire des listes mais des tableaux dans les noeud (getPointersMatching)
+
 https://www.cheatslips.com/wiki/home/code_types
 https://github.com/Atmosphere-NX/Atmosphere/blob/master/docs/features/cheats.md
 https://raw.githubusercontent.com/Atmosphere-NX/Atmosphere/master/docs/features/cheats.md

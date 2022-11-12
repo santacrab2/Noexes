@@ -17,7 +17,7 @@
          <content>
             <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="79.0" prefWidth="990.0">
                <children>
-                  <TextField fx:id="dumpFilePath" editable="false" layoutX="71.0" layoutY="14.0" prefHeight="25.0" prefWidth="773.0" />
+                  <TextField fx:id="dumpFilePath" editable="false" layoutX="71.0" layoutY="14.0" prefHeight="25.0" prefWidth="563.0" />
                   <Button fx:id="dumpFileButton" layoutX="921.0" layoutY="14.0" mnemonicParsing="false" onAction="#onBrowseDumpFile" text="Browse" />
                   <Label layoutX="14.0" layoutY="18.0" text="Dump FIle:" />
                   <Label layoutX="458.0" layoutY="50.0" text="Max Depth:" />
@@ -32,6 +32,8 @@
                   <Spinner fx:id="threadsSpinner" layoutX="723.0" layoutY="46.0" prefHeight="25.0" prefWidth="122.0" />
                   <Button fx:id="cancelButton" disable="true" layoutX="857.0" layoutY="46.0" mnemonicParsing="false" onAction="#onCancelAction" text="Cancel" />
                   <Button disable="true" layoutX="857.0" layoutY="14.0" mnemonicParsing="false" text="Create" />
+                  <CheckBox fx:id="postiveOffset" layoutX="640.0" layoutY="18.0" mnemonicParsing="false" prefHeight="17.0" prefWidth="109.0" selected="true" text="Positive offset" />
+                  <CheckBox fx:id="dumpSearch" layoutX="753.0" layoutY="17.0" mnemonicParsing="false" text="Dump search" />
                </children>
             </AnchorPane>
          </content>
