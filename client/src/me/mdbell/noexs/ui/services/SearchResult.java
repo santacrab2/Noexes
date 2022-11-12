@@ -20,6 +20,7 @@ import com.google.gson.GsonBuilder;
 import me.mdbell.noexs.dump.DumpRegion;
 import me.mdbell.noexs.dump.MemoryDump;
 import me.mdbell.noexs.io.MappedList;
+import me.mdbell.noexs.misc.DumpAddressList;
 import me.mdbell.noexs.ui.NoexesFiles;
 import me.mdbell.noexs.ui.models.ConditionType;
 import me.mdbell.noexs.ui.models.DataType;
@@ -93,7 +94,8 @@ public final class SearchResult implements Closeable {
     }
 
     public int size() {
-        return addresses.size();
+
+        return (addresses != null) ? addresses.size() : 0;
     }
 
     public List<Long> getPage(int idx) {
@@ -211,6 +213,10 @@ public final class SearchResult implements Closeable {
                 logger.debug("Reading addresses from file : {}", ssr.addressLocation);
                 res.addresses = MappedList.createLongList(new File(ssr.addressLocation), "rw", (int) ssr.addressesSize);
             } else {
+                if (res.type == SearchType.UNKNOWN) {
+                    res.addresses = new DumpAddressList(res.curr, res.dataType.getSize());
+                    res.regions = res.curr.getIndicesAsRegions();
+                }
                 // TODO
             }
 

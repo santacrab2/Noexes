@@ -1,5 +1,8 @@
 package me.mdbell.noexs.ui.services;
 
+import org.apache.commons.lang3.builder.ReflectionToStringBuilder;
+import org.apache.commons.lang3.builder.ToStringStyle;
+
 import me.mdbell.noexs.core.EMemoryRegion;
 import me.mdbell.noexs.ui.controllers.ToolsController;
 import me.mdbell.util.HexUtils;
@@ -17,28 +20,25 @@ public class PointerSearchResult implements Comparable<PointerSearchResult>, Clo
         this.depth = 0;
     }
 
-    
-    
     public String formattedRegion(ToolsController tc) {
         EMemoryRegion region = tc.getAddressMemoryRegion(address);
         long offset = tc.getOffset(address, region);
         String base = region + " + 0x" + HexUtils.formatLong(offset);
         return formatted(base);
     }
-    
+
     public String formattedMain(long main) {
         long rel = address - main;
         String base = "main" + (rel >= 0 ? "+" : "-") + Long.toUnsignedString(Math.abs(rel), 16);
         return formatted(base);
     }
-    
+
     public String formattedRaw() {
         String base = HexUtils.formatAddress(address);
         return formatted(base);
-        
+
     }
-    
-    
+
     public String formatted(String base) {
         StringBuilder prefix = new StringBuilder();
         StringBuilder suffix = new StringBuilder();
@@ -107,5 +107,9 @@ public class PointerSearchResult implements Comparable<PointerSearchResult>, Clo
 
     public long getAddress() {
         return address;
+    }
+
+    public String toString() {
+        return ReflectionToStringBuilder.toString(this, ToStringStyle.SHORT_PREFIX_STYLE);
     }
 }

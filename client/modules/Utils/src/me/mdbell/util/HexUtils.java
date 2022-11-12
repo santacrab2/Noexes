@@ -1,7 +1,12 @@
 package me.mdbell.util;
 
+import java.util.ArrayList;
+import java.util.List;
+
+import org.apache.commons.lang3.RegExUtils;
 import org.apache.commons.lang3.StringUtils;
 
+import me.mdbell.noexs.code.model.EDataType;
 import me.mdbell.noexs.ui.models.DataType;
 import me.mdbell.noexs.ui.models.EAccessType;
 
@@ -43,6 +48,14 @@ public class HexUtils {
         return res;
     }
 
+    public static String format(EDataType dataType, long value, boolean hexPrefix) {
+        String res = pad('0', dataType.getDataTypeSize(), Long.toUnsignedString(value, 16).toUpperCase());
+        if (hexPrefix) {
+            res = "0x" + res;
+        }
+        return res;
+    }
+
     public static long readFromString(DataType dataType, String value) {
         return Long.parseLong(StringUtils.removeStartIgnoreCase(value, "0x"), 16);
 
@@ -64,6 +77,15 @@ public class HexUtils {
         }
 
         return sb.toString();
+    }
+
+    public static String formatBlockOf(String hexCode, int blockSize) {
+        String res = RegExUtils.removeAll(hexCode, "\s");
+        List<String> stringFrag = new ArrayList<>();
+        for (int i = 0; i < hexCode.length(); i += blockSize) {
+            stringFrag.add(StringUtils.substring(res, i, i + blockSize));
+        }
+        return StringUtils.join(stringFrag, " ");
     }
 
     public static long fromString(String hexString) {

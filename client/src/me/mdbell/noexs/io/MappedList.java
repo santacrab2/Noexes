@@ -15,6 +15,8 @@ import java.util.List;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
+import me.mdbell.noexs.ui.services.PointerSearchResult;
+
 public abstract class MappedList<T> extends AbstractList<T> implements Closeable {
 
     private static final long BUFFER_SIZE = 1024 * 1024 * 50; // 50MB
@@ -126,6 +128,7 @@ public abstract class MappedList<T> extends AbstractList<T> implements Closeable
         return createLongList(file, access, 0);
     }
 
+   
     public static MappedList<Long> createLongList(File file, String access, int size) {
         return new MappedList<>(file, access, size) {
             @Override
@@ -145,4 +148,6 @@ public abstract class MappedList<T> extends AbstractList<T> implements Closeable
             }
         };
     }
+    
+    
 }

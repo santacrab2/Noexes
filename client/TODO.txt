@@ -26,3 +26,4 @@
 https://www.cheatslips.com/wiki/home/code_types
 https://github.com/Atmosphere-NX/Atmosphere/blob/master/docs/features/cheats.md
 https://raw.githubusercontent.com/Atmosphere-NX/Atmosphere/master/docs/features/cheats.md
+=> Optimiser la recherche sur plusieurs niveau. Faire des ranges

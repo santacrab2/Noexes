@@ -13,15 +13,20 @@ module JNoexes {
     requires org.apache.commons.collections4;
     requires org.apache.logging.log4j.core;
     requires org.apache.logging.log4j;
+    requires org.reflections;
 
     requires org.antlr.antlr4.runtime;
 
     exports me.mdbell.noexs.ui;
 
     opens me.mdbell.noexs.ui.controllers to javafx.fxml, com.google.gson;
-    opens me.mdbell.noexs.ui.services to com.google.gson;
+    opens me.mdbell.noexs.ui.services to com.google.gson, org.apache.commons.lang3;
     opens me.mdbell.noexs.ui.models to com.google.gson;
     opens me.mdbell.javafx.control to javafx.fxml;
     opens me.mdbell.noexs.code.model to org.apache.commons.lang3, com.google.gson;
     opens me.mdbell.noexs.core.debugger to org.apache.commons.lang3;
+    opens me.mdbell.noexs.code.reverse to org.reflections, org.apache.commons.lang3;
+    opens me.mdbell.noexs.code.reverse.decoded to org.reflections, org.apache.commons.lang3;
+    opens me.mdbell.noexs.code.reverse.annotation to org.reflections, org.apache.commons.lang3;
+
 }

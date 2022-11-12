@@ -1,20 +1,28 @@
 package me.mdbell.noexs.ui.services;
 
-import javafx.concurrent.Service;
-import javafx.concurrent.Task;
-import me.mdbell.noexs.dump.DumpIndex;
-import me.mdbell.noexs.dump.MemoryDump;
-import me.mdbell.noexs.misc.IndexSerializer;
-
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.file.Path;
-import java.util.*;
+import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 import java.util.concurrent.ForkJoinPool;
 import java.util.concurrent.RecursiveTask;
 import java.util.concurrent.Semaphore;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
+import javafx.concurrent.Service;
+import javafx.concurrent.Task;
+import me.mdbell.noexs.dump.DumpIndex;
+import me.mdbell.noexs.dump.MemoryDump;
+
 public class PointerSearchService extends Service<Set<PointerSearchResult>> {
+
+    private static final Logger logger = LogManager.getLogger(PointerSearchService.class);
 
     private Path dumpPath;
     private long maxOffset, address;
@@ -67,6 +75,7 @@ public class PointerSearchService extends Service<Set<PointerSearchResult>> {
         @Override
         protected Set<PointerSearchResult> call() throws Exception {
             ForkJoinPool pool = new ForkJoinPool(threadCount);
+            LocalDateTime time = LocalDateTime.now();
             try {
                 MemoryDump dump = openDump(dumpPath);
                 List<PointerSearchResult>[] results = new List[maxDepth]; // TODO MAPEDLIST
@@ -94,6 +103,7 @@ public class PointerSearchService extends Service<Set<PointerSearchResult>> {
         private List<DumpIndex> indices;
         private DumpIndex idx;
         private List<PointerSearchResult>[] results;
+        private int logCount = 0;
 
         public PointerRecursiveTask(SearchTask owner, MemoryDump dump, List<DumpIndex> indices,
                 List<PointerSearchResult>[] results, int depth) {
@@ -135,33 +145,85 @@ public class PointerSearchService extends Service<Set<PointerSearchResult>> {
             } else {
                 searchDepth(depth, results[depth - 1], res, idx.getAddress(), buffer);
             }
+            // logger.info("PointerSearchResult depth={} finished. Res (size={}): {} ",
+            // depth, res.size(), res);
             results[depth].addAll(res);
             owner.add(buffer.capacity());
         }
 
         private void searchDepth(int depth, List<PointerSearchResult> toSearch, List<PointerSearchResult> toAdd,
                 long base, ByteBuffer buffer) {
+            /*
+             * logger.info("PointerSearchResult depth={}, result size :{} to search in : {}"
+             * , depth, toSearch.size(), toSearch);
+             */
+
             while (buffer.hasRemaining() && !owner.isCancelled()) {
                 long addr = base + buffer.position();
-                long test = buffer.getLong();
-                for (int i = 0; i < toSearch.size(); i++) {
-                    PointerSearchResult res = toSearch.get(i);
-                    long offset = res.address - test;
-                    if (Math.abs(offset) <= maxOffset) {
-                        PointerSearchResult newResult = new PointerSearchResult(addr, offset);
-                        PointerSearchResult oldResult = (PointerSearchResult) res.clone();
-                        newResult.depth = depth;
-                        oldResult.prev = newResult;
-                        toAdd.add(oldResult);
+                int remaining = buffer.remaining();
+                byte[] byteLong = new byte[remaining];// buffer.remaining()];
+                buffer.get(byteLong);
+
+                for (int cursor = 0; cursor < remaining; cursor += 8) {
+                    long test = convertToLong(byteLong, cursor);
+                    for (int i = 0; i < toSearch.size(); i++) {
+                        PointerSearchResult res = toSearch.get(i);
+                        long offset = res.address - test;
+                        if (Math.abs(offset) <= maxOffset) {
+                            PointerSearchResult newResult = new PointerSearchResult((addr+cursor), offset);
+                            PointerSearchResult oldResult = (PointerSearchResult) res.clone();
+                            newResult.depth = depth;
+                            oldResult.prev = newResult;
+                            toAdd.add(oldResult);
+                        }
                     }
+                    addr += 8;
                 }
             }
+        }
+
+        static long convertToLong(byte[] bytes, int index) {
+            long value = 0l;
+
+            // Iterating through for loop
+            for (int i = 7; i >= 0; i--) {
+                byte b = bytes[index + i];
+                // Shifting previous value 8 bits to right and
+                // add it with next value
+                value = (value << 8) + (b & 255);
+            }
+
+            return value;
         }
 
         private void search(List<PointerSearchResult> results, long base, ByteBuffer buffer, long address) {
             while (buffer.hasRemaining() && !owner.isCancelled()) {
                 long addr = base + buffer.position();
+                int remaining = buffer.remaining();
+                byte[] byteLong = new byte[remaining];// buffer.remaining()];
+                buffer.get(byteLong);
+
+                for (int cursor = 0; cursor < remaining; cursor += 8) {
+                    long test = convertToLong(byteLong, cursor);
+                    if (logCount++ < 10) {
+                        //logger.info("test[{}]:{}=>addr:{}", logCount, test, (addr+cursor));
+                    }
+                    long offset = address - test;
+                    if (Math.abs(offset) <= maxOffset) {
+                        results.add(new PointerSearchResult(addr+ cursor, offset));
+                    }
+                    
+                }
+            }
+        }
+
+        private void searchOld(List<PointerSearchResult> results, long base, ByteBuffer buffer, long address) {
+            while (buffer.hasRemaining() && !owner.isCancelled()) {
+                long addr = base + buffer.position();
                 long test = buffer.getLong();
+                if (logCount++ < 10) {
+                    logger.info("test[{}]:{}=>addr:{}", logCount, test, addr);
+                }
                 long offset = address - test;
                 if (Math.abs(offset) <= maxOffset) {
                     results.add(new PointerSearchResult(addr, offset));
