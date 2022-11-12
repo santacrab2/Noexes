@@ -66,6 +66,9 @@ public class MainController implements NetworkConstants, IController {
     Label progressLabel;
 
     @FXML
+    CheckBox autoAttach;
+
+    @FXML
     TabPane tabs;
 
     @FXML
@@ -190,6 +193,11 @@ public class MainController implements NetworkConstants, IController {
 
         DebuggerStatus status = debugger.getStatus();
         setTitle(status.getStatus());
+
+        if (autoAttach.isSelected()) {
+            logger.info("Auto attach");
+            tools().attachToCurrentProcess();
+        }
     }
 
     @Override
@@ -328,7 +336,7 @@ public class MainController implements NetworkConstants, IController {
             Platform.runLater(() -> setStatus(message));
             return;
         }
-        //logger.info("Main controller new status : {}", message);
+        // logger.info("Main controller new status : {}", message);
         statusLbl.setText(message);
     }
 

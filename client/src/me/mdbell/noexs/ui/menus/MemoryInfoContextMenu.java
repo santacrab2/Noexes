@@ -53,12 +53,7 @@ public class MemoryInfoContextMenu extends ContextMenu {
         });
 
         ptrMainAuto.setOnAction(event -> {
-            Range range = mc.get().tools().searchWrtitableRange(EMemoryRegion.MAIN);
-            if (range != null) {
-                mc.get().pointer().setFilterMin(range.getStart());
-                mc.get().pointer().setFilterMax(range.getEnd());
-                mc.get().pointer().setFilterActivated(true);
-            }
+            mc.get().tools().setMainFilterToPointerSearch();
         });
 
         heapsearchAuto.setOnAction(event -> {
@@ -70,15 +65,7 @@ public class MemoryInfoContextMenu extends ContextMenu {
         });
 
         mainHeapSearchAuto.setOnAction(event -> {
-            Range range = mc.get().tools().searchWrtitableRange(EMemoryRegion.MAIN);
-            if (range != null) {
-                mc.get().search().mainsetSearchRange(range.getStart(), range.getEnd());
-            }
-            Range range2 = mc.get().tools().searchWrtitableRange(EMemoryRegion.HEAP);
-            if (range != null) {
-                mc.get().search().setSearchRange(range2.getStart(), range2.getEnd());
-            }
-            mc.get().setTab(MainController.Tab.SEARCH);
+            mc.get().tools().setMainHeapAddressesInSearchTab(true);
         });
 
         mainsearchBoth.setOnAction(event -> {

@@ -13,6 +13,7 @@ import javafx.collections.transformation.SortedList;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.control.Alert;
+import javafx.scene.control.CheckBox;
 import javafx.scene.control.Label;
 import javafx.scene.control.ListView;
 import javafx.scene.control.TableColumn;
@@ -59,6 +60,9 @@ public class ToolsController implements IController {
 
     @FXML
     Label toolsTitleId;
+
+    @FXML
+    CheckBox autoFillTabs;
 
     private ObservableList<MemoryInfoTableModel> memoryInfoList;
 
@@ -232,6 +236,11 @@ public class ToolsController implements IController {
             displayTitleId(mc.getDebugger().getTitleId(currentPid));
             attachProcess();
 
+            if (autoFillTabs.isSelected()) {
+                setMainHeapAddressesInSearchTab(false);
+                setMainFilterToPointerSearch();
+            }
+
         } else {
             MainController.showMessage("You are not currently connected.", Alert.AlertType.WARNING);
         }
@@ -362,5 +371,28 @@ public class ToolsController implements IController {
             return;
         }
         updateMemoryInfo(conn.query(0, 10000));
+    }
+
+    public void setMainHeapAddressesInSearchTab(boolean switchTab) {
+        Range range = searchWrtitableRange(EMemoryRegion.MAIN);
+        if (range != null) {
+            mc.search().mainsetSearchRange(range.getStart(), range.getEnd());
+        }
+        Range range2 = searchWrtitableRange(EMemoryRegion.HEAP);
+        if (range != null) {
+            mc.search().setSearchRange(range2.getStart(), range2.getEnd());
+        }
+        if (switchTab) {
+            mc.setTab(MainController.Tab.SEARCH);
+        }
+    }
+
+    public void setMainFilterToPointerSearch() {
+        Range range = searchWrtitableRange(EMemoryRegion.MAIN);
+        if (range != null) {
+            mc.pointer().setFilterMin(range.getStart());
+            mc.pointer().setFilterMax(range.getEnd());
+            mc.pointer().setFilterActivated(true);
+        }
     }
 }
