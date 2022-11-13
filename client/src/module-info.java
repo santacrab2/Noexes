@@ -24,6 +24,8 @@ module JNoexes {
     opens me.mdbell.noexs.ui.models to com.google.gson;
     opens me.mdbell.javafx.control to javafx.fxml;
     opens me.mdbell.noexs.code.model to org.apache.commons.lang3, com.google.gson;
+    opens me.mdbell.noexs.code.opcode.model to org.apache.commons.lang3, com.google.gson;
+
     opens me.mdbell.noexs.core.debugger to org.apache.commons.lang3;
     opens me.mdbell.noexs.code.opcode.manager to org.reflections, org.apache.commons.lang3;
     opens me.mdbell.noexs.code.opcode to org.reflections, org.apache.commons.lang3;

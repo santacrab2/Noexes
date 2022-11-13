@@ -1,6 +1,6 @@
 package me.mdbell.noexs.ui.services;
 
-import me.mdbell.noexs.code.model.EDataType;
+import me.mdbell.noexs.code.opcode.model.EDataType;
 import me.mdbell.noexs.core.EMemoryRegion;
 import me.mdbell.noexs.ui.controllers.ToolsController;
 import me.mdbell.util.HexUtils;

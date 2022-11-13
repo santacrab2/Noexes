@@ -1,11 +1,11 @@
 package me.mdbell.noexs.code.opcode;
 
-import me.mdbell.noexs.code.model.ECodeMemoryRegion;
-import me.mdbell.noexs.code.model.EDataType;
 import me.mdbell.noexs.code.opcode.annotation.AOpCodeFieldOrder;
 import me.mdbell.noexs.code.opcode.annotation.AOpCodeOperation;
 import me.mdbell.noexs.code.opcode.annotation.AOpCodePattern;
 import me.mdbell.noexs.code.opcode.model.Address;
+import me.mdbell.noexs.code.opcode.model.ECodeMemoryRegion;
+import me.mdbell.noexs.code.opcode.model.EDataType;
 import me.mdbell.noexs.code.opcode.model.Flag;
 import me.mdbell.noexs.code.opcode.model.NoOp;
 import me.mdbell.noexs.code.opcode.model.Register;

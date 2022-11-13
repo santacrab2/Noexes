@@ -1,4 +1,4 @@
-package me.mdbell.noexs.code.model;
+package me.mdbell.noexs.code.opcode.model;
 
 import org.apache.commons.lang3.StringUtils;
 

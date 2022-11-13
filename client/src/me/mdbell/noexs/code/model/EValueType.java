@@ -2,6 +2,8 @@ package me.mdbell.noexs.code.model;
 
 import org.apache.commons.lang3.StringUtils;
 
+import me.mdbell.noexs.code.opcode.model.EDataType;
+
 public enum EValueType {
     U8(EDataType.T8),
     S8(EDataType.T8),

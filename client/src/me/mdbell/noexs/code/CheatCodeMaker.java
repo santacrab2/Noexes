@@ -11,18 +11,17 @@ import me.mdbell.noexs.code.model.Code;
 import me.mdbell.noexs.code.model.CodeLines;
 import me.mdbell.noexs.code.model.Codes;
 import me.mdbell.noexs.code.model.ConditionPressButton;
-import me.mdbell.noexs.code.model.EDataType;
 import me.mdbell.noexs.code.model.ElseCondition;
 import me.mdbell.noexs.code.model.EndCondition;
 import me.mdbell.noexs.code.model.IInstruction;
 import me.mdbell.noexs.code.model.Pointer;
 import me.mdbell.noexs.code.model.WriteValue;
-import me.mdbell.noexs.code.opcode.AOpCode;
 import me.mdbell.noexs.code.opcode.OpCode2EndConditionalBlock;
 import me.mdbell.noexs.code.opcode.OpCode5LoadRegisterWithMemory;
 import me.mdbell.noexs.code.opcode.OpCode6StoreStaticValueToRegisterMemoryAddress;
 import me.mdbell.noexs.code.opcode.OpCode7LegacyArithmetic;
 import me.mdbell.noexs.code.opcode.manager.OpCodeOperationBuilder;
+import me.mdbell.noexs.code.opcode.model.EDataType;
 import me.mdbell.noexs.code.parser.CodeLexer;
 import me.mdbell.noexs.code.parser.CodeParser;
 import me.mdbell.noexs.code.parser.CodeParser.CodesContext;
@@ -131,8 +130,8 @@ public class CheatCodeMaker {
         return res;
     }
 
-    private AOpCode generatePointerJump(Pointer p, boolean positionTypeFirst) {
-        AOpCode res = null;
+    private OpCode5LoadRegisterWithMemory generatePointerJump(Pointer p, boolean positionTypeFirst) {
+        OpCode5LoadRegisterWithMemory res = null;
 
         if (positionTypeFirst) {
             res = OpCode5LoadRegisterWithMemory.loadFromRegisterAddressEncoding(EDataType.T64,

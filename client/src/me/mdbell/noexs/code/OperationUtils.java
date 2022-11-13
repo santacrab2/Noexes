@@ -2,7 +2,7 @@ package me.mdbell.noexs.code;
 
 import org.apache.commons.lang3.StringUtils;
 
-import me.mdbell.noexs.code.model.EDataType;
+import me.mdbell.noexs.code.opcode.model.EDataType;
 
 public class OperationUtils {
 

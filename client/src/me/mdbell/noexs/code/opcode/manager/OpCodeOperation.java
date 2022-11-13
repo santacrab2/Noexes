@@ -18,15 +18,15 @@ import org.apache.commons.lang3.reflect.MethodUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import me.mdbell.noexs.code.model.EDataType;
-import me.mdbell.noexs.code.model.ICodeFragment;
-import me.mdbell.noexs.code.model.ICodeFragmentWithVariableLength;
 import me.mdbell.noexs.code.opcode.AOpCode;
 import me.mdbell.noexs.code.opcode.EOpCode;
 import me.mdbell.noexs.code.opcode.annotation.AOpCodeFixValueSize;
 import me.mdbell.noexs.code.opcode.annotation.AOpCodeFragmentConversion;
 import me.mdbell.noexs.code.opcode.annotation.AOpCodeOperation;
 import me.mdbell.noexs.code.opcode.annotation.AOpCodePattern;
+import me.mdbell.noexs.code.opcode.model.EDataType;
+import me.mdbell.noexs.code.opcode.model.ICodeFragment;
+import me.mdbell.noexs.code.opcode.model.ICodeFragmentWithVariableLength;
 import me.mdbell.util.HexUtils;
 
 public class OpCodeOperation {

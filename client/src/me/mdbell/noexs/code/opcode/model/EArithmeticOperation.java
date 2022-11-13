@@ -2,7 +2,6 @@ package me.mdbell.noexs.code.opcode.model;
 
 import org.apache.commons.lang3.StringUtils;
 
-import me.mdbell.noexs.code.model.ICodeFragment;
 import me.mdbell.noexs.code.opcode.annotation.AOpCodeFragmentConversion;
 import me.mdbell.noexs.code.opcode.annotation.AOpCodePattern;
 

@@ -3,10 +3,10 @@ package me.mdbell.noexs.code.opcode.manager;
 import org.apache.commons.lang3.StringUtils;
 
 import me.mdbell.noexs.code.OperationUtils;
-import me.mdbell.noexs.code.model.ECodeMemoryRegion;
-import me.mdbell.noexs.code.model.EDataType;
 import me.mdbell.noexs.code.model.Keypad;
 import me.mdbell.noexs.code.opcode.EOpCode;
+import me.mdbell.noexs.code.opcode.model.ECodeMemoryRegion;
+import me.mdbell.noexs.code.opcode.model.EDataType;
 
 // TODO faire disparaitre la classe
 

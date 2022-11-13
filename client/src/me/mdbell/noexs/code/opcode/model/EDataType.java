@@ -1,4 +1,4 @@
-package me.mdbell.noexs.code.model;
+package me.mdbell.noexs.code.opcode.model;
 
 import me.mdbell.noexs.code.opcode.annotation.AOpCodeFragmentConversion;
 import me.mdbell.noexs.code.opcode.annotation.AOpCodePattern;
