@@ -2,13 +2,15 @@ package me.mdbell.noexs.code.opcode.manager;
 
 import org.apache.commons.lang3.StringUtils;
 
-import me.mdbell.noexs.code.EOperation;
 import me.mdbell.noexs.code.OperationUtils;
 import me.mdbell.noexs.code.model.EArithmeticOperation;
 import me.mdbell.noexs.code.model.ECodeMemoryRegion;
 import me.mdbell.noexs.code.model.EDataType;
 import me.mdbell.noexs.code.model.Keypad;
+import me.mdbell.noexs.code.opcode.EOpCode;
 import me.mdbell.noexs.code.opcode.OpCode5LoadRegisterWithMemory;
+
+// TODO faire disparaitre la classe
 
 public class OpCodeOperationBuilder {
 
@@ -36,28 +38,10 @@ public class OpCodeOperationBuilder {
      */
     public static String storeStaticValueToMemory(EDataType dataType, ECodeMemoryRegion region, char registerToUse,
             String offset, String value) {
-        String res = buildOperationHead(EOperation.STORE_STATIC_VALUE_TO_MEMORY, dataType, region, registerToUse);
+        String res = buildOperationHead(EOpCode.STORE_STATIC_VALUE_TO_MEMORY, dataType, region, registerToUse);
         res += "00";
         res += OperationUtils.padHexValue(offset, EDataType.ADDR);
         res += " " + OperationUtils.padHexValue(value, dataType);
-        return res;
-    }
-
-//	### Code Type 0x2: End Conditional Block
-//	Code type 0x2 marks the end of a conditional block (started by Code Type 0x1 or Code Type 0x8).
-//
-//	When an Else is executed, all instructions until the appropriate End conditional block terminator are skipped.
-//
-//	#### Encoding
-//	`2X000000`
-//
-//	+ X: End type (0 = End, 1 = Else).
-//
-//	---	
-    public static String endConditionalBlock(boolean elseEndType) {
-        String res = "" + EOperation.END_CONDITIONAL_BLOCK.getCodeType();
-        res += getFlagValue(elseEndType);
-        res += "000000";
         return res;
     }
 
@@ -108,7 +92,7 @@ public class OpCodeOperationBuilder {
 //	---
     public static String storeStaticValueToRegisterMemoryAddress(EDataType dataType, char registerToUse,
             boolean incrementRegisterFlag, boolean offsetRegisterEnable, char registerToUseAsOffset, String hexValue) {
-        String res = "" + EOperation.STORE_STATIC_VALUE_TO_REGISTER_MEMORY_ADDRESS.getCodeType();
+        String res = "" + EOpCode.STORE_STATIC_VALUE_TO_REGISTER_MEMORY_ADDRESS.getCodeType();
         res += dataType.getDataTypeCode();
         res += "0";
         res += registerToUse;
@@ -145,7 +129,7 @@ public class OpCodeOperationBuilder {
 
     public static String legacyArithmetic(EDataType dataType, char registerToUse, EArithmeticOperation arithmetic,
             String hexValue) {
-        String res = "" + EOperation.LEGACY_ARITHMETIC.getCodeType();
+        String res = "" + EOpCode.LEGACY_ARITHMETIC.getCodeType();
         res += dataType.getDataTypeCode();
         res += "0";
         res += registerToUse;
@@ -198,7 +182,7 @@ public class OpCodeOperationBuilder {
 //	    2000000: SR
 
     public static String beginKeypressConditionalBlock(Keypad[] keypads) {
-        String res = "" + EOperation.BEGIN_KEYPRESS_CONDITIONAL_BLOCK.getCodeType();
+        String res = "" + EOpCode.BEGIN_KEYPRESS_CONDITIONAL_BLOCK.getCodeType();
 
         long mask = 0;
         for (Keypad keypad : keypads) {
@@ -228,7 +212,7 @@ public class OpCodeOperationBuilder {
         return res;
     }
 
-    private static String buildOperationHead(EOperation op, EDataType dataType, ECodeMemoryRegion region,
+    private static String buildOperationHead(EOpCode op, EDataType dataType, ECodeMemoryRegion region,
             char registerToUse) {
         String regionStr = "0";
         if (region != null) {

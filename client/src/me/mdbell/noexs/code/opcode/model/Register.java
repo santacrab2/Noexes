@@ -1,8 +1,9 @@
-package me.mdbell.noexs.code.model;
+package me.mdbell.noexs.code.opcode.model;
 
 import org.apache.commons.lang3.builder.ReflectionToStringBuilder;
 import org.apache.commons.lang3.builder.ToStringStyle;
 
+import me.mdbell.noexs.code.model.ICodeFragment;
 import me.mdbell.noexs.code.opcode.annotation.AOpCodeFragmentConversion;
 import me.mdbell.noexs.code.opcode.annotation.AOpCodePattern;
 

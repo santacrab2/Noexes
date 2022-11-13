@@ -1,17 +1,25 @@
 package me.mdbell.noexs.code.opcode;
 
-import org.apache.commons.lang3.builder.ReflectionToStringBuilder;
-import org.apache.commons.lang3.builder.ToStringStyle;
-
-import me.mdbell.noexs.code.EOperation;
-import me.mdbell.noexs.code.model.NoOp;
-import me.mdbell.noexs.code.model.Register;
-import me.mdbell.noexs.code.model.Value;
 import me.mdbell.noexs.code.opcode.annotation.AOpCodeFieldOrder;
 import me.mdbell.noexs.code.opcode.annotation.AOpCodeOperation;
 import me.mdbell.noexs.code.opcode.annotation.AOpCodePattern;
+import me.mdbell.noexs.code.opcode.model.NoOp;
+import me.mdbell.noexs.code.opcode.model.Register;
+import me.mdbell.noexs.code.opcode.model.Value;
 
-@AOpCodeOperation(operation = EOperation.LOAD_REGISTER_WITH_STATIC_VALUE)
+//Code Type 0x4: Load Register with Static Value
+//
+//Code type 0x4 allows setting a register to a constant value.
+//Encoding
+//
+//400R0000 VVVVVVVV VVVVVVVV
+//
+//    R: Register to use.
+//    V: Value to load.
+//
+//--- 
+
+@AOpCodeOperation(operation = EOpCode.END_CONDITIONAL_BLOCK)
 public class OpCode4RegisterWithStaticValue extends AOpCode {
 
     @AOpCodeFieldOrder(order = 1)

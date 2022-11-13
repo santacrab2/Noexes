@@ -18,6 +18,7 @@ import me.mdbell.noexs.code.model.IInstruction;
 import me.mdbell.noexs.code.model.Pointer;
 import me.mdbell.noexs.code.model.WriteValue;
 import me.mdbell.noexs.code.opcode.AOpCode;
+import me.mdbell.noexs.code.opcode.OpCode2EndConditionalBlock;
 import me.mdbell.noexs.code.opcode.manager.OpCodeOperationBuilder;
 import me.mdbell.noexs.code.parser.CodeLexer;
 import me.mdbell.noexs.code.parser.CodeParser;
@@ -80,9 +81,9 @@ public class CheatCodeMaker {
             if (instruction instanceof WriteValue) {
                 res.addCodeLines(generateInstructionWriteValue((WriteValue) instruction));
             } else if (instruction instanceof EndCondition) {
-                res.addLineToEnd(OpCodeOperationBuilder.endConditionalBlock(false));
+                res.addLineToEnd(OpCode2EndConditionalBlock.endConditionalEnd());
             } else if (instruction instanceof ElseCondition) {
-                res.addLineToEnd(OpCodeOperationBuilder.endConditionalBlock(true));
+                res.addLineToEnd(OpCode2EndConditionalBlock.endConditionalElse());
             } else if (instruction instanceof ConditionPressButton) {
                 res.addLineToEnd(OpCodeOperationBuilder
                         .beginKeypressConditionalBlock(((ConditionPressButton) instruction).getKeypad()));
@@ -102,8 +103,8 @@ public class CheatCodeMaker {
     }
 
     private String generateSetValuePartForPointer(WriteValue wv) {
-        return OpCodeOperationBuilder.storeStaticValueToRegisterMemoryAddress(wv.getValueType().getDataType(), registerToUse,
-                false, false, ' ', wv.getHexValue());
+        return OpCodeOperationBuilder.storeStaticValueToRegisterMemoryAddress(wv.getValueType().getDataType(),
+                registerToUse, false, false, ' ', wv.getHexValue());
     }
 
     private CodeLines generateMovesPartForPointer(Pointer p, boolean global) {

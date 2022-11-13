@@ -1,10 +1,10 @@
-package me.mdbell.noexs.code;
+package me.mdbell.noexs.code.opcode;
 
 import org.apache.commons.lang3.StringUtils;
 
 import me.mdbell.noexs.code.opcode.annotation.AOpCodeFragmentConversion;
 
-public enum EOperation {
+public enum EOpCode {
     STORE_STATIC_VALUE_TO_MEMORY("0"),
     BEGIN_CONDITIONAL_BLOCK("1"),
     END_CONDITIONAL_BLOCK("2"),
@@ -23,7 +23,7 @@ public enum EOperation {
 
     private String codeType;
 
-    private EOperation(String codeType) {
+    private EOpCode(String codeType) {
         this.codeType = codeType;
     }
 
@@ -32,9 +32,9 @@ public enum EOperation {
     }
 
     @AOpCodeFragmentConversion
-    public static EOperation valueFromFragment(String fragment) {
-        EOperation res = null;
-        for (EOperation dt : EOperation.values()) {
+    public static EOpCode valueFromFragment(String fragment) {
+        EOpCode res = null;
+        for (EOpCode dt : EOpCode.values()) {
             if (StringUtils.startsWithIgnoreCase(fragment, dt.codeType)) {
                 res = dt;
                 break;

@@ -12,8 +12,8 @@ import org.apache.logging.log4j.Logger;
 import org.reflections.Reflections;
 import org.reflections.scanners.Scanners;
 
-import me.mdbell.noexs.code.EOperation;
 import me.mdbell.noexs.code.opcode.AOpCode;
+import me.mdbell.noexs.code.opcode.EOpCode;
 import me.mdbell.noexs.code.opcode.annotation.AOpCodeOperation;
 
 public class OpCodeManager {
@@ -24,7 +24,7 @@ public class OpCodeManager {
 
     List<OpCodeOperation> ops = new ArrayList<>();
 
-    Map<EOperation, OpCodeOperation> codeOperations = new HashMap<>();
+    Map<EOpCode, OpCodeOperation> codeOperations = new HashMap<>();
 
     public static String[] splitLines(String codes) {
         return StringUtils.split(codes, "\n");
@@ -38,7 +38,7 @@ public class OpCodeManager {
 
         for (String cheatCode : cheatCodes) {
             String cheat = StringUtils.trim(cheatCode);
-            EOperation opCode = EOperation.valueFromFragment(cheat);
+            EOpCode opCode = EOpCode.valueFromFragment(cheat);
             OpCodeOperation cro = cr.codeOperations.get(opCode);
             AOpCode obj = cro.readCodeCheat(cheat);
             res.add(obj);
@@ -75,7 +75,7 @@ public class OpCodeManager {
         OpCodeManager cr = new OpCodeManager();
         cr.init();
         for (AOpCode decodedOperation : decodedOperations) {
-            EOperation op = decodedOperation.getOperation();
+            EOpCode op = decodedOperation.getOperation();
             OpCodeOperation cro = cr.codeOperations.get(op);
             res.add(cro.buildCodeFromFragments(decodedOperation));
         }

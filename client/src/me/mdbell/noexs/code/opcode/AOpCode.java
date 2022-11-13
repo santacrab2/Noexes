@@ -3,7 +3,6 @@ package me.mdbell.noexs.code.opcode;
 import org.apache.commons.lang3.builder.ReflectionToStringBuilder;
 import org.apache.commons.lang3.builder.ToStringStyle;
 
-import me.mdbell.noexs.code.EOperation;
 import me.mdbell.noexs.code.opcode.annotation.AOpCodeOperation;
 
 public abstract class AOpCode {
@@ -28,7 +27,7 @@ public abstract class AOpCode {
         this.previousOperation = previousOperation;
     }
 
-    public EOperation getOperation() {
+    public EOpCode getOperation() {
         return this.getClass().getAnnotation(AOpCodeOperation.class).operation();
     }
 

@@ -3,14 +3,14 @@ package me.mdbell.noexs.code.opcode.manager;
 import java.util.ArrayList;
 import java.util.List;
 
-import me.mdbell.noexs.code.EOperation;
+import me.mdbell.noexs.code.opcode.EOpCode;
 
 public class CodePatterns {
 
     private List<CodePattern> patterns = new ArrayList<>();
-    private EOperation operation;
+    private EOpCode operation;
 
-    public CodePatterns(EOperation operation) {
+    public CodePatterns(EOpCode operation) {
         super();
         this.operation = operation;
     }
@@ -33,7 +33,7 @@ public class CodePatterns {
         return res;
     }
 
-    public static CodePatterns fromOperation(EOperation operation) {
+    public static CodePatterns fromOperation(EOpCode operation) {
         return new CodePatterns(operation);
     }
 

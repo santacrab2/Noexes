@@ -1,18 +1,37 @@
 package me.mdbell.noexs.code.opcode;
 
-import me.mdbell.noexs.code.EOperation;
-import me.mdbell.noexs.code.model.Address;
 import me.mdbell.noexs.code.model.ECodeMemoryRegion;
 import me.mdbell.noexs.code.model.EDataType;
-import me.mdbell.noexs.code.model.Flag;
-import me.mdbell.noexs.code.model.NoOp;
-import me.mdbell.noexs.code.model.Register;
 import me.mdbell.noexs.code.opcode.annotation.AOpCodeFieldOrder;
 import me.mdbell.noexs.code.opcode.annotation.AOpCodeOperation;
 import me.mdbell.noexs.code.opcode.annotation.AOpCodePattern;
+import me.mdbell.noexs.code.opcode.model.Address;
+import me.mdbell.noexs.code.opcode.model.Flag;
+import me.mdbell.noexs.code.opcode.model.NoOp;
+import me.mdbell.noexs.code.opcode.model.Register;
 import me.mdbell.util.HexUtils;
 
-@AOpCodeOperation(operation = EOperation.LOAD_REGISTER_WITH_MEMORY_VALUE)
+//### Code Type 0x5: Load Register with Memory Value
+//Code type 0x5 allows loading a value from memory into a register, either using a fixed address or by dereferencing the destination register.
+//
+//#### Load From Fixed Address Encoding
+//`5TMR00AA AAAAAAAA`
+//
+//+ T: Width of memory read (1, 2, 4, or 8 bytes).
+//+ M: Memory region to write to (0 = Main NSO, 1 = Heap, 2 = Alias, 3 = Aslr).
+//+ R: Register to load value into.
+//+ A: Immediate offset to use from memory region base.
+//
+//#### Load from Register Address Encoding
+//`5T0R10AA AAAAAAAA`
+//
+//+ T: Width of memory read (1, 2, 4, or 8 bytes).
+//+ R: Register to load value into. (This register is also used as the base memory address).
+//+ A: Immediate offset to use from register R.
+//
+//--- 
+
+@AOpCodeOperation(operation = EOpCode.LOAD_REGISTER_WITH_MEMORY_VALUE)
 public class OpCode5LoadRegisterWithMemory extends AOpCode {
 
     @AOpCodeFieldOrder(order = 1)

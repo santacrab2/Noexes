@@ -14,11 +14,11 @@ import org.apache.commons.lang3.reflect.ConstructorUtils;
 import org.apache.commons.lang3.reflect.FieldUtils;
 import org.apache.commons.lang3.reflect.MethodUtils;
 
-import me.mdbell.noexs.code.EOperation;
 import me.mdbell.noexs.code.model.EDataType;
 import me.mdbell.noexs.code.model.ICodeFragment;
 import me.mdbell.noexs.code.model.ICodeFragmentWithVariableLength;
 import me.mdbell.noexs.code.opcode.AOpCode;
+import me.mdbell.noexs.code.opcode.EOpCode;
 import me.mdbell.noexs.code.opcode.annotation.AOpCodeFragmentConversion;
 import me.mdbell.noexs.code.opcode.annotation.AOpCodeOperation;
 import me.mdbell.noexs.code.opcode.annotation.AOpCodePattern;
@@ -26,12 +26,12 @@ import me.mdbell.util.HexUtils;
 
 public class OpCodeOperation {
 
-    private EOperation operation;
+    private EOpCode operation;
     private String regexp;
     private Class<? extends AOpCode> cls;
     private List<OpCodeOperationFragment> operationFragments = new ArrayList<>();
 
-    public OpCodeOperation(Class<? extends AOpCode> cls, EOperation operation) {
+    public OpCodeOperation(Class<? extends AOpCode> cls, EOpCode operation) {
         super();
         this.operation = operation;
         this.cls = cls;
@@ -40,7 +40,7 @@ public class OpCodeOperation {
     public static OpCodeOperation fromRevClass(Class<? extends AOpCode> cls) {
         String pattern = "";
         AOpCodeOperation anOperation = cls.getAnnotation(AOpCodeOperation.class);
-        EOperation op = anOperation.operation();
+        EOpCode op = anOperation.operation();
         OpCodeOperation res = new OpCodeOperation(cls, op);
         pattern += op.getCodeType();
 
@@ -136,7 +136,7 @@ public class OpCodeOperation {
         return frPattern;
     }
 
-    public EOperation getOperation() {
+    public EOpCode getOperation() {
         return operation;
     }
 

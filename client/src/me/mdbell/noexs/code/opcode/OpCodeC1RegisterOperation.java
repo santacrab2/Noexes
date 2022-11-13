@@ -1,14 +1,34 @@
 package me.mdbell.noexs.code.opcode;
 
-import me.mdbell.noexs.code.EOperation;
-import me.mdbell.noexs.code.model.ERegisterOperation;
-import me.mdbell.noexs.code.model.NoOp;
-import me.mdbell.noexs.code.model.Register;
 import me.mdbell.noexs.code.opcode.annotation.AOpCodeFieldOrder;
 import me.mdbell.noexs.code.opcode.annotation.AOpCodeOperation;
 import me.mdbell.noexs.code.opcode.annotation.AOpCodePattern;
+import me.mdbell.noexs.code.opcode.model.ERegisterOperation;
+import me.mdbell.noexs.code.opcode.model.NoOp;
+import me.mdbell.noexs.code.opcode.model.Register;
 
-@AOpCodeOperation(operation = EOperation.SAVE_OR_RESTORE_REGISTER)
+//
+//Code Type 0xC1: Save or Restore Register
+//
+//Code type 0xC1 performs saving or restoring of registers.
+//Encoding
+//
+//C10D0Sx0
+//
+//    D: Destination index.
+//    S: Source index.
+//    x: Operand Type, see below.
+//
+//Operand Type
+//
+//    0: Restore register
+//    1: Save register
+//    2: Clear saved value
+//    3: Clear register
+//
+//--- 
+
+@AOpCodeOperation(operation = EOpCode.SAVE_OR_RESTORE_REGISTER)
 public class OpCodeC1RegisterOperation extends AOpCode {
 
     @AOpCodeFieldOrder(order = 1)
