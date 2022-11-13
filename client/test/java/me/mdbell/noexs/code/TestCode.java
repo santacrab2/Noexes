@@ -1,6 +1,7 @@
 package me.mdbell.noexs.code;
 
 import me.mdbell.noexs.code.model.Keypad;
+import me.mdbell.noexs.code.opcode.manager.OpCodeOperationBuilder;
 
 public class TestCode {
 
@@ -26,7 +27,7 @@ public class TestCode {
 				+ "\"Block3\"IFBUT LEFT_STICK_LEFT {[[MAIN+0x0042000000] +690]+44 = (FLT)17.52 ; [[MAIN+0x0049800000] +420]+68 = (U8)42;}");
 
 		Keypad[] keyPads = { Keypad.A, Keypad.R, Keypad.LEFT };
-		System.out.println("Key test : " + OperationBuilder.beginKeypressConditionalBlock(keyPads));
+		System.out.println("Key test : " + OpCodeOperationBuilder.beginKeypressConditionalBlock(keyPads));
 	}
 
 	private static void doCodeFor(String cheatLine) {

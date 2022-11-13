@@ -1,7 +1,7 @@
 package me.mdbell.noexs.code.model;
 
-import me.mdbell.noexs.code.reverse.annotation.ARevFragmentConversion;
-import me.mdbell.noexs.code.reverse.annotation.ARevPattern;
+import me.mdbell.noexs.code.opcode.annotation.AOpCodeFragmentConversion;
+import me.mdbell.noexs.code.opcode.annotation.AOpCodePattern;
 
 /**
  * T: Width of memory write (1, 2, 4, or 8 bytes).
@@ -9,7 +9,7 @@ import me.mdbell.noexs.code.reverse.annotation.ARevPattern;
  * @author Anthony
  *
  */
-@ARevPattern(pattern = "[1248]")
+@AOpCodePattern(pattern = "[1248]")
 public enum EDataType implements ICodeFragment {
     T8(1, 2, 8), T16(2, 4, 8), T32(4, 8, 8), T64(8, 16, 16), ADDR(8, 10, 10);
 
@@ -35,7 +35,7 @@ public enum EDataType implements ICodeFragment {
         return size;
     }
 
-    @ARevFragmentConversion
+    @AOpCodeFragmentConversion
     public static EDataType valueFromFragment(String fragment) {
         EDataType res = null;
         for (EDataType dt : EDataType.values()) {

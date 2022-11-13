@@ -1,4 +1,4 @@
-package me.mdbell.noexs.code.reverse;
+package me.mdbell.noexs.code.opcode.manager;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
@@ -18,44 +18,44 @@ import me.mdbell.noexs.code.EOperation;
 import me.mdbell.noexs.code.model.EDataType;
 import me.mdbell.noexs.code.model.ICodeFragment;
 import me.mdbell.noexs.code.model.ICodeFragmentWithVariableLength;
-import me.mdbell.noexs.code.reverse.annotation.ARevFragmentConversion;
-import me.mdbell.noexs.code.reverse.annotation.ARevOperation;
-import me.mdbell.noexs.code.reverse.annotation.ARevPattern;
-import me.mdbell.noexs.code.reverse.decoded.ADecodedOperation;
+import me.mdbell.noexs.code.opcode.AOpCode;
+import me.mdbell.noexs.code.opcode.annotation.AOpCodeFragmentConversion;
+import me.mdbell.noexs.code.opcode.annotation.AOpCodeOperation;
+import me.mdbell.noexs.code.opcode.annotation.AOpCodePattern;
 import me.mdbell.util.HexUtils;
 
-public class CodeReverseOperation {
+public class OpCodeOperation {
 
     private EOperation operation;
     private String regexp;
-    private Class<? extends ADecodedOperation> cls;
-    private List<CodeReverseOperationFragment> operationFragments = new ArrayList<>();
+    private Class<? extends AOpCode> cls;
+    private List<OpCodeOperationFragment> operationFragments = new ArrayList<>();
 
-    public CodeReverseOperation(Class<? extends ADecodedOperation> cls, EOperation operation) {
+    public OpCodeOperation(Class<? extends AOpCode> cls, EOperation operation) {
         super();
         this.operation = operation;
         this.cls = cls;
     }
 
-    public static CodeReverseOperation fromRevClass(Class<? extends ADecodedOperation> cls) {
+    public static OpCodeOperation fromRevClass(Class<? extends AOpCode> cls) {
         String pattern = "";
-        ARevOperation anOperation = cls.getAnnotation(ARevOperation.class);
+        AOpCodeOperation anOperation = cls.getAnnotation(AOpCodeOperation.class);
         EOperation op = anOperation.operation();
-        CodeReverseOperation res = new CodeReverseOperation(cls, op);
+        OpCodeOperation res = new OpCodeOperation(cls, op);
         pattern += op.getCodeType();
 
         Field[] fields = FieldUtils.getAllFields(cls);
         for (Field field : fields) {
             Class<?> fieldCls = field.getType();
-            ARevPattern anPattern = field.getAnnotation(ARevPattern.class);
+            AOpCodePattern anPattern = field.getAnnotation(AOpCodePattern.class);
             if (anPattern == null) {
-                anPattern = fieldCls.getAnnotation(ARevPattern.class);
+                anPattern = fieldCls.getAnnotation(AOpCodePattern.class);
             }
             if (anPattern != null) {
 
                 String frPattern = getFragmentPattern(anPattern);
-                Method[] converters = MethodUtils.getMethodsWithAnnotation(fieldCls, ARevFragmentConversion.class);
-                CodeReverseOperationFragment crof = new CodeReverseOperationFragment(frPattern, field, converters[0]);
+                Method[] converters = MethodUtils.getMethodsWithAnnotation(fieldCls, AOpCodeFragmentConversion.class);
+                OpCodeOperationFragment crof = new OpCodeOperationFragment(frPattern, field, converters[0]);
 
                 res.operationFragments.add(crof);
                 pattern += frPattern;
@@ -69,8 +69,8 @@ public class CodeReverseOperation {
 
     }
 
-    public ADecodedOperation readCodeCheat(String line) {
-        ADecodedOperation res = null;
+    public AOpCode readCodeCheat(String line) {
+        AOpCode res = null;
         try {
             res = ConstructorUtils.invokeConstructor(cls);
             Pattern pattern = Pattern.compile(regexp);
@@ -78,7 +78,7 @@ public class CodeReverseOperation {
             if (matcher.find()) {
                 for (int i = 0; i < operationFragments.size(); i++) {
                     String fragment = matcher.group(i + 1);
-                    CodeReverseOperationFragment crof = operationFragments.get(i);
+                    OpCodeOperationFragment crof = operationFragments.get(i);
                     Field field = crof.getField();
                     Method builder = crof.getBuilder();
                     Object objField = MethodUtils.invokeStaticMethod(field.getType(), builder.getName(), fragment);
@@ -92,12 +92,12 @@ public class CodeReverseOperation {
         return res;
     }
 
-    public String buildCodeFromFragments(ADecodedOperation decodedOperation) {
+    public String buildCodeFromFragments(AOpCode decodedOperation) {
         StringBuilder res = null;
         try {
             res = new StringBuilder(operation.getCodeType());
             EDataType dataType = null;
-            for (CodeReverseOperationFragment operationFragment : operationFragments) {
+            for (OpCodeOperationFragment operationFragment : operationFragments) {
                 Object fieldValue = FieldUtils.readField(operationFragment.getField(), decodedOperation, true);
                 if (fieldValue instanceof EDataType) {
                     dataType = (EDataType) fieldValue;
@@ -119,7 +119,7 @@ public class CodeReverseOperation {
 
     }
 
-    private static String getFragmentPattern(ARevPattern anPattern) {
+    private static String getFragmentPattern(AOpCodePattern anPattern) {
         String frPattern = "";
         try {
             if (anPattern.capturing()) {

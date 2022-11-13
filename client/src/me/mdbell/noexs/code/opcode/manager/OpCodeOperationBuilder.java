@@ -1,13 +1,16 @@
-package me.mdbell.noexs.code;
+package me.mdbell.noexs.code.opcode.manager;
 
 import org.apache.commons.lang3.StringUtils;
 
+import me.mdbell.noexs.code.EOperation;
+import me.mdbell.noexs.code.OperationUtils;
 import me.mdbell.noexs.code.model.EArithmeticOperation;
+import me.mdbell.noexs.code.model.ECodeMemoryRegion;
 import me.mdbell.noexs.code.model.EDataType;
 import me.mdbell.noexs.code.model.Keypad;
-import me.mdbell.noexs.code.model.ECodeMemoryRegion;
+import me.mdbell.noexs.code.opcode.OpCode5LoadRegisterWithMemory;
 
-public class OperationBuilder {
+public class OpCodeOperationBuilder {
 
 //	### Code Type 0x0: Store Static Value to Memory
 //	Code type 0x0 allows writing a static value to a memory address.
@@ -77,20 +80,16 @@ public class OperationBuilder {
 //	+ A: Immediate offset to use from register R.
 //
 //	---	
-    public static String loadRegisterWithMemoryValueFromFixedAddress(EDataType dataType, ECodeMemoryRegion region,
-            char registerToUse, String offset) {
-        String res = buildOperationHead(EOperation.LOAD_REGISTER_WITH_MEMORY_VALUE, dataType, region, registerToUse);
-        res += "00";
-        res += OperationUtils.padHexValue(offset, EDataType.ADDR);
-        return res;
+    public static OpCode5LoadRegisterWithMemory loadRegisterWithMemoryValueFromFixedAddress(EDataType dataType,
+            ECodeMemoryRegion region, char registerToUse, long offset) {
+        return OpCode5LoadRegisterWithMemory.loadFromRegisterAddressEncoding(dataType, region,
+                String.valueOf(registerToUse), offset);
     }
 
-    public static String loadRegisterWithMemoryValueFromRegisterAddress(EDataType dataType, char registerToUse,
-            String offset) {
-        String res = buildOperationHead(EOperation.LOAD_REGISTER_WITH_MEMORY_VALUE, dataType, null, registerToUse);
-        res += "10";
-        res += OperationUtils.padHexValue(offset, EDataType.ADDR);
-        return res;
+    public static OpCode5LoadRegisterWithMemory loadRegisterWithMemoryValueFromRegisterAddress(EDataType dataType,
+            char registerToUse, long offset) {
+        return OpCode5LoadRegisterWithMemory.loadFromFixedAddressEncoding(dataType, String.valueOf(registerToUse),
+                offset);
     }
 
 //	### Code Type 0x6: Store Static Value to Register Memory Address
@@ -229,7 +228,8 @@ public class OperationBuilder {
         return res;
     }
 
-    private static String buildOperationHead(EOperation op, EDataType dataType, ECodeMemoryRegion region, char registerToUse) {
+    private static String buildOperationHead(EOperation op, EDataType dataType, ECodeMemoryRegion region,
+            char registerToUse) {
         String regionStr = "0";
         if (region != null) {
             regionStr = Integer.toString(region.getPointerAdressType());

@@ -3,10 +3,10 @@ package me.mdbell.noexs.code.model;
 import org.apache.commons.lang3.builder.ReflectionToStringBuilder;
 import org.apache.commons.lang3.builder.ToStringStyle;
 
-import me.mdbell.noexs.code.reverse.annotation.ARevFragmentConversion;
-import me.mdbell.noexs.code.reverse.annotation.ARevPattern;
+import me.mdbell.noexs.code.opcode.annotation.AOpCodeFragmentConversion;
+import me.mdbell.noexs.code.opcode.annotation.AOpCodePattern;
 
-@ARevPattern(pattern = "[0-9A-F]")
+@AOpCodePattern(pattern = "[0-9A-F]")
 public class Register implements ICodeFragment {
     private String register;
 
@@ -15,7 +15,7 @@ public class Register implements ICodeFragment {
         this.register = register;
     }
 
-    @ARevFragmentConversion
+    @AOpCodeFragmentConversion
     public static Register valueFromFragment(String fragment) {
         return new Register(fragment);
     }

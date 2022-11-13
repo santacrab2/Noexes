@@ -3,7 +3,7 @@ package me.mdbell.noexs.code.model;
 import org.apache.commons.lang3.builder.ReflectionToStringBuilder;
 import org.apache.commons.lang3.builder.ToStringStyle;
 
-import me.mdbell.noexs.code.reverse.annotation.ARevFragmentConversion;
+import me.mdbell.noexs.code.opcode.annotation.AOpCodeFragmentConversion;
 
 public class NoOp implements ICodeFragment {
 
@@ -18,7 +18,7 @@ public class NoOp implements ICodeFragment {
         return noOp;
     }
 
-    @ARevFragmentConversion
+    @AOpCodeFragmentConversion
     public static NoOp valueFromFragment(String fragment) {
         return new NoOp(fragment);
     }

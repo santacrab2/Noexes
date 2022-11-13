@@ -4,11 +4,11 @@ import org.apache.commons.lang3.RegExUtils;
 import org.apache.commons.lang3.builder.ReflectionToStringBuilder;
 import org.apache.commons.lang3.builder.ToStringStyle;
 
-import me.mdbell.noexs.code.reverse.annotation.ARevFragmentConversion;
-import me.mdbell.noexs.code.reverse.annotation.ARevPattern;
+import me.mdbell.noexs.code.opcode.annotation.AOpCodeFragmentConversion;
+import me.mdbell.noexs.code.opcode.annotation.AOpCodePattern;
 import me.mdbell.util.HexUtils;
 
-@ARevPattern(pattern = "[0-9A-F]{8} [0-9A-F]{8}")
+@AOpCodePattern(pattern = "[0-9A-F]{8} [0-9A-F]{8}")
 public class Value implements ICodeFragmentWithVariableLength {
     private long value;
 
@@ -17,7 +17,7 @@ public class Value implements ICodeFragmentWithVariableLength {
         this.value = value;
     }
 
-    @ARevFragmentConversion
+    @AOpCodeFragmentConversion
     public static Value valueFromFragment(String fragment) {
 
         String frLong = RegExUtils.removeAll(fragment, "\s");

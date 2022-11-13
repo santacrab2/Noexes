@@ -5,8 +5,12 @@ import java.util.List;
 
 import org.apache.commons.lang3.StringUtils;
 
+import me.mdbell.noexs.code.opcode.AOpCode;
+import me.mdbell.noexs.code.opcode.manager.OpCodeManager;
+
 public class CodeLines {
 
+    // TODO ne plus avoir de String
     private List<String> codeLines = new ArrayList<>();
 
     public CodeLines() {
@@ -26,6 +30,12 @@ public class CodeLines {
     public void addLineToEnd(String codeLine) {
         if (codeLine != null) {
             codeLines.add(codeLine);
+        }
+    }
+
+    public void addLineToEnd(AOpCode decodedOperation) {
+        if (decodedOperation != null) {
+            codeLines.add(OpCodeManager.encodeCheatCode(decodedOperation));
         }
     }
 

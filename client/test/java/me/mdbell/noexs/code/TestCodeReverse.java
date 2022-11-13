@@ -7,8 +7,8 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.junit.jupiter.api.Test;
 
-import me.mdbell.noexs.code.reverse.CodeReverse;
-import me.mdbell.noexs.code.reverse.decoded.ADecodedOperation;
+import me.mdbell.noexs.code.opcode.AOpCode;
+import me.mdbell.noexs.code.opcode.manager.OpCodeManager;
 
 class TestCodeReverse {
 
@@ -24,11 +24,11 @@ class TestCodeReverse {
     @Test
     void test() {
         try {
-            List<ADecodedOperation> decodedOperations = CodeReverse.decodeCheatCode(CodeReverse.splitLines(code));
-            List<String> cheatCodes = CodeReverse.encodeCheatCode(decodedOperations);
+            List<AOpCode> decodedOperations = OpCodeManager.decodeCheatCode(OpCodeManager.splitLines(code));
+            List<String> cheatCodes = OpCodeManager.encodeCheatCode(decodedOperations);
             logger.info("Res => {}", StringUtils.join(cheatCodes, "\n"));
 
-            logger.info("Abstact => {}", CodeReverse.abstractInstructions(decodedOperations));
+            logger.info("Abstact => {}", OpCodeManager.abstractInstructions(decodedOperations));
         } catch (Exception e) {
             // TODO Auto-generated catch block
             e.printStackTrace();

@@ -1,9 +1,9 @@
 package me.mdbell.noexs.code.model;
 
-import me.mdbell.noexs.code.reverse.annotation.ARevFragmentConversion;
-import me.mdbell.noexs.code.reverse.annotation.ARevPattern;
+import me.mdbell.noexs.code.opcode.annotation.AOpCodeFragmentConversion;
+import me.mdbell.noexs.code.opcode.annotation.AOpCodePattern;
 
-@ARevPattern(pattern = "[0123]")
+@AOpCodePattern(pattern = "[0123]")
 public enum ERegisterOperation implements ICodeFragment {
     RESTORE(0), SAVE(1), CLEAR_SAVED_VALUE(2), CLEAR_REGISTER(3);
 
@@ -17,7 +17,7 @@ public enum ERegisterOperation implements ICodeFragment {
         return registerOperationCode;
     }
 
-    @ARevFragmentConversion
+    @AOpCodeFragmentConversion
     public static ERegisterOperation valueFromFragment(String fragment) {
         ERegisterOperation res = null;
         for (ERegisterOperation dt : ERegisterOperation.values()) {

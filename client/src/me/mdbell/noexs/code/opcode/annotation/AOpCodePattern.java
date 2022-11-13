@@ -1,4 +1,4 @@
-package me.mdbell.noexs.code.reverse.annotation;
+package me.mdbell.noexs.code.opcode.annotation;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
@@ -7,7 +7,7 @@ import java.lang.annotation.Target;
 
 @Target({ ElementType.TYPE, ElementType.FIELD })
 @Retention(RetentionPolicy.RUNTIME)
-public @interface ARevPattern {
+public @interface AOpCodePattern {
     public String pattern();
 
     public boolean capturing() default true;

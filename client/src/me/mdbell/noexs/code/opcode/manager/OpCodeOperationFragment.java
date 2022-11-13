@@ -1,23 +1,23 @@
-package me.mdbell.noexs.code.reverse;
+package me.mdbell.noexs.code.opcode.manager;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 
-import me.mdbell.noexs.code.reverse.annotation.ARevFieldOrder;
+import me.mdbell.noexs.code.opcode.annotation.AOpCodeFieldOrder;
 
-public class CodeReverseOperationFragment {
+public class OpCodeOperationFragment {
 
     private String fragmentPattern;
     private Field field;
     private Method builder;
     private int order;
 
-    public CodeReverseOperationFragment(String fragmentPattern, Field field, Method builder) {
+    public OpCodeOperationFragment(String fragmentPattern, Field field, Method builder) {
         super();
         this.fragmentPattern = fragmentPattern;
         this.field = field;
         this.builder = builder;
-        this.order = field.getAnnotation(ARevFieldOrder.class).order();
+        this.order = field.getAnnotation(AOpCodeFieldOrder.class).order();
 
     }
 

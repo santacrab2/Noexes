@@ -4,10 +4,10 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.builder.ReflectionToStringBuilder;
 import org.apache.commons.lang3.builder.ToStringStyle;
 
-import me.mdbell.noexs.code.reverse.annotation.ARevFragmentConversion;
-import me.mdbell.noexs.code.reverse.annotation.ARevPattern;
+import me.mdbell.noexs.code.opcode.annotation.AOpCodeFragmentConversion;
+import me.mdbell.noexs.code.opcode.annotation.AOpCodePattern;
 
-@ARevPattern(pattern = "[01]")
+@AOpCodePattern(pattern = "[01]")
 public class Flag implements ICodeFragment {
     private boolean flag;
 
@@ -16,7 +16,7 @@ public class Flag implements ICodeFragment {
         this.flag = flag;
     }
 
-    @ARevFragmentConversion
+    @AOpCodeFragmentConversion
     public static Flag valueFromFragment(String fragment) {
 
         return new Flag(StringUtils.equals(fragment, "1"));

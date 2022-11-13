@@ -1,4 +1,4 @@
-package me.mdbell.noexs.code.reverse;
+package me.mdbell.noexs.code.opcode.manager;
 
 import java.util.ArrayList;
 import java.util.List;

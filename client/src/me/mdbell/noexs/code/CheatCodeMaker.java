@@ -17,6 +17,8 @@ import me.mdbell.noexs.code.model.EndCondition;
 import me.mdbell.noexs.code.model.IInstruction;
 import me.mdbell.noexs.code.model.Pointer;
 import me.mdbell.noexs.code.model.WriteValue;
+import me.mdbell.noexs.code.opcode.AOpCode;
+import me.mdbell.noexs.code.opcode.manager.OpCodeOperationBuilder;
 import me.mdbell.noexs.code.parser.CodeLexer;
 import me.mdbell.noexs.code.parser.CodeParser;
 import me.mdbell.noexs.code.parser.CodeParser.CodesContext;
@@ -78,11 +80,11 @@ public class CheatCodeMaker {
             if (instruction instanceof WriteValue) {
                 res.addCodeLines(generateInstructionWriteValue((WriteValue) instruction));
             } else if (instruction instanceof EndCondition) {
-                res.addLineToEnd(OperationBuilder.endConditionalBlock(false));
+                res.addLineToEnd(OpCodeOperationBuilder.endConditionalBlock(false));
             } else if (instruction instanceof ElseCondition) {
-                res.addLineToEnd(OperationBuilder.endConditionalBlock(true));
+                res.addLineToEnd(OpCodeOperationBuilder.endConditionalBlock(true));
             } else if (instruction instanceof ConditionPressButton) {
-                res.addLineToEnd(OperationBuilder
+                res.addLineToEnd(OpCodeOperationBuilder
                         .beginKeypressConditionalBlock(((ConditionPressButton) instruction).getKeypad()));
             }
 
@@ -100,7 +102,7 @@ public class CheatCodeMaker {
     }
 
     private String generateSetValuePartForPointer(WriteValue wv) {
-        return OperationBuilder.storeStaticValueToRegisterMemoryAddress(wv.getValueType().getDataType(), registerToUse,
+        return OpCodeOperationBuilder.storeStaticValueToRegisterMemoryAddress(wv.getValueType().getDataType(), registerToUse,
                 false, false, ' ', wv.getHexValue());
     }
 
@@ -125,21 +127,21 @@ public class CheatCodeMaker {
         return res;
     }
 
-    private String generatePointerJump(Pointer p, boolean positionTypeFirst) {
-        String res = null;
+    private AOpCode generatePointerJump(Pointer p, boolean positionTypeFirst) {
+        AOpCode res = null;
 
         if (positionTypeFirst) {
-            res = OperationBuilder.loadRegisterWithMemoryValueFromFixedAddress(EDataType.T64,
-                    p.getInheritedMemoryRegion(), registerToUse, p.getOffsetAsHex());
+            res = OpCodeOperationBuilder.loadRegisterWithMemoryValueFromFixedAddress(EDataType.T64,
+                    p.getInheritedMemoryRegion(), registerToUse, p.getOffset());
         } else {
-            res = OperationBuilder.loadRegisterWithMemoryValueFromRegisterAddress(EDataType.T64, registerToUse,
-                    p.getOffsetAsHex());
+            res = OpCodeOperationBuilder.loadRegisterWithMemoryValueFromRegisterAddress(EDataType.T64, registerToUse,
+                    p.getOffset());
         }
         return res;
     }
 
     private String generatePointerMove(Pointer p) {
-        return OperationBuilder.legacyArithmetic(EDataType.T32, registerToUse, p.getArithmeticOperation(),
+        return OpCodeOperationBuilder.legacyArithmetic(EDataType.T32, registerToUse, p.getArithmeticOperation(),
                 p.getOffsetAsHex());
     }
 

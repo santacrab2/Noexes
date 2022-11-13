@@ -2,7 +2,7 @@ package me.mdbell.noexs.code;
 
 import org.apache.commons.lang3.StringUtils;
 
-import me.mdbell.noexs.code.reverse.annotation.ARevFragmentConversion;
+import me.mdbell.noexs.code.opcode.annotation.AOpCodeFragmentConversion;
 
 public enum EOperation {
     STORE_STATIC_VALUE_TO_MEMORY("0"),
@@ -31,7 +31,7 @@ public enum EOperation {
         return codeType;
     }
 
-    @ARevFragmentConversion
+    @AOpCodeFragmentConversion
     public static EOperation valueFromFragment(String fragment) {
         EOperation res = null;
         for (EOperation dt : EOperation.values()) {

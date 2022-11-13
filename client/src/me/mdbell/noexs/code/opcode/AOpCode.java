@@ -1,35 +1,35 @@
-package me.mdbell.noexs.code.reverse.decoded;
+package me.mdbell.noexs.code.opcode;
 
 import org.apache.commons.lang3.builder.ReflectionToStringBuilder;
 import org.apache.commons.lang3.builder.ToStringStyle;
 
 import me.mdbell.noexs.code.EOperation;
-import me.mdbell.noexs.code.reverse.annotation.ARevOperation;
+import me.mdbell.noexs.code.opcode.annotation.AOpCodeOperation;
 
-public abstract class ADecodedOperation {
+public abstract class AOpCode {
 
-    transient ADecodedOperation nextOperation;
+    transient AOpCode nextOperation;
 
-    transient ADecodedOperation previousOperation;
+    transient AOpCode previousOperation;
 
-    public ADecodedOperation getNextOperation() {
+    public AOpCode getNextOperation() {
         return nextOperation;
     }
 
-    public void setNextOperation(ADecodedOperation nextOperation) {
+    public void setNextOperation(AOpCode nextOperation) {
         this.nextOperation = nextOperation;
     }
 
-    public ADecodedOperation getPreviousOperation() {
+    public AOpCode getPreviousOperation() {
         return previousOperation;
     }
 
-    public void setPreviousOperation(ADecodedOperation previousOperation) {
+    public void setPreviousOperation(AOpCode previousOperation) {
         this.previousOperation = previousOperation;
     }
 
     public EOperation getOperation() {
-        return this.getClass().getAnnotation(ARevOperation.class).operation();
+        return this.getClass().getAnnotation(AOpCodeOperation.class).operation();
     }
 
     public abstract String abstractInstruction();

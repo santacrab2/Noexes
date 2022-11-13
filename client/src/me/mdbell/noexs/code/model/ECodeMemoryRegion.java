@@ -2,8 +2,8 @@ package me.mdbell.noexs.code.model;
 
 import org.apache.commons.lang3.StringUtils;
 
-import me.mdbell.noexs.code.reverse.annotation.ARevFragmentConversion;
-import me.mdbell.noexs.code.reverse.annotation.ARevPattern;
+import me.mdbell.noexs.code.opcode.annotation.AOpCodeFragmentConversion;
+import me.mdbell.noexs.code.opcode.annotation.AOpCodePattern;
 
 /**
  * M: Memory region to write to (0 = Main NSO, 1 = Heap, 2 = Alias, 3 = Aslr).
@@ -12,7 +12,7 @@ import me.mdbell.noexs.code.reverse.annotation.ARevPattern;
  *
  */
 
-@ARevPattern(pattern = "[0123]")
+@AOpCodePattern(pattern = "[0123]")
 public enum ECodeMemoryRegion implements ICodeFragment {
     MAIN(0), HEAP(1), ALIAS(2), ASLR(3);
 
@@ -30,7 +30,7 @@ public enum ECodeMemoryRegion implements ICodeFragment {
         return ECodeMemoryRegion.valueOf(StringUtils.upperCase(memoryRegion));
     }
 
-    @ARevFragmentConversion
+    @AOpCodeFragmentConversion
     public static ECodeMemoryRegion valueFromFragment(String fragment) {
         ECodeMemoryRegion res = null;
         for (ECodeMemoryRegion dt : ECodeMemoryRegion.values()) {
