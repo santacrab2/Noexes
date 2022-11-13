@@ -43,6 +43,35 @@ public class WriteValue implements IInstruction {
         this.value = value;
     }
 
+    public long getLongValue() {
+        long res = 0;
+        if (StringUtils.startsWithIgnoreCase(value, "0x")) {
+            String val = StringUtils.remove(value, "0x");
+            res = Long.parseLong(val, 16);
+        } else {
+            switch (valueType) {
+                case S8:
+                case S16:
+                case S32:
+                case S64:
+                    res = Long.parseUnsignedLong(value);
+                    break;
+                case U8:
+                case U16:
+                case U32:
+                case U64:
+                    res = Long.parseLong(value);
+                    break;
+                case FLT:
+                    Float floatValue = Float.parseFloat(value);
+
+                    res = Float.floatToIntBits(floatValue);
+            }
+        }
+
+        return res;
+    }
+
     public String getHexValue() {
         String res = "";
         if (StringUtils.startsWithIgnoreCase(value, "0x")) {

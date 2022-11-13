@@ -4,7 +4,9 @@ import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -21,6 +23,7 @@ import me.mdbell.noexs.code.model.ICodeFragment;
 import me.mdbell.noexs.code.model.ICodeFragmentWithVariableLength;
 import me.mdbell.noexs.code.opcode.AOpCode;
 import me.mdbell.noexs.code.opcode.EOpCode;
+import me.mdbell.noexs.code.opcode.annotation.AOpCodeFixValueSize;
 import me.mdbell.noexs.code.opcode.annotation.AOpCodeFragmentConversion;
 import me.mdbell.noexs.code.opcode.annotation.AOpCodeOperation;
 import me.mdbell.noexs.code.opcode.annotation.AOpCodePattern;
@@ -49,6 +52,8 @@ public class OpCodeOperation {
         pattern += op.getCodeType();
 
         Field[] fields = FieldUtils.getAllFields(cls);
+
+        Map<Integer, OpCodeOperationFragment> checkOrder = new HashMap<>();
         for (Field field : fields) {
             Class<?> fieldCls = field.getType();
             AOpCodePattern anPattern = field.getAnnotation(AOpCodePattern.class);
@@ -60,6 +65,14 @@ public class OpCodeOperation {
                 String frPattern = getFragmentPattern(anPattern);
                 Method[] converters = MethodUtils.getMethodsWithAnnotation(fieldCls, AOpCodeFragmentConversion.class);
                 OpCodeOperationFragment crof = new OpCodeOperationFragment(frPattern, field, converters[0]);
+                OpCodeOperationFragment crofOrder = checkOrder.get(crof.getOrder());
+                if (crofOrder != null) {
+                    logger.error("Order already used : {} by {}. Illegal order for class : {} fragment {}",
+                            crof.getOrder(), crofOrder, cls, crof);
+                    throw new RuntimeException("Order already used : " + crof.getOrder() + " for class : " + cls);
+                } else {
+                    checkOrder.put(crof.getOrder(), crof);
+                }
 
                 res.operationFragments.add(crof);
                 pattern += frPattern;
@@ -111,7 +124,14 @@ public class OpCodeOperation {
                     res.append(cf.encode());
                 } else if (fieldValue instanceof ICodeFragmentWithVariableLength) {
                     ICodeFragmentWithVariableLength cf = (ICodeFragmentWithVariableLength) fieldValue;
-                    res.append(cf.encode(dataType));
+                    EDataType valueType = dataType;
+                    AOpCodeFixValueSize valueTypeAnno = operationFragment.getField()
+                            .getAnnotation(AOpCodeFixValueSize.class);
+                    if (valueTypeAnno != null) {
+                        valueType = valueTypeAnno.dataType();
+                    }
+
+                    res.append(cf.encode(valueType));
                 } else {
                     logger.error("Field not managed : {} missing ICodeFragment implmentation",
                             operationFragment.getField());

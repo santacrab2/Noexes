@@ -6,6 +6,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import org.apache.commons.lang3.ClassUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -95,6 +96,10 @@ public class OpCodeManager {
 
         Set<Class<?>> operations = reflections.get(Scanners.TypesAnnotated.with(AOpCodeOperation.class).asClass());
         for (Class<?> cls : operations) {
+            if (!ClassUtils.isAssignable(cls, AOpCode.class)) {
+                logger.error("Class : {} do not extends AOpCode.class", cls);
+                throw new RuntimeException("Class does not extends AOpCode.class : " + cls);
+            }
             Class<? extends AOpCode> clsDecoded = (Class<? extends AOpCode>) cls;
             OpCodeOperation op = OpCodeOperation.fromRevClass(clsDecoded);
             ops.add(op);

@@ -19,6 +19,8 @@ import me.mdbell.noexs.code.model.Pointer;
 import me.mdbell.noexs.code.model.WriteValue;
 import me.mdbell.noexs.code.opcode.AOpCode;
 import me.mdbell.noexs.code.opcode.OpCode2EndConditionalBlock;
+import me.mdbell.noexs.code.opcode.OpCode5LoadRegisterWithMemory;
+import me.mdbell.noexs.code.opcode.OpCode6StoreStaticValueToRegisterMemoryAddress;
 import me.mdbell.noexs.code.opcode.OpCode7LegacyArithmetic;
 import me.mdbell.noexs.code.opcode.manager.OpCodeOperationBuilder;
 import me.mdbell.noexs.code.parser.CodeLexer;
@@ -103,9 +105,9 @@ public class CheatCodeMaker {
         return res;
     }
 
-    private String generateSetValuePartForPointer(WriteValue wv) {
-        return OpCodeOperationBuilder.storeStaticValueToRegisterMemoryAddress(wv.getValueType().getDataType(),
-                registerToUse, false, false, ' ', wv.getHexValue());
+    private OpCode6StoreStaticValueToRegisterMemoryAddress generateSetValuePartForPointer(WriteValue wv) {
+        return OpCode6StoreStaticValueToRegisterMemoryAddress.storeStaticValueToRegisterMemoryAddress(
+                wv.getValueType().getDataType(), registerToUse, false, false, "0", wv.getLongValue());
     }
 
     private CodeLines generateMovesPartForPointer(Pointer p, boolean global) {
@@ -133,10 +135,11 @@ public class CheatCodeMaker {
         AOpCode res = null;
 
         if (positionTypeFirst) {
-            res = OpCodeOperationBuilder.loadRegisterWithMemoryValueFromFixedAddress(EDataType.T64,
+            res = OpCode5LoadRegisterWithMemory.loadFromRegisterAddressEncoding(EDataType.T64,
                     p.getInheritedMemoryRegion(), registerToUse, p.getOffset());
+
         } else {
-            res = OpCodeOperationBuilder.loadRegisterWithMemoryValueFromRegisterAddress(EDataType.T64, registerToUse,
+            res = OpCode5LoadRegisterWithMemory.loadFromFixedAddressEncoding(EDataType.T64, registerToUse,
                     p.getOffset());
         }
 

@@ -7,8 +7,6 @@ import me.mdbell.noexs.code.model.ECodeMemoryRegion;
 import me.mdbell.noexs.code.model.EDataType;
 import me.mdbell.noexs.code.model.Keypad;
 import me.mdbell.noexs.code.opcode.EOpCode;
-import me.mdbell.noexs.code.opcode.OpCode5LoadRegisterWithMemory;
-import me.mdbell.noexs.code.opcode.model.EArithmeticOperation;
 
 // TODO faire disparaitre la classe
 
@@ -44,48 +42,6 @@ public class OpCodeOperationBuilder {
         res += " " + OperationUtils.padHexValue(value, dataType);
         return res;
     }
-
-
-    public static OpCode5LoadRegisterWithMemory loadRegisterWithMemoryValueFromFixedAddress(EDataType dataType,
-            ECodeMemoryRegion region, String registerToUse, long offset) {
-        return OpCode5LoadRegisterWithMemory.loadFromRegisterAddressEncoding(dataType, region, registerToUse, offset);
-    }
-
-    public static OpCode5LoadRegisterWithMemory loadRegisterWithMemoryValueFromRegisterAddress(EDataType dataType,
-            String registerToUse, long offset) {
-        return OpCode5LoadRegisterWithMemory.loadFromFixedAddressEncoding(dataType, registerToUse, offset);
-    }
-
-//	### Code Type 0x6: Store Static Value to Register Memory Address
-//	Code type 0x6 allows writing a fixed value to a memory address specified by a register.
-//	
-//	#### Encoding
-//	`6T0RIor0 VVVVVVVV VVVVVVVV`
-//	
-//	+ T: Width of memory write (1, 2, 4, or 8 bytes).
-//	+ R: Register used as base memory address.
-//	+ I: Increment register flag (0 = do not increment R, 1 = increment R by T).
-//	+ o: Offset register enable flag (0 = do not add r to address, 1 = add r to address).
-//	+ r: Register used as offset when o is 1.
-//	+ V: Value to write to memory.
-//	
-//	---
-    public static String storeStaticValueToRegisterMemoryAddress(EDataType dataType, String registerToUse,
-            boolean incrementRegisterFlag, boolean offsetRegisterEnable, char registerToUseAsOffset, String hexValue) {
-        String res = "" + EOpCode.STORE_STATIC_VALUE_TO_REGISTER_MEMORY_ADDRESS.getCodeType();
-        res += dataType.getDataTypeCode();
-        res += "0";
-        res += registerToUse;
-        res += getFlagValue(incrementRegisterFlag);
-        res += getFlagValue(offsetRegisterEnable);
-        res += getOptionalValue(offsetRegisterEnable, String.valueOf(registerToUseAsOffset), "0");
-        res += "0";
-        res += " " + OperationUtils.padHexValue(hexValue, dataType, 16);
-        return res;
-
-    }
-
-
 
 //	Code Type 0x8: Begin Keypress Conditional Block
 //
@@ -136,26 +92,6 @@ public class OpCodeOperationBuilder {
             mask |= keypad.getKeypadMask();
         }
         res += OperationUtils.padHexValue(Long.toHexString(mask), EDataType.T32, 7);
-        return res;
-    }
-
-    private static String getOptionalValue(boolean toBeSet, String value, String defaultValue) {
-        String res;
-        if (toBeSet) {
-            res = value;
-        } else {
-            res = defaultValue;
-        }
-        return res;
-    }
-
-    private static String getFlagValue(boolean flag) {
-        String res;
-        if (flag) {
-            res = "1";
-        } else {
-            res = "0";
-        }
         return res;
     }
 

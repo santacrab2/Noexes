@@ -43,14 +43,14 @@ public class OpCode5LoadRegisterWithMemory extends AOpCode {
     @AOpCodeFieldOrder(order = 3)
     private Register register;
 
-    @AOpCodeFieldOrder(order = 3)
+    @AOpCodeFieldOrder(order = 4)
     private Flag fromRegisterAddressEncoding;
 
-    @AOpCodeFieldOrder(order = 4)
+    @AOpCodeFieldOrder(order = 5)
     @AOpCodePattern(pattern = "0")
     private NoOp noOp = new NoOp("0");
 
-    @AOpCodeFieldOrder(order = 5)
+    @AOpCodeFieldOrder(order = 6)
     private Address address;
 
     public static OpCode5LoadRegisterWithMemory loadFromRegisterAddressEncoding(EDataType dataType,
