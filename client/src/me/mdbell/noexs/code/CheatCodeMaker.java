@@ -19,6 +19,7 @@ import me.mdbell.noexs.code.model.Pointer;
 import me.mdbell.noexs.code.model.WriteValue;
 import me.mdbell.noexs.code.opcode.AOpCode;
 import me.mdbell.noexs.code.opcode.OpCode2EndConditionalBlock;
+import me.mdbell.noexs.code.opcode.OpCode7LegacyArithmetic;
 import me.mdbell.noexs.code.opcode.manager.OpCodeOperationBuilder;
 import me.mdbell.noexs.code.parser.CodeLexer;
 import me.mdbell.noexs.code.parser.CodeParser;
@@ -26,13 +27,13 @@ import me.mdbell.noexs.code.parser.CodeParser.CodesContext;
 
 public class CheatCodeMaker {
 
-    private static char DEFAULT_REGISTER_TO_USE = 'F';
+    private static String DEFAULT_REGISTER_TO_USE = "F";
 
-    private char registerToUse;
+    private String registerToUse;
 
     private Codes codes;
 
-    public CheatCodeMaker(Codes codes, char registerToUse) {
+    public CheatCodeMaker(Codes codes, String registerToUse) {
         super();
         this.registerToUse = registerToUse;
         this.codes = codes;
@@ -138,12 +139,13 @@ public class CheatCodeMaker {
             res = OpCodeOperationBuilder.loadRegisterWithMemoryValueFromRegisterAddress(EDataType.T64, registerToUse,
                     p.getOffset());
         }
+
         return res;
     }
 
-    private String generatePointerMove(Pointer p) {
-        return OpCodeOperationBuilder.legacyArithmetic(EDataType.T32, registerToUse, p.getArithmeticOperation(),
-                p.getOffsetAsHex());
+    private OpCode7LegacyArithmetic generatePointerMove(Pointer p) {
+        return OpCode7LegacyArithmetic.legacyArithmetic(EDataType.T32, registerToUse, p.getArithmeticOperation(),
+                p.getOffset());
     }
 
     public static String generateCodeFromString(String cheatSource) {

@@ -19,7 +19,7 @@ import me.mdbell.noexs.code.opcode.model.Value;
 //
 //--- 
 
-@AOpCodeOperation(operation = EOpCode.END_CONDITIONAL_BLOCK)
+@AOpCodeOperation(operation = EOpCode.LOAD_REGISTER_WITH_STATIC_VALUE)
 public class OpCode4RegisterWithStaticValue extends AOpCode {
 
     @AOpCodeFieldOrder(order = 1)
@@ -33,7 +33,7 @@ public class OpCode4RegisterWithStaticValue extends AOpCode {
     @AOpCodePattern(pattern = "00000")
     private NoOp noOp2 = new NoOp("00000");
 
-    @AOpCodeFieldOrder(order = 3)
+    @AOpCodeFieldOrder(order = 4)
     private Value value;
 
     public Register getRegister() {

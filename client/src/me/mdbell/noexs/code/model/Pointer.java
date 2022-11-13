@@ -3,6 +3,7 @@ package me.mdbell.noexs.code.model;
 import org.apache.commons.lang3.builder.ReflectionToStringBuilder;
 import org.apache.commons.lang3.builder.ToStringStyle;
 
+import me.mdbell.noexs.code.opcode.model.EArithmeticOperation;
 import me.mdbell.util.HexUtils;
 
 public class Pointer {

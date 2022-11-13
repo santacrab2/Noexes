@@ -1,6 +1,10 @@
-package me.mdbell.noexs.code.model;
+package me.mdbell.noexs.code.opcode.model;
 
 import org.apache.commons.lang3.StringUtils;
+
+import me.mdbell.noexs.code.model.ICodeFragment;
+import me.mdbell.noexs.code.opcode.annotation.AOpCodeFragmentConversion;
+import me.mdbell.noexs.code.opcode.annotation.AOpCodePattern;
 
 //	#### Arithmetic Types
 //	+ 0: Addition
@@ -16,7 +20,8 @@ import org.apache.commons.lang3.StringUtils;
 //	
 //	---
 
-public enum EArithmeticOperation {
+@AOpCodePattern(pattern = "[0-9]")
+public enum EArithmeticOperation implements ICodeFragment {
     ADDITION("+", 0),
     SUBSTRACTION("-", 1),
     MULTIPLICATION("*", 2),
@@ -41,6 +46,7 @@ public enum EArithmeticOperation {
         return arithmeticOperationCode;
     }
 
+    @AOpCodeFragmentConversion
     public static EArithmeticOperation getArithmeticOperationFromSymbol(String symbol) {
         EArithmeticOperation res = null;
         for (EArithmeticOperation at : EArithmeticOperation.values()) {
@@ -50,6 +56,11 @@ public enum EArithmeticOperation {
             }
         }
         return res;
+    }
+
+    @Override
+    public String encode() {
+        return Integer.toString(arithmeticOperationCode);
     }
 
 }

@@ -3,12 +3,12 @@ package me.mdbell.noexs.code.opcode.manager;
 import org.apache.commons.lang3.StringUtils;
 
 import me.mdbell.noexs.code.OperationUtils;
-import me.mdbell.noexs.code.model.EArithmeticOperation;
 import me.mdbell.noexs.code.model.ECodeMemoryRegion;
 import me.mdbell.noexs.code.model.EDataType;
 import me.mdbell.noexs.code.model.Keypad;
 import me.mdbell.noexs.code.opcode.EOpCode;
 import me.mdbell.noexs.code.opcode.OpCode5LoadRegisterWithMemory;
+import me.mdbell.noexs.code.opcode.model.EArithmeticOperation;
 
 // TODO faire disparaitre la classe
 
@@ -45,35 +45,15 @@ public class OpCodeOperationBuilder {
         return res;
     }
 
-//	### Code Type 0x5: Load Register with Memory Value
-//	Code type 0x5 allows loading a value from memory into a register, either using a fixed address or by dereferencing the destination register.
-//
-//	#### Load From Fixed Address Encoding
-//	`5TMR00AA AAAAAAAA`
-//
-//	+ T: Width of memory read (1, 2, 4, or 8 bytes).
-//	+ M: Memory region to write to (0 = Main NSO, 1 = Heap, 2 = Alias, 3 = Aslr).
-//	+ R: Register to load value into.
-//	+ A: Immediate offset to use from memory region base.
-//
-//	#### Load from Register Address Encoding
-//	`5T0R10AA AAAAAAAA`
-//
-//	+ T: Width of memory read (1, 2, 4, or 8 bytes).
-//	+ R: Register to load value into. (This register is also used as the base memory address).
-//	+ A: Immediate offset to use from register R.
-//
-//	---	
+
     public static OpCode5LoadRegisterWithMemory loadRegisterWithMemoryValueFromFixedAddress(EDataType dataType,
-            ECodeMemoryRegion region, char registerToUse, long offset) {
-        return OpCode5LoadRegisterWithMemory.loadFromRegisterAddressEncoding(dataType, region,
-                String.valueOf(registerToUse), offset);
+            ECodeMemoryRegion region, String registerToUse, long offset) {
+        return OpCode5LoadRegisterWithMemory.loadFromRegisterAddressEncoding(dataType, region, registerToUse, offset);
     }
 
     public static OpCode5LoadRegisterWithMemory loadRegisterWithMemoryValueFromRegisterAddress(EDataType dataType,
-            char registerToUse, long offset) {
-        return OpCode5LoadRegisterWithMemory.loadFromFixedAddressEncoding(dataType, String.valueOf(registerToUse),
-                offset);
+            String registerToUse, long offset) {
+        return OpCode5LoadRegisterWithMemory.loadFromFixedAddressEncoding(dataType, registerToUse, offset);
     }
 
 //	### Code Type 0x6: Store Static Value to Register Memory Address
@@ -90,7 +70,7 @@ public class OpCodeOperationBuilder {
 //	+ V: Value to write to memory.
 //	
 //	---
-    public static String storeStaticValueToRegisterMemoryAddress(EDataType dataType, char registerToUse,
+    public static String storeStaticValueToRegisterMemoryAddress(EDataType dataType, String registerToUse,
             boolean incrementRegisterFlag, boolean offsetRegisterEnable, char registerToUseAsOffset, String hexValue) {
         String res = "" + EOpCode.STORE_STATIC_VALUE_TO_REGISTER_MEMORY_ADDRESS.getCodeType();
         res += dataType.getDataTypeCode();
@@ -105,40 +85,7 @@ public class OpCodeOperationBuilder {
 
     }
 
-//	### Code Type 0x7: Legacy Arithmetic
-//	Code type 0x7 allows performing arithmetic on registers.
-//
-//	However, it has been deprecated by Code type 0x9, and is only kept for backwards compatibility.
-//
-//	#### Encoding
-//	`7T0RC000 VVVVVVVV`
-//
-//	+ T: Width of arithmetic operation (1, 2, 4, or 8 bytes).
-//	+ R: Register to apply arithmetic to.
-//	+ C: Arithmetic operation to apply, see below.
-//	+ V: Value to use for arithmetic operation.
-//
-//	#### Arithmetic Types
-//	+ 0: Addition
-//	+ 1: Subtraction
-//	+ 2: Multiplication
-//	+ 3: Left Shift
-//	+ 4: Right Shift
-//
-//	---	
 
-    public static String legacyArithmetic(EDataType dataType, char registerToUse, EArithmeticOperation arithmetic,
-            String hexValue) {
-        String res = "" + EOpCode.LEGACY_ARITHMETIC.getCodeType();
-        res += dataType.getDataTypeCode();
-        res += "0";
-        res += registerToUse;
-        res += arithmetic.getArithmeticOperationCode();
-        res += "000";
-        res += " " + OperationUtils.padHexValue(hexValue, dataType);
-        return res;
-
-    }
 
 //	Code Type 0x8: Begin Keypress Conditional Block
 //

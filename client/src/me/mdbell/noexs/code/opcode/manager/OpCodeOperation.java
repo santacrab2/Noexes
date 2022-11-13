@@ -13,6 +13,8 @@ import org.apache.commons.lang3.builder.ToStringStyle;
 import org.apache.commons.lang3.reflect.ConstructorUtils;
 import org.apache.commons.lang3.reflect.FieldUtils;
 import org.apache.commons.lang3.reflect.MethodUtils;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import me.mdbell.noexs.code.model.EDataType;
 import me.mdbell.noexs.code.model.ICodeFragment;
@@ -25,6 +27,8 @@ import me.mdbell.noexs.code.opcode.annotation.AOpCodePattern;
 import me.mdbell.util.HexUtils;
 
 public class OpCodeOperation {
+
+    private static final Logger logger = LogManager.getLogger(OpCodeOperation.class);
 
     private EOpCode operation;
     private String regexp;
@@ -108,6 +112,9 @@ public class OpCodeOperation {
                 } else if (fieldValue instanceof ICodeFragmentWithVariableLength) {
                     ICodeFragmentWithVariableLength cf = (ICodeFragmentWithVariableLength) fieldValue;
                     res.append(cf.encode(dataType));
+                } else {
+                    logger.error("Field not managed : {} missing ICodeFragment implmentation",
+                            operationFragment.getField());
                 }
             }
         } catch (IllegalAccessException e) {

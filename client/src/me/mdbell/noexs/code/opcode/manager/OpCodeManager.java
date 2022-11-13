@@ -98,7 +98,13 @@ public class OpCodeManager {
             Class<? extends AOpCode> clsDecoded = (Class<? extends AOpCode>) cls;
             OpCodeOperation op = OpCodeOperation.fromRevClass(clsDecoded);
             ops.add(op);
-            codeOperations.put(op.getOperation(), op);
+            if (!codeOperations.containsKey(op.getOperation())) {
+                codeOperations.put(op.getOperation(), op);
+            } else {
+                logger.error("Operation : {} already define for {}, will not be registered for {}", op.getOperation(),
+                        codeOperations.get(op.getOperation()), clsDecoded);
+                throw new RuntimeException("OpCode already defined : " + op.getOperation() + " for " + clsDecoded);
+            }
         }
     }
 
