@@ -20,7 +20,8 @@ import me.mdbell.noexs.code.opcode.OpCode2EndConditionalBlock;
 import me.mdbell.noexs.code.opcode.OpCode5LoadRegisterWithMemory;
 import me.mdbell.noexs.code.opcode.OpCode6StoreStaticValueToRegisterMemoryAddress;
 import me.mdbell.noexs.code.opcode.OpCode7LegacyArithmetic;
-import me.mdbell.noexs.code.opcode.manager.OpCodeOperationBuilder;
+import me.mdbell.noexs.code.opcode.OpCode8BeginKeypressConditionalBlock;
+import me.mdbell.noexs.code.opcode.OpCodeLabel;
 import me.mdbell.noexs.code.opcode.model.EDataType;
 import me.mdbell.noexs.code.parser.CodeLexer;
 import me.mdbell.noexs.code.parser.CodeParser;
@@ -46,7 +47,7 @@ public class CheatCodeMaker {
 
     private CodeLines generateCode(Code c) {
 
-        CodeLines res = new CodeLines("[" + c.getLabel() + "]");
+        CodeLines res = new CodeLines(OpCodeLabel.label(c.getLabel()));
 
         WriteValue wv = c.getWriteValue();
         if (wv != null) {
@@ -87,11 +88,9 @@ public class CheatCodeMaker {
             } else if (instruction instanceof ElseCondition) {
                 res.addLineToEnd(OpCode2EndConditionalBlock.endConditionalElse());
             } else if (instruction instanceof ConditionPressButton) {
-                res.addLineToEnd(OpCodeOperationBuilder
+                res.addLineToEnd(OpCode8BeginKeypressConditionalBlock
                         .beginKeypressConditionalBlock(((ConditionPressButton) instruction).getKeypad()));
-            }
-
-            else {
+            } else {
                 System.err.println("Unkonwn instruction : " + instruction);
 
             }

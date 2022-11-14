@@ -28,3 +28,7 @@ https://github.com/Atmosphere-NX/Atmosphere/blob/master/docs/features/cheats.md
 https://raw.githubusercontent.com/Atmosphere-NX/Atmosphere/master/docs/features/cheats.md
 
 Finir d'utuilise opcode au lieu  de code sous forme de chaine (inclus le Label au debut du code)
+
+Enlever to les printstack, gérer les erreurs et les logs
+Gerer boutton multiple dans la grammaire
+Refactoiring CodeLines => ne plus avoir de String juste AOpCode

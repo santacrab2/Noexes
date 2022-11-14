@@ -5,6 +5,7 @@ import org.apache.commons.lang3.StringUtils;
 import me.mdbell.noexs.code.opcode.annotation.AOpCodeFragmentConversion;
 
 public enum EOpCode {
+    LABEL("[", "\\["),
     STORE_STATIC_VALUE_TO_MEMORY("0"),
     BEGIN_CONDITIONAL_BLOCK("1"),
     END_CONDITIONAL_BLOCK("2"),
@@ -23,12 +24,25 @@ public enum EOpCode {
 
     private String codeType;
 
-    private EOpCode(String codeType) {
+    private String pattern;
+
+    private EOpCode(String codeType, String pattern) {
         this.codeType = codeType;
+        this.pattern = pattern;
+    }
+
+    private EOpCode(String codeType) {
+        this(codeType, codeType);
     }
 
     public String getCodeType() {
         return codeType;
+    }
+    
+    
+
+    public String getPattern() {
+        return pattern;
     }
 
     @AOpCodeFragmentConversion

@@ -11,40 +11,37 @@ import me.mdbell.noexs.code.opcode.manager.OpCodeManager;
 public class CodeLines {
 
     // TODO ne plus avoir de String
-    private List<String> codeLines = new ArrayList<>();
+    private List<AOpCode> opCodes = new ArrayList<>();
 
     public CodeLines() {
     }
 
-    public CodeLines(String codeLines) {
+    public CodeLines(AOpCode opCode) {
         super();
-        this.codeLines.add(codeLines);
+        this.opCodes.add(opCode);
     }
 
-    public void addLineToHead(String codeLine) {
-        if (codeLine != null) {
-            codeLines.add(0, codeLine);
-        }
-    }
-
-    public void addLineToEnd(String codeLine) {
-        if (codeLine != null) {
-            codeLines.add(codeLine);
+    public void addLineToHead(AOpCode opCode) {
+        if (opCodes != null) {
+            opCodes.add(0, opCode);
         }
     }
 
     public void addLineToEnd(AOpCode decodedOperation) {
         if (decodedOperation != null) {
-            codeLines.add(OpCodeManager.encodeCheatCode(decodedOperation));
+            opCodes.add(decodedOperation);
         }
     }
 
     public void addCodeLines(CodeLines codeLinesToAdd) {
-        codeLines.addAll(codeLinesToAdd.codeLines);
+        opCodes.addAll(codeLinesToAdd.opCodes);
     }
 
     public String toStringCode() {
-        return StringUtils.join(codeLines.toArray(), "\n");
+
+        List<String> strLines = OpCodeManager.encodeCheatCode(opCodes);
+
+        return StringUtils.join(strLines.toArray(), "\n");
     }
 
 }

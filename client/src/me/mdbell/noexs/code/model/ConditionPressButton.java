@@ -1,16 +1,18 @@
 package me.mdbell.noexs.code.model;
 
+import me.mdbell.noexs.code.opcode.model.EKeypad;
+
 public class ConditionPressButton extends Condition {
 
-    private Keypad[] keypad;
+    private EKeypad[] keypad;
 
     // TODO : boutton multiple
-    public ConditionPressButton(Keypad keypad) {
+    public ConditionPressButton(EKeypad keypad) {
         super();
-        this.keypad = new Keypad[] { keypad };
+        this.keypad = new EKeypad[] { keypad };
     }
 
-    public Keypad[] getKeypad() {
+    public EKeypad[] getKeypad() {
         return keypad;
     }
 }

@@ -15,6 +15,7 @@ class TestCodeReverse {
     private static final Logger logger = LogManager.getLogger(TestCodeReverse.class);
 
     String code = """
+            [Code 1]
             580F0000 04BA9228
             580F1000 000000B8
             580F1000 00000018
