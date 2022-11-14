@@ -10,7 +10,6 @@ import me.mdbell.noexs.code.opcode.manager.OpCodeManager;
 
 public class CodeLines {
 
-    // TODO ne plus avoir de String
     private List<AOpCode> opCodes = new ArrayList<>();
 
     public CodeLines() {
