@@ -2,6 +2,7 @@ grammar Code ;
 
 @header {
 import me.mdbell.noexs.code.model.*;
+import me.mdbell.noexs.code.opcode.model.*;
 }
 
 options {
@@ -27,7 +28,7 @@ code 	returns [Code c]
  
 expr		returns [Block b]     			: b1 = block {$b=$b1.b;}| c= cond_block {$b=$c.cb;};
 
-cond_block 	returns [ConditionalBlock cb] 	: IF_BUTTON key = KEYPAD b1 = block {$cb = new ConditionalBlock(new ConditionPressButton(Keypad.getKeypad($key.text)), $b1.b);} (ELSE eb= block {$cb.setElseBlock($eb.b);})? ;
+cond_block 	returns [ConditionalBlock cb] 	: IF_BUTTON key = KEYPAD b1 = block {$cb = new ConditionalBlock(new ConditionPressButton(EKeypad.getKeypad($key.text)), $b1.b);} (ELSE eb= block {$cb.setElseBlock($eb.b);})? ;
 
 block	returns [Block b]
 

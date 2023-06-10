@@ -1,5 +1,6 @@
 package me.mdbell.noexs.core;
 
+import java.io.BufferedOutputStream;
 import java.io.Closeable;
 import java.io.IOException;
 import java.io.OutputStream;
@@ -273,17 +274,20 @@ public class Debugger implements Commands, Closeable {
 
             Result rc = conn.readResult();
             if (rc.succeeded()) {
-                byte[] buffer = new byte[2048 * 4];
-                while (size > 0) {
-                    rc = conn.readResult();
-                    if (rc.failed()) {
-                        conn.readResult();
-                        throw new ConnectionException(rc);
+                //try (BufferedOutputStream bufferedWriter = new BufferedOutputStream(to)) {
+                    byte[] buffer = new byte[2048 * 4];
+                    while (size > 0) {
+                        rc = conn.readResult();
+                        if (rc.failed()) {
+                            conn.readResult();
+                            throw new ConnectionException(rc);
+                        }
+                        int len = readCompressed(buffer);
+                        // to.write(buffer, 0, len);
+                        to.write(buffer, 0, len);
+                        size -= len;
                     }
-                    int len = readCompressed(buffer);
-                    to.write(buffer, 0, len);
-                    size -= len;
-                }
+                //}
             }
             conn.readResult();
         } finally {
@@ -431,7 +435,7 @@ public class Debugger implements Commands, Closeable {
     public long[] getPids() {
         acquire();
         try {
-            
+
             RDebGetPidsOutput getPids = DebuggerUtils.runCommand(conn, EDebCommand.COMMAND_GET_PIDS);
             long[] pids = getPids.pids();
             Result rc = conn.readResult();
@@ -531,7 +535,18 @@ public class Debugger implements Commands, Closeable {
             for (int i = 0; i < compressedLen; i += 2) {
                 byte value = compressedBuffer[i];
                 int count = compressedBuffer[i + 1] & 0xFF;
-                Arrays.fill(buffer, pos, pos + count, value);
+
+                // Arrays.fill(buffer, pos, pos + count, value);
+
+                byte[] a = buffer;
+                int fromIndex = pos;
+                int toIndex = pos + count;
+                byte val = value;
+
+                for (int fi = fromIndex; fi < toIndex; fi++) {
+                    a[fi] = val;
+                }
+
                 pos += count;
             }
         }

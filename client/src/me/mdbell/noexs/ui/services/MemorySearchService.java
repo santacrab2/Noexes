@@ -1,5 +1,6 @@
 package me.mdbell.noexs.ui.services;
 
+import java.io.BufferedOutputStream;
 import java.io.File;
 import java.io.IOException;
 import java.nio.ByteBuffer;
@@ -152,7 +153,7 @@ public class MemorySearchService extends Service<SearchResult> {
                 return compare(value, knownValue);
             case DIFFERENT:
                 long diff = value - prev;
-                long absDiff = (diff<0)?-diff: diff;
+                long absDiff = (diff < 0) ? -diff : diff;
                 return compare(absDiff, knownValue);
             default:
                 throw new UnsupportedOperationException("Unsupported condition type:" + type);
@@ -389,51 +390,56 @@ public class MemorySearchService extends Service<SearchResult> {
             Rolling avg = new Rolling(10);
             long read = 0;
             MemoryDump dump;
-            DumpOutputStream dout;
+            DumpOutputStream doutRaw;
             try {
                 long tid = conn.getCurrentTitleId();
                 File location = res.getLocation();
-                logger.info("Create dump : {} for tid : {} with supplier : {}", location, tid, supplier.getDescription());
+                logger.info("Create dump : {} for tid : {} with supplier : {}", location, tid,
+                        supplier.getDescription());
                 dump = new MemoryDump(location);
                 dump.setTid(tid);
                 dump.getInfos().addAll(Arrays.asList(conn.query(0, DUMP_BUFFER_SIZE)));
-                dout = dump.openStream();
+                doutRaw = dump.openStream();
 
             } catch (IOException e) {
                 e.printStackTrace();
                 return null;
             }
-            while (!isCancelled()) {
-                DumpRegion r = supplier.get();
-                logger.debug("Dumping region : {}", r);
-                if (r == null) {
-                    break;
-                }
-                long size = r.getSize();
-                long addr = r.getStart();
-                while (size > 0 && !isCancelled()) {
-                    if (System.currentTimeMillis() - lastUpdate > 500) {
-                        avg.add(read - prevRead);
-                        prevRead = read;
-                        lastUpdate = System.currentTimeMillis();
+            try (BufferedOutputStream dout = new BufferedOutputStream(doutRaw, 1024*1024)) {
+                while (!isCancelled()) {
+                    DumpRegion r = supplier.get();
+                    logger.debug("Dumping region : {}", r);
+                    if (r == null) {
+                        break;
                     }
-                    int len = (int) Math.min(size, 2_000_000);
-                    dout.setCurrentAddress(addr);
-                    conn.readmem(addr, len, dout);
-                    size -= len;
-                    addr += len;
-                    read += len;
-                    double average = avg.getAverage() * 2;
-                    long remaining = totalSize - read;
-                    updateProgress(read, totalSize);
-                    updateMessage(String.format("Dumping - DL: %s/s T: %s R: %s ETA: %s",
-                            NetUtils.formatSize((long) (average)), NetUtils.formatSize(totalSize),
-                            NetUtils.formatSize(remaining), TimeUtils.formatTime((long) (remaining / average * 1000))));
+                    long size = r.getSize();
+                    long addr = r.getStart();
+                    while (size > 0 && !isCancelled()) {
+                        if (System.currentTimeMillis() - lastUpdate > 500) {
+                            avg.add(read - prevRead);
+                            prevRead = read;
+                            lastUpdate = System.currentTimeMillis();
+                        }
+                        int len = (int) Math.min(size, 2_000_000);
+                        doutRaw.setCurrentAddress(addr);
+                        conn.readmem(addr, len, dout);
+                        dout.flush();
+                        size -= len;
+                        addr += len;
+                        read += len;
+                        double average = avg.getAverage() * 2;
+                        long remaining = totalSize - read;
+                        updateProgress(read, totalSize);
+                        updateMessage(String.format("Dumping - DL: %s/s T: %s R: %s ETA: %s",
+                                NetUtils.formatSize((long) (average)), NetUtils.formatSize(totalSize),
+                                NetUtils.formatSize(remaining),
+                                TimeUtils.formatTime((long) (remaining / average * 1000))));
 
+                    }
                 }
             }
-            if (dout != null) {
-                dout.close();
+            if (doutRaw != null) {
+                doutRaw.close();
             }
             logger.debug("Dump finished");
             if (resume) {
