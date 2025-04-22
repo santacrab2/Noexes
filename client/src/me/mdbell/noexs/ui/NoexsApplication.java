@@ -14,8 +14,8 @@ import java.io.IOException;
 public class NoexsApplication extends Application {
 
     public static final int VERSION_MAJOR = 1;
-    public static final int VERSION_MINOR = 2;
-    public static final int VERSION_PATCH = 0;
+    public static final int VERSION_MINOR = 1;
+    public static final int VERSION_PATCH = 2;
 
     public static final String APP_NAME = "JNoexs";
     public static final String APP_VERSION = VERSION_MAJOR + "." + VERSION_MINOR + "." + VERSION_PATCH;
@@ -33,7 +33,7 @@ public class NoexsApplication extends Application {
         MainController c = loader.getController();
         c.setStage(stage);
         c.setTitle(null);
-        stage.setOnHidden(v -> {
+        stage.setOnHidden(v ->{
             c.stop();
             Platform.exit();
         });

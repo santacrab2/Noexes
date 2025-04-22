@@ -31,8 +31,7 @@ public class DebuggerConnectionService extends ScheduledService<IConnection> {
                 return new Task<>() {
                     @Override
                     protected IConnection call() throws Exception {
-                        updateMessage("Connecting to:" + host + ":" + port + " (Attempt:"
-                                + (getCurrentFailureCount() + 1) + "/" + getMaximumFailureCount() + ")");
+                        updateMessage("Connecting to:" + host + ":" + port + " (Attempt:" + (getCurrentFailureCount() + 1) + "/" + getMaximumFailureCount() + ")");
                         Socket s = new Socket();
                         InetSocketAddress addr = new InetSocketAddress(host, port);
                         s.connect(addr, timeout);

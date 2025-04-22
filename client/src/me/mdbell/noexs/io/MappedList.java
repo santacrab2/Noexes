@@ -1,8 +1,6 @@
 package me.mdbell.noexs.io;
 
 import java.io.Closeable;
-import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.RandomAccessFile;
 import java.nio.ByteBuffer;
@@ -12,20 +10,11 @@ import java.util.AbstractList;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
-
-import me.mdbell.noexs.ui.services.PointerSearchResult;
-
 public abstract class MappedList<T> extends AbstractList<T> implements Closeable {
 
-    private static final long BUFFER_SIZE = 1024 * 1024 * 50; // 50MB
-
-    private static final Logger logger = LogManager.getLogger(MappedList.class);
+    private static final long BUFFER_SIZE = 1024 * 1024 * 50; //50MB
 
     private RandomAccessFile raf;
-    private File file;
-    private String accesMode;
     private List<MappedByteBuffer> buffers = new ArrayList<>();
     private int size;
     private final long dataSize;
@@ -39,20 +28,12 @@ public abstract class MappedList<T> extends AbstractList<T> implements Closeable
 
     protected abstract boolean write(ByteBuffer to, int pos, T value);
 
-    public MappedList(File file, String accesMode) {
-        this(file, accesMode, 0);
+    public MappedList(RandomAccessFile raf) {
+        this(raf, 0);
     }
 
-    public MappedList(File file, String accesMode, int size) {
-        this.file = file;
-        this.accesMode = accesMode;
-        try {
-            this.size = size;
-            this.raf = new RandomAccessFile(file, accesMode);
-        } catch (FileNotFoundException e) {
-            logger.error("Error during file creation : {} access : {}", file, accesMode, e);
-            throw new RuntimeException("Error during file creation MappedList", e);
-        }
+    public MappedList(RandomAccessFile raf, int size) {
+        this.raf = raf;
         this.size = size;
         this.dataSize = dataSize();
     }
@@ -64,8 +45,7 @@ public abstract class MappedList<T> extends AbstractList<T> implements Closeable
     private synchronized void checkSize(int index) {
         try {
             while (index >= buffers.size()) {
-                MappedByteBuffer buffer = raf.getChannel().map(FileChannel.MapMode.READ_WRITE, index * BUFFER_SIZE,
-                        BUFFER_SIZE);
+                MappedByteBuffer buffer = raf.getChannel().map(FileChannel.MapMode.READ_WRITE, index * BUFFER_SIZE, BUFFER_SIZE);
                 buffers.add(buffer);
             }
         } catch (IOException e) {
@@ -120,17 +100,8 @@ public abstract class MappedList<T> extends AbstractList<T> implements Closeable
         return size;
     }
 
-    public File getFile() {
-        return file;
-    }
-
-    public static MappedList<Long> createLongList(File file, String access) {
-        return createLongList(file, access, 0);
-    }
-
-   
-    public static MappedList<Long> createLongList(File file, String access, int size) {
-        return new MappedList<>(file, access, size) {
+    public static MappedList<Long> createLongList(RandomAccessFile raf) {
+        return new MappedList<>(raf) {
             @Override
             protected long dataSize() {
                 return Long.BYTES;
@@ -148,6 +119,4 @@ public abstract class MappedList<T> extends AbstractList<T> implements Closeable
             }
         };
     }
-    
-    
 }

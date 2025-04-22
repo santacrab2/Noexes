@@ -1,42 +1,26 @@
 package me.mdbell.noexs.ui.controllers;
 
-import java.io.File;
-import java.io.IOException;
-import java.nio.file.Paths;
-import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Set;
-import java.util.function.Function;
-
-import org.apache.commons.io.FileUtils;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
-
+import com.google.gson.GsonBuilder;
+import javafx.beans.property.StringProperty;
+import javafx.beans.value.ChangeListener;
+import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
-import javafx.scene.control.Button;
-import javafx.scene.control.CheckBox;
-import javafx.scene.control.ContextMenu;
-import javafx.scene.control.ListCell;
-import javafx.scene.control.ListView;
-import javafx.scene.control.MenuItem;
-import javafx.scene.control.SelectionMode;
-import javafx.scene.control.Spinner;
-import javafx.scene.control.SpinnerValueFactory;
-import javafx.scene.control.TextField;
+import javafx.scene.control.*;
+import javafx.stage.FileChooser;
 import me.mdbell.javafx.control.AddressSpinner;
 import me.mdbell.javafx.control.HexSpinner;
 import me.mdbell.noexs.ui.Settings;
 import me.mdbell.noexs.ui.services.PointerSearchResult;
 import me.mdbell.noexs.ui.services.PointerSearchService;
 
-public class PointerSearchController implements IController {
+import java.io.File;
+import java.nio.file.Paths;
+import java.util.*;
 
-    private static final Logger logger = LogManager.getLogger(PointerSearchController.class);
+public class PointerSearchController implements IController {
 
     @FXML
     AddressSpinner addressSpinner;
@@ -55,12 +39,6 @@ public class PointerSearchController implements IController {
 
     @FXML
     TextField dumpFilePath;
-
-    @FXML
-    CheckBox postiveOffset;
-
-    @FXML
-    CheckBox dumpSearch;
 
     @FXML
     TextField resultText;
@@ -83,9 +61,6 @@ public class PointerSearchController implements IController {
     CheckBox filterCheckbox;
 
     @FXML
-    CheckBox autoOffsetCheckbox;
-
-    @FXML
     AddressSpinner relativeAddress;
 
     private List<PointerSearchResult> unfilteredResults = new ArrayList<>();
@@ -96,27 +71,11 @@ public class PointerSearchController implements IController {
 
     private final PointerSearchService searchService = new PointerSearchService();
 
-    private String formatPointer(PointerSearchResult item) {
-        String text = "";
-        if (autoOffsetCheckbox.isSelected() && !mc.tools().memInfoTable.getItems().isEmpty()) {
-            text = item.formattedRegion(mc.tools());
-        } else {
-            Long relativeAddressValue = relativeAddress.getValue();
-            if (relativeAddressValue == null || relativeAddressValue == 0) {
-                text = item.formattedRaw();
-            } else {
-                text = item.formattedMain(relativeAddressValue);
-            }
-        }
-        return text;
-    }
-
     @FXML
     public void initialize() {
         depthSpinner.setValueFactory(new SpinnerValueFactory.IntegerSpinnerValueFactory(1, 10));
 
-        threadsSpinner.setValueFactory(
-                new SpinnerValueFactory.IntegerSpinnerValueFactory(1, Runtime.getRuntime().availableProcessors()));
+        threadsSpinner.setValueFactory(new SpinnerValueFactory.IntegerSpinnerValueFactory(1, Runtime.getRuntime().availableProcessors()));
         threadsSpinner.getValueFactory().setValue(Settings.getPointerThreadCount());
 
         depthSpinner.getValueFactory().setValue(Settings.getPointerDepth());
@@ -124,7 +83,7 @@ public class PointerSearchController implements IController {
 
         resultList.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
             if (newValue != null) {
-                resultText.setText(formatPointer(newValue));
+                resultText.setText(newValue.formatted(relativeAddress.getValue()));
             } else {
                 resultText.setText("");
             }
@@ -137,12 +96,9 @@ public class PointerSearchController implements IController {
                 if (empty || item == null) {
                     setText(null);
                 } else {
-                    String text = formatPointer(item);
-
-                    setText(text);
+                    setText(item.formatted(relativeAddress.getValue()));
                 }
             }
-
         });
 
         dumpFilePath.textProperty().addListener((observable, oldValue, newValue) -> updateSearchButton());
@@ -151,13 +107,8 @@ public class PointerSearchController implements IController {
 
         results = FXCollections.observableArrayList();
         resultList.setItems(results);
-        resultList.getSelectionModel().setSelectionMode(SelectionMode.MULTIPLE);
 
         relativeAddress.valueProperty().addListener((observable, oldValue, newValue) -> updateFilter());
-
-        autoOffsetCheckbox.selectedProperty().addListener((observable, oldValue, newValue) -> {
-            updateFilter();
-        });
 
         filterCheckbox.selectedProperty().addListener((observable, oldValue, newValue) -> {
             filterMaxAddress.setDisable(!newValue);
@@ -167,116 +118,6 @@ public class PointerSearchController implements IController {
 
         filterMaxAddress.valueProperty().addListener((observable, oldValue, newValue) -> updateFilter());
         filterMinAddress.valueProperty().addListener((observable, oldValue, newValue) -> updateFilter());
-
-        ContextMenu cm = new ContextMenu();
-        MenuItem memoryView = new MenuItem("Memory Viewer");
-        memoryView.setOnAction(event -> {
-            PointerSearchResult psr = resultList.getSelectionModel().getSelectedItem();
-            if (psr == null) {
-                return;
-            }
-            mc.memory().setViewAddress(psr.getAddress());
-            mc.setTab(MainController.Tab.MEMORY_VIEWER);
-        });
-
-        MenuItem exportPointers = new MenuItem("Export All Pointers Raw");
-        exportPointers.setOnAction(event -> {
-            String pointerType = "Raw";
-            String extension = "*.rptr";
-
-            Function<PointerSearchResult, String> pointerFormatter = psr -> psr.formattedRaw();
-
-            savePointers(resultList.getItems(), pointerType, extension, pointerFormatter);
-
-        });
-
-        MenuItem exportSelectedPointers = new MenuItem("Export Selected Pointers Raw");
-        exportSelectedPointers.setOnAction(event -> {
-            String pointerType = "Raw";
-            String extension = "*.rptr";
-
-            Function<PointerSearchResult, String> pointerFormatter = psr -> psr.formattedRaw();
-
-            savePointers(resultList.getSelectionModel().getSelectedItems(), pointerType, extension, pointerFormatter);
-
-        });
-
-        MenuItem exportRelativePointers = new MenuItem("Export All Pointers Relative");
-        exportRelativePointers.setOnAction(event -> {
-            String pointerType = "Relative";
-            String extension = "*.ptr";
-
-            Function<PointerSearchResult, String> pointerFormatter = psr -> psr.formattedRegion(mc.tools());
-            savePointers(resultList.getItems(), pointerType, extension, pointerFormatter);
-        });
-
-        MenuItem exportSelectedRelativePointers = new MenuItem("Export Selected Pointers Relative");
-        exportSelectedRelativePointers.setOnAction(event -> {
-            String pointerType = "Relative";
-            String extension = "*.ptr";
-
-            Function<PointerSearchResult, String> pointerFormatter = psr -> psr.formattedRegion(mc.tools());
-            savePointers(resultList.getSelectionModel().getSelectedItems(), pointerType, extension, pointerFormatter);
-        });
-
-        MenuItem preservePointers = new MenuItem("Preserve the pointers already found in file ...");
-        preservePointers.setOnAction(event -> {
-            File f = mc.browseFile(false, null, null, "Load", "Relative pointers", "*.ptr");
-            if (f == null) {
-                return;
-            }
-
-            List<PointerSearchResult> intersection = new ArrayList<>();
-
-            try {
-                List<String> pointersInFile = FileUtils.readLines(f, "UTF-8");
-                for (PointerSearchResult psr : resultList.getItems()) {
-                    String formattedPointer = psr.formattedRegion(mc.tools());
-                    boolean found = pointersInFile.contains(formattedPointer);
-                    logger.debug("Check pointer : {} -> found={}", formattedPointer, found);
-                    if (found) {
-                        intersection.add(psr);
-                    }
-                }
-            } catch (IOException e) {
-                logger.error("Error while loding pointers ", e);
-            }
-
-            logger.info("Found {} similar to file {}", intersection.size(), f.getPath());
-
-            this.unfilteredResults.clear();
-            this.unfilteredResults.addAll(intersection);
-            updateFilter();
-
-        });
-
-        cm.getItems().addAll(memoryView, exportSelectedPointers, exportPointers, exportSelectedRelativePointers,
-                exportRelativePointers, preservePointers);
-
-        resultList.contextMenuProperty().set(cm);
-    }
-
-    private void savePointers(List<PointerSearchResult> lpsr, String pointerType, String extension,
-            Function<PointerSearchResult, String> pointerFormatter) {
-        if (lpsr == null) {
-            return;
-        }
-
-        File f = mc.browseFile(true, null, null, "Save As...", pointerType + " pointers", extension);
-        if (f == null) {
-            return;
-        }
-
-        StringBuilder strPointers = new StringBuilder();
-        for (PointerSearchResult psr : lpsr) {
-            strPointers.append(pointerFormatter.apply(psr)).append("\n");
-        }
-
-        try {
-            FileUtils.writeStringToFile(f, strPointers.toString(), "UTF-8");
-        } catch (IOException e) {
-            logger.error("Error while saving " + pointerType + " pointers ", e);
-        }
     }
 
     private void updateFilter() {
@@ -295,7 +136,6 @@ public class PointerSearchController implements IController {
         } else {
             results.addAll(unfilteredResults);
         }
-        // Collections.sort(results);
     }
 
     private void updateSearchButton() {
@@ -309,8 +149,7 @@ public class PointerSearchController implements IController {
     }
 
     public void onBrowseDumpFile(ActionEvent event) {
-        mc.browseFile(false, null, dumpFilePath.textProperty(), "Please select a memory dump", "Memory Dump Files",
-                "*.dmp");
+        mc.browseFile(false, dumpFilePath.textProperty(), "Please select a memory dump", "Memory Dump Files", "*.dmp");
     }
 
     public void onSearchAction(ActionEvent event) {
@@ -319,9 +158,6 @@ public class PointerSearchController implements IController {
         searchService.setMaxOffset(offsetSpinner.getValue());
         searchService.setAddress(addressSpinner.getValue());
         searchService.setThreadCount(threadsSpinner.getValue());
-        searchService.setPositiveOffset(postiveOffset.isSelected());
-        searchService.setTime(LocalDateTime.now());
-        searchService.setDumpSearch(dumpSearch.isSelected());
 
         searchService.setOnFailed(event1 -> {
             mc.setStatus("Search Failed!");
@@ -330,10 +166,9 @@ public class PointerSearchController implements IController {
         });
 
         searchService.setOnSucceeded(event1 -> {
-            List<PointerSearchResult> results = (List<PointerSearchResult>) event1.getSource().getValue();
+            Set<PointerSearchResult> results = (Set<PointerSearchResult>) event1.getSource().getValue();
             this.unfilteredResults.clear();
             this.unfilteredResults.addAll(results);
-            sortResultList(this.unfilteredResults);
             mc.setStatus("Search Completed!");
             toggleInput(false);
             updateFilter();
@@ -343,17 +178,6 @@ public class PointerSearchController implements IController {
         searchService.restart();
 
         toggleInput(true);
-    }
-
-    private void sortResultList(List<PointerSearchResult> resultList) {
-        Collections.sort(resultList,
-                (p1, p2) -> (p1.getAddress() < p2.getAddress() ? -1 : (p1.getAddress() > p2.getAddress() ? 1 : 0)));
-    }
-
-    private List<PointerSearchResult> setToOrderedList(Set<PointerSearchResult> results) {
-        List<PointerSearchResult> orederResults = new ArrayList<>(results);
-        Collections.sort(orederResults);
-        return orederResults;
     }
 
     public void onCancelAction(ActionEvent event) {
@@ -395,10 +219,6 @@ public class PointerSearchController implements IController {
 
     public void setFilterMax(long address) {
         filterMaxAddress.getValueFactory().setValue(address);
-    }
-
-    public void setFilterActivated(boolean activated) {
-        filterCheckbox.setSelected(activated);
     }
 
     public void setRelativeAddress(long address) {

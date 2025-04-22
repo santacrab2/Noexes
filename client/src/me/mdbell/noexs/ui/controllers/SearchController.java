@@ -1,53 +1,29 @@
 package me.mdbell.noexs.ui.controllers;
 
-import java.io.File;
-import java.io.IOException;
-import java.util.List;
-import java.util.function.Function;
-
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
-
 import javafx.beans.property.DoubleProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.concurrent.Service;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
-import javafx.scene.control.Alert;
-import javafx.scene.control.Button;
-import javafx.scene.control.ChoiceBox;
-import javafx.scene.control.ComboBox;
-import javafx.scene.control.ContextMenu;
-import javafx.scene.control.Label;
-import javafx.scene.control.MenuItem;
-import javafx.scene.control.SelectionMode;
-import javafx.scene.control.TableColumn;
-import javafx.scene.control.TableView;
-import javafx.scene.control.TextField;
-import javafx.scene.control.TitledPane;
+import javafx.scene.control.*;
 import javafx.scene.layout.AnchorPane;
 import me.mdbell.javafx.control.AddressSpinner;
 import me.mdbell.javafx.control.FormattedTableCell;
 import me.mdbell.javafx.control.HexSpinner;
 import me.mdbell.noexs.core.Debugger;
-import me.mdbell.noexs.core.EMemoryRegion;
 import me.mdbell.noexs.core.MemoryType;
-import me.mdbell.noexs.dump.DumpRegionSupplier;
-import me.mdbell.noexs.ui.models.ConditionType;
-import me.mdbell.noexs.ui.models.ConversionType;
-import me.mdbell.noexs.ui.models.DataType;
-import me.mdbell.noexs.ui.models.Range;
-import me.mdbell.noexs.ui.models.RangeType;
-import me.mdbell.noexs.ui.models.SearchType;
-import me.mdbell.noexs.ui.models.SearchValueModel;
+import me.mdbell.noexs.ui.models.*;
 import me.mdbell.noexs.ui.services.MemorySearchService;
 import me.mdbell.noexs.ui.services.SearchResult;
+import me.mdbell.noexs.dump.DumpRegionSupplier;
 import me.mdbell.util.HexUtils;
 
-public class SearchController implements IController {
+import java.io.IOException;
+import java.util.List;
+import java.util.function.Function;
 
-    private static final Logger logger = LogManager.getLogger(SearchController.class);
+public class SearchController implements IController {
 
     private MainController mc;
 
@@ -73,15 +49,6 @@ public class SearchController implements IController {
 
     @FXML
     AddressSpinner mainsearchEnd;
-
-    @FXML
-    TextField fileDumpSuffix;
-
-    @FXML
-    TextField floatValue;
-
-    @FXML
-    ChoiceBox<ConversionType> conversionType;
 
     @FXML
     HexSpinner knownValue;
@@ -151,8 +118,8 @@ public class SearchController implements IController {
         searchConditionTypeDropdown.getItems().addAll(SearchType.values());
         searchConditionTypeDropdown.getSelectionModel().select(SearchType.KNOWN); // Default is SPEC Value
 
-        searchConditionTypeDropdown.getSelectionModel().selectedItemProperty()
-                .addListener((observable, oldValue, newValue) -> {
+        searchConditionTypeDropdown.getSelectionModel().selectedItemProperty().addListener(
+                (observable, oldValue, newValue) -> {
                     boolean b = newValue == SearchType.UNKNOWN;
                     knownValue.setDisable(b);
                     searchConditionDropdown.setDisable(b);
@@ -165,14 +132,11 @@ public class SearchController implements IController {
         searchConditionDropdown.getItems().addAll(ConditionType.values());
         searchConditionDropdown.getSelectionModel().select(ConditionType.EQUALS);
 
-        searchConditionDropdown.getSelectionModel().selectedItemProperty()
-                .addListener((observable, oldValue, newValue) -> updateCondition());
+        searchConditionDropdown.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> updateCondition());
+
 
         knownValue.valueProperty().addListener((observable, oldValue, newValue) -> updateCondition());
         knownValue.getEditor().textProperty().addListener((observable, oldValue, newValue) -> updateCondition());
-
-        conversionType.getItems().addAll(ConversionType.values());
-        conversionType.getSelectionModel().select(ConversionType.U32); // TODO save/store this
 
         resultList = FXCollections.observableArrayList();
 
@@ -184,11 +148,10 @@ public class SearchController implements IController {
             }
         });
 
-        Function<Number, String> valueFormatter = value -> HexUtils.pad('0', result.getDataType().getSize() * 2,
-                Long.toUnsignedString(value.longValue(), 16));
+        Function<Number, String> valueFormatter = value ->
+                HexUtils.pad('0', result.getDataType().getSize() * 2, Long.toUnsignedString(value.longValue(), 16));
 
-        searchAddr
-                .setCellFactory(param -> new FormattedTableCell<>(value -> HexUtils.formatAddress(value.longValue())));
+        searchAddr.setCellFactory(param -> new FormattedTableCell<>(value -> HexUtils.formatAddress(value.longValue())));
         oldValue.setCellFactory(param -> new FormattedTableCell<>(valueFormatter));
         newValue.setCellFactory(param -> new FormattedTableCell<>(valueFormatter));
         diff.setCellFactory(param -> new FormattedTableCell<>(value -> {
@@ -213,48 +176,14 @@ public class SearchController implements IController {
         });
         MenuItem watchList = new MenuItem("Watch List");
         watchList.setOnAction(event -> {
-            List<SearchValueModel> ms = searchResults.getSelectionModel().getSelectedItems();
-            if (ms == null) {
-                return;
-            }
-            for (SearchValueModel m : ms) {
-                mc.watch().addAddr(m.getAddr());
-            }
-            mc.setTab(MainController.Tab.WATCH_LIST);
-        });
-        MenuItem pointerSearch = new MenuItem("Pointer Search");
-        pointerSearch.setOnAction(event -> {
             SearchValueModel m = searchResults.getSelectionModel().getSelectedItem();
             if (m == null) {
                 return;
             }
-            mc.pointer().addressSpinner.getValueFactory().setValue(m.getAddr());
-            mc.setTab(MainController.Tab.POINTER_SEARCH);
+            mc.watch().addAddr(m.getAddr());
+            mc.setTab(MainController.Tab.WATCH_LIST);
         });
-
-        MenuItem cheatMaker = new MenuItem("Cheat Maker");
-        cheatMaker.setOnAction(event -> {
-            List<SearchValueModel> ms = searchResults.getSelectionModel().getSelectedItems();
-            if (ms == null) {
-                return;
-            }
-
-            ToolsController tc = mc.toolsTabPageController;
-            int cheatIndex = 0;
-            for (SearchValueModel m : ms) {
-                long address = m.getAddr();
-                EMemoryRegion region = tc.getAddressMemoryRegion(address);
-                long offset = tc.getOffset(address, region);
-                String pointerStr = "\"Set pointer " + ++cheatIndex + "\"\n";
-                pointerStr += "[" + region + " + 0x" + HexUtils.formatAddress(offset)
-
-                        + "] = (U32) 0x" + HexUtils.formatLong(m.getNewValue());
-
-                mc.cheatMaker().cheatSource.appendText(pointerStr + "\n");
-            }
-            mc.setTab(MainController.Tab.CHEATS);
-        });
-        cm.getItems().addAll(memoryView, watchList, pointerSearch, cheatMaker);
+        cm.getItems().addAll(memoryView, watchList);
         searchResults.contextMenuProperty().setValue(cm);
         updateCondition();
     }
@@ -299,7 +228,6 @@ public class SearchController implements IController {
         mainsetStart(start);
         mainsetEnd(end);
     }
-
     public void setStart(long start) {
         searchStart.getValueFactory().setValue(start);
         searchType.setValue(RangeType.RANGE);
@@ -326,28 +254,6 @@ public class SearchController implements IController {
             knownValue.getValueFactory().setValue(l);
         } catch (NumberFormatException ignored) {
         }
-    }
-
-    public void convertValueToHex(ActionEvent event) {
-        try {
-            switch (conversionType.getValue()) {
-                case FLT:
-                    Float f = Float.parseFloat(floatValue.getText());
-                    knownValue.getValueFactory().setValue((long) Float.floatToIntBits(f));
-                    break;
-                case U32:
-                    long l = Long.parseUnsignedLong(floatValue.getText());
-                    knownValue.getValueFactory().setValue(l);
-                    break;
-                case S32:
-                    long sl = Long.parseLong(floatValue.getText());
-                    knownValue.getValueFactory().setValue(sl);
-                    break;
-            }
-        } catch (NumberFormatException e) {
-            // TODO ERROR CASE
-        }
-
     }
 
     public void poke(ActionEvent event) {
@@ -401,7 +307,8 @@ public class SearchController implements IController {
         ConditionType compareType = searchConditionDropdown.getValue();
         searchService.setConnection(mc.getDebugger());
         searchService.setSupplier(getDumpRegionSupplier(mc.getDebugger()));
-        searchService.setFileDumpSuffix(fileDumpSuffix.getText());
+        searchService.mainSearchStart = 0;
+        searchService.mainSearchEnd = 0;
         initSearch(type, compareType, dataType, known);
     }
 
@@ -417,14 +324,14 @@ public class SearchController implements IController {
         ConditionType compareType = searchConditionDropdown.getValue();
         searchService.setConnection(mc.getDebugger());
         searchService.setSupplier(getDumpRegionSupplier(mc.getDebugger()));
-        searchService.setFileDumpSuffix(fileDumpSuffix.getText());
+        searchService.mainSearchStart = mainStart.getValue();
+        searchService.mainSearchEnd = mainsearchEnd.getValue();
         initSearch(type, compareType, dataType, known);
     }
 
     public void onRestartAction(ActionEvent event) {
         if (isServiceRunning()) {
-            MainController.showMessage("Please wait for your current search to complete (or cancel it)!",
-                    Alert.AlertType.WARNING);
+            MainController.showMessage("Please wait for your current search to complete (or cancel it)!", Alert.AlertType.WARNING);
             return;
         }
         searchService.clear();
@@ -461,8 +368,7 @@ public class SearchController implements IController {
 
     public void onUndoAction(ActionEvent event) {
         if (isServiceRunning()) {
-            MainController.showMessage("Please cancel/wait for the current task before undoing a search!",
-                    Alert.AlertType.WARNING);
+            MainController.showMessage("Please cancel/wait for the current task before undoing a search!", Alert.AlertType.WARNING);
             return;
         }
         if (result == null) {
@@ -474,7 +380,7 @@ public class SearchController implements IController {
             return;
         }
         SearchResult prev = result.getPrev();
-        result.setPrev(null); // to prevent the result from closing the previous one
+        result.setPrev(null); //to prevent the result from closing the previous one
         try {
             result.close();
         } catch (IOException e) {
@@ -485,35 +391,8 @@ public class SearchController implements IController {
         updatePageInfo();
     }
 
-    public void onLoadSearch(ActionEvent event) {
-        File f = mc.browseFile(false, null, null, "Open...", "Search file", "*.srch");
-        if (f == null) {
-            return;
-        }
-        mc.setStatus("Loading search : " + f.getPath());
-
-        logger.info("Loading search : {}", f);
-        try {
-            SearchResult sr = SearchResult.load(f);
-            logger.info("SearchResult loaded : {}", sr);
-            result = sr;
-            searchService.setPrevResult(result);
-            mc.setStatus("Done! Total Result:" + result.size());
-            resultList.clear();
-            currentPage = 0;
-            searchOptions.setDisable(false);
-            if (result.getType() == SearchType.UNKNOWN) {
-                searchConditionTypeDropdown.setValue(SearchType.PREVIOUS);
-                searchConditionDropdown.setValue(ConditionType.NOT_EQUAL);
-            }
-            updatePageInfo();
-        } catch (IOException e) {
-            mc.setStatus("Loading search error : " + f.getPath());
-            logger.error("Error while loading search : {}", f, e);
-        }
-    }
-
-    private void initSearch(SearchType type, ConditionType compareType, DataType dataType, long known) {
+    private void initSearch(SearchType type, ConditionType compareType,
+                            DataType dataType, long known) {
         searchService.setType(type);
         searchService.setCompareType(compareType);
         searchService.setDataType(dataType);
@@ -538,7 +417,6 @@ public class SearchController implements IController {
             mc.setStatus("Search failed!");
             Throwable t = value.getSource().getException();
             t.printStackTrace();
-            logger.error("Search filaure", t);
             MainController.showMessage(t);
             searchOptions.setDisable(false);
         });
@@ -595,17 +473,11 @@ public class SearchController implements IController {
             case RANGE:
                 long start = searchStart.getValue();
                 long end = searchEnd.getValue();
+                //long mainSearchStart = mainStart.getValue();
+                //long mainSearchEnd = mainsearchEnd.getValue();
+                //System.out.println("Main start is " + mainSearchStart + " end: " + mainSearchEnd);
                 return DumpRegionSupplier.createSupplierFromRange(conn, start, end);
-            case MAIN_AND_HEAP:
-
-                Range mainRange = mc.tools().searchWrtitableRange(EMemoryRegion.MAIN);
-                Range heapRange = mc.tools().searchWrtitableRange(EMemoryRegion.HEAP);
-
-                searchStart.getValueFactory().setValue(heapRange.getStart());
-                searchEnd.getValueFactory().setValue(heapRange.getEnd());
-                mainStart.getValueFactory().setValue(mainRange.getStart());
-                mainsearchEnd.getValueFactory().setValue(mainRange.getEnd());
-
+            case RANGE2:
                 long heapstart = searchStart.getValue();
                 long heapend = searchEnd.getValue();
                 long mainstart = mainStart.getValue();
@@ -614,15 +486,13 @@ public class SearchController implements IController {
                     return DumpRegionSupplier.createSupplierFrom2Range(conn, mainstart, mainend, heapstart, heapend);
                 } else {
                     return DumpRegionSupplier.createSupplierFrom2Range(conn, heapstart, heapend, mainstart, mainend);
-                }
+                    }
             case ALL:
                 return DumpRegionSupplier.createSupplierFromInfo(conn, info -> info.isReadable() && info.isWriteable());
             case HEAP:
-                return DumpRegionSupplier.createSupplierFromInfo(conn,
-                        info -> info.isReadable() && info.getType() == MemoryType.HEAP);
+                return DumpRegionSupplier.createSupplierFromInfo(conn, info -> info.isReadable() && info.getType() == MemoryType.HEAP);
             case TLS:
-                return DumpRegionSupplier.createSupplierFromInfo(conn,
-                        info -> info.isReadable() && info.getType() == MemoryType.THREAD_LOCAL);
+                return DumpRegionSupplier.createSupplierFromInfo(conn, info -> info.isReadable() && info.getType() == MemoryType.THREAD_LOCAL);
         }
         return null;
     }

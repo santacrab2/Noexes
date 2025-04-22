@@ -104,8 +104,13 @@ public class WatchlistModel {
 
     @Override
     public String toString() {
-        return "WatchlistModel{" + "locked=" + locked + ", desc=" + desc + ", addr=" + addr + ", value=" + value
-                + ", type=" + type + '}';
+        return "WatchlistModel{" +
+                "locked=" + locked +
+                ", desc=" + desc +
+                ", addr=" + addr +
+                ", value=" + value +
+                ", type=" + type +
+                '}';
     }
 
     public int getSize() {

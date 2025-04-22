@@ -1,10 +1,10 @@
 package me.mdbell.noexs.core;
 
 public class MemoryInfo {
-    private long addr; // 64
-    private long size; // 64
-    private MemoryType type; // 32
-    private int perm; // 32
+    private long addr; //64
+    private long size; //64
+    private MemoryType type; //32
+    private int perm; //32
 
     public MemoryInfo(long addr, long size, int type, int perm) {
         this.addr = addr;
@@ -49,9 +49,14 @@ public class MemoryInfo {
         return getAddress() <= addr && getNextAddress() > addr;
     }
 
+
     @Override
     public String toString() {
-        return "MemoryInfo{" + "addr=0x" + Long.toUnsignedString(addr, 16) + ", size=0x"
-                + Long.toUnsignedString(size, 16) + ", type=" + type + ", perm=" + perm + '}';
+        return "MemoryInfo{" +
+                "addr=0x" + Long.toUnsignedString(addr, 16) +
+                ", size=0x" + Long.toUnsignedString(size, 16) +
+                ", type=" + type +
+                ", perm=" + perm +
+                '}';
     }
 }

@@ -1,38 +1,26 @@
 package me.mdbell.noexs.ui.controllers;
 
-import java.util.List;
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
-
-import org.apache.commons.lang3.StringUtils;
-
 import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.collections.transformation.SortedList;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
-import javafx.scene.control.Alert;
-import javafx.scene.control.CheckBox;
-import javafx.scene.control.Label;
-import javafx.scene.control.ListView;
-import javafx.scene.control.TableColumn;
-import javafx.scene.control.TableView;
-import javafx.scene.control.TextField;
+import javafx.scene.control.*;
 import javafx.scene.layout.AnchorPane;
 import me.mdbell.javafx.control.FormattedTableCell;
 import me.mdbell.noexs.core.Debugger;
-import me.mdbell.noexs.core.EMemoryRegion;
 import me.mdbell.noexs.core.MemoryInfo;
 import me.mdbell.noexs.core.MemoryType;
 import me.mdbell.noexs.core.Result;
 import me.mdbell.noexs.misc.ExpressionEvaluator;
 import me.mdbell.noexs.ui.menus.MemoryInfoContextMenu;
-import me.mdbell.noexs.ui.models.EAccessType;
 import me.mdbell.noexs.ui.models.MemoryInfoTableModel;
-import me.mdbell.noexs.ui.models.MemoryInfoUtils;
-import me.mdbell.noexs.ui.models.Range;
 import me.mdbell.util.HexUtils;
+
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
+
 
 public class ToolsController implements IController {
 
@@ -61,9 +49,6 @@ public class ToolsController implements IController {
     @FXML
     Label toolsTitleId;
 
-    @FXML
-    CheckBox autoFillTabs;
-
     private ObservableList<MemoryInfoTableModel> memoryInfoList;
 
     private final Map<String, Long> vars = new ConcurrentHashMap<>();
@@ -80,7 +65,7 @@ public class ToolsController implements IController {
         }
     }, addr -> {
         Debugger debugger = mc.getDebugger();
-        if (!debugger.connected()) {
+        if(!debugger.connected()) {
             return 0;
         }
         return debugger.peek64(addr);
@@ -113,8 +98,7 @@ public class ToolsController implements IController {
 
         memInfoAddr.setCellFactory(param -> new FormattedTableCell<>(addr -> HexUtils.formatAddress(addr.longValue())));
         memInfoSize.setCellFactory(param -> new FormattedTableCell<>(size -> HexUtils.formatSize(size.longValue())));
-        memInfoPerm
-                .setCellFactory(param -> new FormattedTableCell<>(access -> HexUtils.formatAccess(access.intValue())));
+        memInfoPerm.setCellFactory(param -> new FormattedTableCell<>(access -> HexUtils.formatAccess(access.intValue())));
 
         pidList.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
             if (newValue == null) {
@@ -134,14 +118,6 @@ public class ToolsController implements IController {
     @Override
     public void onConnect() {
         toolsTabPage.setDisable(false);
-        setPidsList();
-        long attachedPid = mc.getDebugger().getAttachedPid();
-        if (attachedPid != 0) {
-            populateMemory();
-            displayTitleId(mc.getDebugger().getTitleId(attachedPid));
-        } else {
-            memoryInfoList.clear();
-        }
     }
 
     @Override
@@ -184,36 +160,13 @@ public class ToolsController implements IController {
             long selectedPid = pidList.getSelectionModel().getSelectedItem();
 
             if (selectedPid != 0) {
-                boolean attachAlreadyDone = false;
-                long attachedPid = conn.getAttachedPid();
-                if (attachedPid != 0) {
-                    if (attachedPid != selectedPid) {
-                        conn.detach();
-                    } else {
-                        attachAlreadyDone = true;
-                    }
-                }
-
-                boolean attachOk = true;
-                if (!attachAlreadyDone) {
-                    Result attached = conn.attach(selectedPid);
-                    if (attached.failed()) {
-                        attachOk = false;
-                        MainController.showMessage("Attach failed.", attached, Alert.AlertType.ERROR);
-                    }
-                }
-
-                if (attachOk) {
-
-                    String status = "Attached to process pid : " + selectedPid;
-                    if (attachAlreadyDone) {
-                        status += " (Already attached)";
-                    }
-
-                    mc.setStatus(status);
+                Result attached = conn.attach(selectedPid);
+                if (attached.failed()) {
+                    MainController.showMessage("Attach failed.", attached, Alert.AlertType.ERROR);
+                } else {
+                    mc.setStatus("Attached to process");
                     mc.setTitle("Attached to: 0x" + HexUtils.formatTitleId(conn.getTitleId(selectedPid)));
-                    populateMemory();
-
+                    mc.memory().populateMemory();
                 }
             } else {
                 MainController.showMessage("Invalid pid selected.", Alert.AlertType.ERROR);
@@ -223,24 +176,23 @@ public class ToolsController implements IController {
         }
     }
 
-    public void attachToCurrentProcess() {
+    public void ReattachProcess() {
         Debugger conn = mc.getDebugger();
         if (conn.connected()) {
-            if (pidList.getItems().isEmpty()) {
-                setPidsList();
+            long selectedPid = pidList.getSelectionModel().getSelectedItem();
+
+            if (selectedPid != 0) {
+                Result attached = conn.attach(selectedPid);
+                if (attached.failed()) {
+                    MainController.showMessage("Attach failed.", attached, Alert.AlertType.ERROR);
+                } else {
+                    mc.setStatus("Attached to process");
+                    mc.setTitle("Attached to: 0x" + HexUtils.formatTitleId(conn.getTitleId(selectedPid)));
+                    mc.memory().populateMemory();
+                }
+            } else {
+                MainController.showMessage("Invalid pid selected.", Alert.AlertType.ERROR);
             }
-
-            Long currentPid = conn.getCurrentPid();
-            pidList.getSelectionModel().select((Long) currentPid);
-
-            displayTitleId(mc.getDebugger().getTitleId(currentPid));
-            attachProcess();
-
-            if (autoFillTabs.isSelected()) {
-                setMainHeapAddressesInSearchTab(false);
-                setMainFilterToPointerSearch();
-            }
-
         } else {
             MainController.showMessage("You are not currently connected.", Alert.AlertType.WARNING);
         }
@@ -263,63 +215,43 @@ public class ToolsController implements IController {
         }
         int mod = 0;
         boolean heap = false;
-        EMemoryRegion region = null;
         for (MemoryInfo m : info) {
             String name = "-";
-            if (m.getType() == MemoryType.HEAP && !heap) {
+            if(m.getType() == MemoryType.HEAP && !heap) {
                 heap = true;
                 name = "heap";
-                region = EMemoryRegion.HEAP;
-            }
-            if (m.getType() == MemoryType.HEAP) {
-                region = EMemoryRegion.HEAP;
-            } else if (region == EMemoryRegion.HEAP) {
-                region = null;
             }
             if (m.getType() == MemoryType.CODE_STATIC && m.getPerm() == 0b101) {
                 if (mod == 0 && moduleCount == 1) {
                     name = "main";
-                    region = EMemoryRegion.MAIN;
                 }
                 if (moduleCount > 1) {
                     switch (mod) {
                         case 0:
                             name = "rtld";
-                            region = EMemoryRegion.RTLD;
                             break;
                         case 1:
                             name = "main";
-                            region = EMemoryRegion.MAIN;
                             break;
                         case 2:
                             name = "sdk";
-                            region = EMemoryRegion.SDK;
                             break;
                         default:
                             name = "subsdk" + (mod - 2);
-                            region = EMemoryRegion.SUBSDK;
                     }
                 }
                 mod++;
             }
-            if (!name.equals("-")) {
+            if(!name.equals("-")) {
                 vars.put(name, m.getAddress());
             }
             if (m.getType() != MemoryType.UNMAPPED) {
-                memoryInfoList.add(new MemoryInfoTableModel(name, m, region));
+                memoryInfoList.add(new MemoryInfoTableModel(name, m));
             }
         }
     }
 
-    public EMemoryRegion getAddressMemoryRegion(long address) {
-        return MemoryInfoUtils.getAddressMemoryRegion(address, memoryInfoList);
-    }
-
-    public long getOffset(long address, EMemoryRegion region) {
-        return MemoryInfoUtils.getOffset(address, region, vars);
-    }
-
-    public ExpressionEvaluator getEvaluator() {
+    public ExpressionEvaluator getEvaluator(){
         return evaluator;
     }
 
@@ -329,70 +261,6 @@ public class ToolsController implements IController {
             expressionResult.setText(HexUtils.formatAddress(evaluator.eval(str)));
         } catch (Exception e) {
             MainController.showMessage(e);
-        }
-    }
-
-    public Range searchWrtitableRange(EMemoryRegion regionNameToSearch) {
-
-        List<MemoryInfoTableModel> memInfos = memInfoTable.getItems();
-        boolean inRegion = false;
-        Long startAddress = null;
-        Long stopAddress = null;
-        for (MemoryInfoTableModel memInfo : memInfos) {
-            String regionName = memInfo.nameProperty().getValue();
-            if (StringUtils.startsWithIgnoreCase(regionName, regionNameToSearch.name())) {
-                inRegion = true;
-            } else if (inRegion && !StringUtils.equalsIgnoreCase(regionName, "-")) {
-                inRegion = false;
-                break;
-            }
-
-            boolean writeAccess = memInfo.hasAccess(EAccessType.WRITE);
-            if (writeAccess) {
-                if (inRegion && startAddress == null) {
-                    startAddress = memInfo.getAddr();
-                }
-                if (inRegion && startAddress != null) {
-                    stopAddress = memInfo.getEnd();
-                }
-            }
-        }
-
-        if (startAddress == null) {
-            return null;
-        }
-        Range range = new Range(startAddress, stopAddress);
-        return range;
-    }
-
-    public void populateMemory() {
-        Debugger conn = mc.getDebugger();
-        if (!conn.connected()) {
-            return;
-        }
-        updateMemoryInfo(conn.query(0, 10000));
-    }
-
-    public void setMainHeapAddressesInSearchTab(boolean switchTab) {
-        Range range = searchWrtitableRange(EMemoryRegion.MAIN);
-        if (range != null) {
-            mc.search().mainsetSearchRange(range.getStart(), range.getEnd());
-        }
-        Range range2 = searchWrtitableRange(EMemoryRegion.HEAP);
-        if (range != null) {
-            mc.search().setSearchRange(range2.getStart(), range2.getEnd());
-        }
-        if (switchTab) {
-            mc.setTab(MainController.Tab.SEARCH);
-        }
-    }
-
-    public void setMainFilterToPointerSearch() {
-        Range range = searchWrtitableRange(EMemoryRegion.MAIN);
-        if (range != null) {
-            mc.pointer().setFilterMin(range.getStart());
-            mc.pointer().setFilterMax(range.getEnd());
-            mc.pointer().setFilterActivated(true);
         }
     }
 }

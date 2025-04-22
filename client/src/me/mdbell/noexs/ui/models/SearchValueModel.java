@@ -19,6 +19,7 @@ public class SearchValueModel {
     private SimpleLongProperty newValue;
     private ObservableNumberValue diff;
 
+
     public SearchValueModel(long addr, long prev, long current) {
         init(addr, prev, current);
     }

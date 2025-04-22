@@ -7,7 +7,7 @@ public class BreakpointFlagBuilder {
     private int lbn = 0;
     private BreakpointType type = BreakpointType.UNLINKED_INSN_ADDRESS_MATCH;
 
-    public BreakpointFlagBuilder() {
+    public BreakpointFlagBuilder(){
 
     }
 
@@ -31,9 +31,9 @@ public class BreakpointFlagBuilder {
         return this;
     }
 
-    public long getFlag() {
+    public long getFlag(){
         long res = 0;
-        if (enabled) {
+        if(enabled) {
             res |= 0x1;
         }
         res |= bas << 5;

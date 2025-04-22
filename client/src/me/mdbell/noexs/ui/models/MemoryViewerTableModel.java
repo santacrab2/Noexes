@@ -23,15 +23,15 @@ public class MemoryViewerTableModel {
         this.value2 = new SimpleLongProperty();
         this.value3 = new SimpleLongProperty();
         this.value4 = new SimpleLongProperty();
-        for (int i = 0; i < asciiBindings.length; i++) {
+        for(int i = 0; i < asciiBindings.length; i++) {
             asciiBindings[i] = createBinding(i);
         }
-        set(0, 0, 0, 0, 0);
+        set(0,0,0,0,0);
     }
 
     private StringBinding createBinding(int i) {
         SimpleLongProperty prop;
-        switch (i / 4) {
+        switch(i / 4){
             case 0:
                 prop = value1;
                 break;
@@ -50,15 +50,15 @@ public class MemoryViewerTableModel {
         int rem = i % 4;
         return Bindings.createStringBinding(() -> {
             int j = (prop.intValue() >> (24 - rem * 8)) & 0xFF;
-            return new String(new byte[] { formatChar(j) }, StandardCharsets.UTF_8);
+            return new String(new byte[]{formatChar(j)}, StandardCharsets.UTF_8);
         }, prop);
     }
 
     private byte formatChar(int i) {
-        if (i < 0x20 || i > 0x7E && i < 0xA1) {
+        if(i < 0x20 || i > 0x7E && i < 0xA1) {
             return '.';
         }
-        return (byte) i;
+        return (byte)i;
     }
 
     public void set(long addr, int memVal1, int memVal2, int memVal3, int memVal4) {
@@ -69,27 +69,27 @@ public class MemoryViewerTableModel {
         this.value4.set(memVal4);
     }
 
-    public SimpleLongProperty addrProperty() {
+    public SimpleLongProperty addrProperty(){
         return addr;
     }
 
-    public SimpleLongProperty firstValueProperty() {
+    public SimpleLongProperty firstValueProperty(){
         return value1;
     }
 
-    public SimpleLongProperty secondValueProperty() {
+    public SimpleLongProperty secondValueProperty(){
         return value2;
     }
 
-    public SimpleLongProperty thirdValueProperty() {
+    public SimpleLongProperty thirdValueProperty(){
         return value3;
     }
 
-    public SimpleLongProperty fourthValueProperty() {
+    public SimpleLongProperty fourthValueProperty(){
         return value4;
     }
 
-    public StringBinding asciiBinding(int i) {
+    public StringBinding asciiBinding(int i){
         return asciiBindings[i];
     }
 }

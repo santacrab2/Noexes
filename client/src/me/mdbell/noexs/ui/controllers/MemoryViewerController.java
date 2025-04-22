@@ -102,7 +102,7 @@ public class MemoryViewerController implements IController {
 
     @FXML
     public void initialize() {
-        // setup the memview table
+        //setup the memview table
         memViewTable.getSelectionModel().setCellSelectionEnabled(true);
         memoryList = FXCollections.observableArrayList();
         memViewTable.setItems(memoryList);
@@ -149,7 +149,7 @@ public class MemoryViewerController implements IController {
         memViewTable.getFocusModel().focusedCellProperty().addListener((observable, oldValue, newValue) -> {
             long addr = getSelectedAddress();
             memViewAddrBox.getValueFactory().setValue(addr);
-            if (addr != 0) {
+            if(addr != 0) {
                 pokeValue.getValueFactory().setValue(mainController.getDebugger().peek(pokeType.getValue(), addr));
             }
         });
@@ -157,12 +157,10 @@ public class MemoryViewerController implements IController {
         pokeType.getItems().addAll(DataType.values());
         pokeType.setValue(DataType.INT);
 
-        pokeType.getSelectionModel().selectedItemProperty()
-                .addListener((observable, oldValue, newValue) -> pokeValue.setSize(newValue.getSize() * 2));
+        pokeType.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> pokeValue.setSize(newValue.getSize() * 2));
 
         endianCheckbox.selectedProperty().setValue(Settings.shouldSwapEndian());
-        endianCheckbox.selectedProperty()
-                .addListener((observable, oldValue, newValue) -> dumpToMemoryViewer(lastAddress));
+        endianCheckbox.selectedProperty().addListener((observable, oldValue, newValue) -> dumpToMemoryViewer(lastAddress));
     }
 
     private long getSelectedAddress() {
@@ -175,12 +173,12 @@ public class MemoryViewerController implements IController {
         int col = pos.getColumn();
 
         addr += row * 0x10;
-        // is address selected
+        //is address selected
         if (col == 0) {
             return addr;
         }
 
-        // is ascii selected
+        //is ascii selected
         if (col > 4) {
             return addr + (col - 5);
         }
@@ -209,7 +207,7 @@ public class MemoryViewerController implements IController {
         Debugger conn = mainController.getDebugger();
         int size = ROW_COUNT * 16;
         ByteBuffer data = conn.readmem(base, size, new byte[size]);
-        if (swap) {
+        if(swap){
             data.order(ByteOrder.LITTLE_ENDIAN);
         }
         for (int i = 0; i < ROW_COUNT; i++) {
@@ -292,12 +290,21 @@ public class MemoryViewerController implements IController {
 
     @Override
     public void onConnect() {
-        // memViewTabPage.setDisable(false);
+        //memViewTabPage.setDisable(false);
     }
 
     @Override
     public void onDisconnect() {
-        // memViewTabPage.setDisable(true);
+        //memViewTabPage.setDisable(true);
+    }
+
+    public void populateMemory() {
+        Debugger conn = mainController.getDebugger();
+        if (!conn.connected()) {
+            return;
+        }
+        //TODO not do this here.
+        mainController.tools().updateMemoryInfo(conn.query(0, 10000));
     }
 
     PatternTokenizer tokenizer = new PatternTokenizer();
@@ -311,26 +318,26 @@ public class MemoryViewerController implements IController {
 
     public void onPatternSearch(ActionEvent event) {
         long address = memViewAddrBox.getValue();
-        if (address == 0) {
-            // TODO say invalid address
+        if(address == 0) {
+            //TODO say invalid address
             return;
         }
         String str = patternTextField.getText().trim();
-        if (str.length() == 0) {
-            // TODO say invalid pattern
+        if(str.length() == 0) {
+            //TODO say invalid pattern
             return;
         }
         PatternCompiler.PatternElement[] elements = tokenizer.eval(str);
 
         IPatternMatcher matcher = compiler.compile(elements);
 
-        // TODO do this in a service, not here
+        //TODO do this in a service, not here
         MemoryInfo info = mainController.getDebugger().query(address);
         int size = (int) (mainController.getDebugger().query(address).getSize() - (address - info.getAddress()));
         byte[] bytes = new byte[size];
         ByteBuffer buffer = mainController.getDebugger().readmem(address, size, bytes);
         int idx = matcher.match(buffer);
-        if (idx != -1) {
+        if(idx != -1) {
             memViewAddrBox.getValueFactory().setValue(address + idx);
             dumpToMemoryViewer();
         }

@@ -6,14 +6,13 @@ module JNoexes {
     requires java.desktop;
     requires java.prefs;
 
-    requires javaxusb;
 
+    requires org.reflections;
     requires org.apache.commons.lang3;
     requires org.apache.commons.io;
     requires org.apache.commons.collections4;
     requires org.apache.logging.log4j.core;
     requires org.apache.logging.log4j;
-    requires org.reflections;
 
     requires org.antlr.antlr4.runtime;
 

@@ -10,7 +10,7 @@ public final class DumpIndex {
     protected long filePos;
     protected long size;
 
-    protected DumpIndex() {
+    protected DumpIndex(){
 
     }
 
@@ -22,18 +22,22 @@ public final class DumpIndex {
 
     @Override
     public String toString() {
-        return "DumpIndex{" + "addr=" + HexUtils.formatAddress(addr) + ", filePos=" + filePos + ", size=" + size + '}';
+        return "DumpIndex{" +
+                "addr=" + HexUtils.formatAddress(addr) +
+                ", filePos=" + filePos +
+                ", size=" + size +
+                '}';
     }
 
     public long getAddress() {
         return addr;
     }
 
-    public long getEndAddress() {
+    public long getEndAddress(){
         return getAddress() + getSize();
     }
 
-    public long getSize() {
+    public long getSize(){
         return size;
     }
 
@@ -43,12 +47,12 @@ public final class DumpIndex {
 
     @Override
     public boolean equals(Object o) {
-        if (this == o)
-            return true;
-        if (o == null || getClass() != o.getClass())
-            return false;
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
         DumpIndex dumpIndex = (DumpIndex) o;
-        return addr == dumpIndex.addr && filePos == dumpIndex.filePos && size == dumpIndex.size;
+        return addr == dumpIndex.addr &&
+                filePos == dumpIndex.filePos &&
+                size == dumpIndex.size;
     }
 
     @Override

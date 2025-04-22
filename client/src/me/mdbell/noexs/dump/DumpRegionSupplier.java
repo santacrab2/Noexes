@@ -1,20 +1,21 @@
 package me.mdbell.noexs.dump;
 
+import me.mdbell.noexs.core.Debugger;
+import me.mdbell.noexs.core.MemoryInfo;
+
+import javax.swing.*;
 import java.util.List;
 import java.util.function.Function;
 import java.util.function.Supplier;
 
-import me.mdbell.noexs.core.Debugger;
-import me.mdbell.noexs.core.MemoryInfo;
-import me.mdbell.util.HexUtils;
-
 public abstract class DumpRegionSupplier implements Supplier<DumpRegion> {
-
-    public abstract String getDescription();
 
     public abstract long getStart();
 
     public abstract long getEnd();
+
+    //public abstract long getMainSearchStart();
+    //public abstract long getMainSearchEnd();
 
     public long getSize() {
         return getEnd() - getStart();
@@ -44,11 +45,6 @@ public abstract class DumpRegionSupplier implements Supplier<DumpRegion> {
             }
 
             @Override
-            public String getDescription() {
-                return "Region list (size:" + regions.size() + ")";
-            }
-
-            @Override
             public DumpRegion get() {
                 if (i >= regions.size()) {
                     return null;
@@ -74,11 +70,6 @@ public abstract class DumpRegionSupplier implements Supplier<DumpRegion> {
             public long getEnd() {
                 init();
                 return end;
-            }
-
-            @Override
-            public String getDescription() {
-                return "Memory Info";
             }
 
             @Override
@@ -126,6 +117,49 @@ public abstract class DumpRegionSupplier implements Supplier<DumpRegion> {
         };
     }
 
+//    public static DumpRegionSupplier createSupplierFromRange(Debugger conn, long start, long end, long mainSearchStart, long mainSearchEnd) {
+//        return new DumpRegionSupplier() {
+//            @Override
+//            public long getStart() {
+//                return start;
+//            }
+//
+//            @Override
+//            public long getEnd() {
+//                return end;
+//            }
+//
+//            public long getMainSearchStart() {
+//                return mainSearchStart;
+//            }
+//
+//            public long getMainSearchEnd() {
+//                return mainSearchEnd;
+//            }
+//
+//            MemoryInfo[] info;
+//            int i = 0;
+//
+//            @Override
+//            public DumpRegion get() {
+//                if (info == null) {
+//                    info = conn.query(start, 10000);
+//                }
+//                MemoryInfo curr;
+//                do {
+//                    if (i >= info.length) {
+//                        return null;
+//                    }
+//                    curr = info[i++];
+//                } while (!curr.isReadable() || curr.getNextAddress() < start);
+//                if (curr.getAddress() >= end) {
+//                    return null;
+//                }
+//                return new DumpRegion(Math.max(curr.getAddress(),start), Math.min(curr.getNextAddress(), end));
+//            }
+//        };
+//    }
+
     public static DumpRegionSupplier createSupplierFromRange(Debugger conn, long start, long end) {
         return new DumpRegionSupplier() {
             @Override
@@ -142,11 +176,6 @@ public abstract class DumpRegionSupplier implements Supplier<DumpRegion> {
             int i = 0;
 
             @Override
-            public String getDescription() {
-                return "Address Range [" + HexUtils.formatAddress(start) + "," + HexUtils.formatAddress(end) + "]";
-            }
-
-            @Override
             public DumpRegion get() {
                 if (info == null) {
                     info = conn.query(start, 10000);
@@ -161,36 +190,25 @@ public abstract class DumpRegionSupplier implements Supplier<DumpRegion> {
                 if (curr.getAddress() >= end) {
                     return null;
                 }
-                return new DumpRegion(Math.max(curr.getAddress(), start), Math.min(curr.getNextAddress(), end));
+                return new DumpRegion(Math.max(curr.getAddress(),start), Math.min(curr.getNextAddress(), end));
             }
         };
     }
-
-    // TODO : ca peut etre l"inmainstart, mainend, heapstart, heapend
-    public static DumpRegionSupplier createSupplierFrom2Range(Debugger conn, long zone1start, long zone1end,
-            long zone2start, long zone2end) {
-        return new DumpRegionSupplier() {
+    public static DumpRegionSupplier createSupplierFrom2Range(Debugger conn, long start, long exstart, long exend, long end) {
+            return new DumpRegionSupplier() {
 
             @Override
             public long getStart() {
-                return zone1start;
+                return start;
             }
 
             @Override
             public long getEnd() {
-                return zone2end;
+                return end;
             }
 
-            @Override
             public long getSize() {
-                return ((zone2end - zone2start) + (zone1end - zone1start));
-            }
-
-            @Override
-            public String getDescription() {
-                return "2 ranges:zone1[" + HexUtils.formatAddress(zone1start) + "," + HexUtils.formatAddress(zone1end)
-                        + "],zone2[" + HexUtils.formatAddress(zone2start) + "," + HexUtils.formatAddress(zone2end)
-                        + "], size="+getSize();
+                return (end-exend+exstart-start);
             }
 
             MemoryInfo[] info;
@@ -199,7 +217,7 @@ public abstract class DumpRegionSupplier implements Supplier<DumpRegion> {
             @Override
             public DumpRegion get() {
                 if (info == null) {
-                    info = conn.query(zone1start, 10000);
+                    info = conn.query(start, 10000);
                 }
                 MemoryInfo curr;
                 do {
@@ -207,14 +225,11 @@ public abstract class DumpRegionSupplier implements Supplier<DumpRegion> {
                         return null;
                     }
                     curr = info[i++];
-                } while (!curr.isReadable() || !curr.isWriteable() || curr.getNextAddress() < zone1start
-                        || ((curr.getAddress() >= zone1end) && (curr.getNextAddress() < zone2start)));
-                if (curr.getAddress() >= zone2end) {
+                } while (!curr.isReadable() || !curr.isWriteable() || curr.getNextAddress() < start || ((curr.getAddress() >= exstart) && (curr.getNextAddress() < exend)) );
+                if (curr.getAddress() >= end) {
                     return null;
                 }
-                return new DumpRegion(
-                        Math.min(Math.max(curr.getAddress(), zone1start), Math.max(zone2start, curr.getAddress())),
-                        Math.max(Math.min(curr.getNextAddress(), zone2end), Math.min(zone1end, curr.getNextAddress())));
+                return new DumpRegion(Math.min(Math.max(curr.getAddress(),start), Math.max(exend, curr.getAddress())), Math.max(Math.min(curr.getNextAddress(), end),Math.min(exstart,curr.getNextAddress()) ));
             }
         };
     }

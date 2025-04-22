@@ -1,9 +1,9 @@
 package me.mdbell.noexs.ui.services;
 
-import me.mdbell.noexs.code.opcode.model.EDataType;
-import me.mdbell.noexs.core.EMemoryRegion;
-import me.mdbell.noexs.ui.controllers.ToolsController;
 import me.mdbell.util.HexUtils;
+
+import java.io.Closeable;
+import java.util.Objects;
 
 public class PointerSearchResult implements Comparable<PointerSearchResult>, Cloneable {
 
@@ -11,35 +11,14 @@ public class PointerSearchResult implements Comparable<PointerSearchResult>, Clo
     int depth;
     long address;
     long offset;
-    transient long value;
 
-    public PointerSearchResult(long address, long offset, long value) {
+    public PointerSearchResult(long address, long offset) {
         this.address = address;
         this.offset = offset;
         this.depth = 0;
-        this.value = value;
     }
 
-    public String formattedRegion(ToolsController tc) {
-        EMemoryRegion region = tc.getAddressMemoryRegion(address);
-        long offset = tc.getOffset(address, region);
-        String base = region + " + 0x" + HexUtils.formatLong(offset);
-        return formatted(base);
-    }
-
-    public String formattedMain(long main) {
-        long rel = address - main;
-        String base = "main" + (rel >= 0 ? "+" : "-") + Long.toUnsignedString(Math.abs(rel), 16);
-        return formatted(base);
-    }
-
-    public String formattedRaw() {
-        String base = HexUtils.formatAddress(address);
-        return formatted(base);
-
-    }
-
-    public String formatted(String base) {
+    public String formatted(long main) {
         StringBuilder prefix = new StringBuilder();
         StringBuilder suffix = new StringBuilder();
 
@@ -48,14 +27,23 @@ public class PointerSearchResult implements Comparable<PointerSearchResult>, Clo
             prefix.append('[');
             suffix.append(']');
             if (psr.offset != 0) {
-                suffix.append(' ').append(prev.offset < 0 ? '-' : '+').append(" ")
-                        .append(Long.toUnsignedString(Math.abs(prev.offset), 16));
+                suffix.append(' ').append(prev.offset < 0 ? '-' : '+').append(" ").append(Long.toUnsignedString(Math.abs(prev.offset), 16));
             }
 
-            psr = psr.prev;
+            psr = prev.prev;
         }
 
-        String str = "[" + base + "]";
+        String str = "[";
+
+        if (main != 0) {
+            long rel = address - main;
+            str = str + "main" + (rel >= 0 ? "+" : "-") + Long.toUnsignedString(Math.abs(rel), 16);
+
+        } else {
+            str = str + HexUtils.formatAddress(address);
+        }
+
+        str = str + "]";
 
         if (offset != 0) {
             str = str + " " + (offset < 0 ? " - " : "+ ") + Long.toUnsignedString(Math.abs(offset), 16);
@@ -84,22 +72,20 @@ public class PointerSearchResult implements Comparable<PointerSearchResult>, Clo
 
     @Override
     public boolean equals(Object o) {
-        if (this == o)
-            return true;
-        if (o == null || getClass() != o.getClass())
-            return false;
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
         PointerSearchResult that = (PointerSearchResult) o;
-        return that.formattedRaw().equals(formattedRaw()); // TODO not this.
+        return that.formatted(0).equals(formatted(0)); //TODO not this.
     }
 
     @Override
     public int hashCode() {
-        return formattedRaw().hashCode();
+        return formatted(0).hashCode();
     }
 
     @Override
     protected Object clone() {
-        PointerSearchResult psr = new PointerSearchResult(address, offset, value);
+        PointerSearchResult psr = new PointerSearchResult(address, offset);
         psr.depth = depth;
         psr.prev = prev == null ? null : (PointerSearchResult) prev.clone();
         return psr;
@@ -107,21 +93,5 @@ public class PointerSearchResult implements Comparable<PointerSearchResult>, Clo
 
     public long getAddress() {
         return address;
-    }
-
-    @Override
-    public String toString() {
-        return "PointerSearchResult [address=0x" + HexUtils.formatAddress(address) + ", offset="
-                + HexUtils.format(EDataType.T16, offset, true) + ", value=" + HexUtils.formatAddress(value)
-                + ", value_pointed=" + HexUtils.formatAddress(value + offset) + ", depth=" + depth + ", prev=" + prev
-                + "]";
-    }
-
-    public PointerSearchResult getLast() {
-        PointerSearchResult res = this;
-        if (prev != null) {
-            res = prev.getLast();
-        }
-        return res;
     }
 }

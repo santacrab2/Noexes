@@ -20,7 +20,7 @@ public class MemoryInfoTableModel {
     private SimpleIntegerProperty access;
     private EMemoryRegion memoryRegion;
 
-    public MemoryInfoTableModel(MemoryInfo info) {
+    public MemoryInfoTableModel(String name1, MemoryInfo info) {
         this("-", info, null);
     }
 

@@ -1,42 +1,29 @@
 package me.mdbell.noexs.dump;
 
-import java.io.Closeable;
-import java.io.File;
-import java.io.IOException;
-import java.io.RandomAccessFile;
+import me.mdbell.noexs.core.MemoryInfo;
+import me.mdbell.noexs.misc.IndexSerializer;
+import me.mdbell.util.HexUtils;
+
+import java.io.*;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.nio.MappedByteBuffer;
 import java.nio.channels.FileChannel;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
-
-import me.mdbell.noexs.core.MemoryInfo;
-
 public class MemoryDump implements Closeable {
-
-    private static final Logger logger = LogManager.getLogger(MemoryDump.class);
 
     private final RandomAccessFile dump;
     private final Map<DumpIndex, MappedByteBuffer> cache = new ConcurrentHashMap<>();
     private final List<DumpIndex> indices = new ArrayList<>();
     private final List<MemoryInfo> infos = new ArrayList<>();
     private long tid;
-    private File from;
-    private DebugDump debugDump;
 
     private ThreadLocal<DumpIndex> prev = ThreadLocal.withInitial(() -> null);
 
     public MemoryDump(File from) throws IOException {
-        this.from = from;
         boolean b = from.exists() && from.length() > 0;
-        this.debugDump = new DebugDump(from, b);
         this.dump = new RandomAccessFile(from, "rw");
         if (b) {
             readHeader();
@@ -46,20 +33,13 @@ public class MemoryDump implements Closeable {
     }
 
     void writeHeader() throws IOException {
-        logger.debug("Writing memory dump header : {}", from.getPath());
-
-        debugDump.writeLine("Writing header : " + from.getPath());
-
         long pos = dump.length();
         dump.seek(0);
         dump.writeInt(0x4E444D50); // "NDMP"
         dump.writeLong(tid); // TID
-        debugDump.writeLine("TID : " + tid);
         dump.writeInt(infos.size()); // info count
-        debugDump.writeLine("Infos size : " + infos.size());
         dump.writeLong(0); // mem-info pointer
         dump.writeInt(indices.size()); // index count
-        debugDump.writeLine("Indices size : " + indices.size());
         dump.writeLong(pos); // pointer to index data
         dump.seek(pos);
         for (int i = 0; i < indices.size(); i++) {
@@ -67,16 +47,14 @@ public class MemoryDump implements Closeable {
             dump.writeLong(idx.addr);
             dump.writeLong(idx.filePos);
             dump.writeLong(idx.size);
-            debugDump.writeLine("DumpIndex [" + i + "]: " + idx);
         }
         pos = dump.getFilePointer();
-        for (int i = 0; i < infos.size(); i++) {
+        for(int i = 0; i < infos.size(); i++) {
             MemoryInfo info = infos.get(i);
             dump.writeLong(info.getAddress());
             dump.writeLong(info.getSize());
             dump.writeInt(info.getType().getType());
             dump.writeInt(info.getPerm());
-            debugDump.writeLine("MemoryInfo [" + i + "]: " + info);
         }
         dump.seek(0x10); // mem-info pointer (again)
         dump.writeLong(pos);
@@ -85,24 +63,16 @@ public class MemoryDump implements Closeable {
     }
 
     private void readHeader() throws IOException {
-        logger.debug("Reading memory dump header : {}", from.getPath());
-        debugDump.writeLine("Reading header : " + from.getPath());
         dump.seek(0);
         if (dump.readInt() != 0x4E444D50) {
             throw new IOException("File is not a dump! (Invalid magic)");
         }
         tid = dump.readLong(); // TID
-        logger.debug("TID : {}", tid);
-        debugDump.writeLine("TID : " + tid);
 
         int infoCount = dump.readInt();
-        logger.debug("Info count : {}", infoCount);
-        debugDump.writeLine("Infos size : " + infoCount);
         long infoPtr = dump.readLong();
 
         int idxCount = dump.readInt();
-        logger.debug("Index count : {}", idxCount);
-        debugDump.writeLine("Indices size : " + idxCount);
         long idxPtr = dump.readLong();
         long dataPtr = dump.getFilePointer();
         dump.seek(idxPtr);
@@ -110,20 +80,16 @@ public class MemoryDump implements Closeable {
             long addr = dump.readLong();
             long pos = dump.readLong();
             long size = dump.readLong();
-            DumpIndex idx = new DumpIndex(addr, pos, size);
-            indices.add(idx);
-            debugDump.writeLine("DumpIndex [" + i + "]: " + idx);
+            indices.add(new DumpIndex(addr, pos, size));
         }
 
         dump.seek(infoPtr);
-        for (int i = 0; i < infoCount; i++) {
+        for(int i = 0; i < infoCount; i++) {
             long addr = dump.readLong();
             long size = dump.readLong();
             int type = dump.readInt();
             int perm = dump.readInt();
-            MemoryInfo info = new MemoryInfo(addr, size, type, perm);
-            infos.add(info);
-            debugDump.writeLine("MemoryInfo [" + i + "]: " + info);
+            infos.add(new MemoryInfo(addr, size, type, perm));
         }
         dump.seek(dataPtr);
     }
@@ -141,7 +107,7 @@ public class MemoryDump implements Closeable {
         System.gc();
     }
 
-    public List<MemoryInfo> getInfos() {
+    public List<MemoryInfo> getInfos(){
         return infos;
     }
 
@@ -219,11 +185,12 @@ public class MemoryDump implements Closeable {
         }
     }
 
-    public long getTid() {
+
+    public long getTid(){
         return tid;
     }
 
-    public void setTid(long tid) {
+    public void setTid(long tid){
         this.tid = tid;
     }
 

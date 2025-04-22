@@ -24,6 +24,4 @@ public interface Commands {
     int COMMAND_DISCONNECT = 0x12;
     int COMMAND_READ_MULTI = 0x13;
     int COMMAND_SET_BREAKPOINT = 0x14;
-    
-    int COMMAND_GET_BOOKMARK = 0x1B;
 }

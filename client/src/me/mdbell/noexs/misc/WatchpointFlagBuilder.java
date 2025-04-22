@@ -23,7 +23,7 @@ public class WatchpointFlagBuilder {
         return this;
     }
 
-    public WatchpointFlagBuilder setLinkedBreakpointNumber(int number) {
+    public WatchpointFlagBuilder setLinkedBreakpointNumber(int number){
         this.lbn = number;
         return this;
     }
@@ -33,10 +33,10 @@ public class WatchpointFlagBuilder {
         return this;
     }
 
-    public long getFlag() {
+    public long getFlag(){
         long res = 0;
 
-        if (enabled) {
+        if(enabled) {
             res |= 0x1;
         }
 
@@ -49,9 +49,10 @@ public class WatchpointFlagBuilder {
         return res;
     }
 
-    public enum MatchType {
-        LOAD(0b01), STORE(0b10), ALL(0b11);
-
+    public enum MatchType{
+        LOAD(0b01),
+        STORE(0b10),
+        ALL(0b11);
         int value;
 
         MatchType(int value) {

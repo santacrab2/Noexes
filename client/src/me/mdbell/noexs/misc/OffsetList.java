@@ -16,7 +16,7 @@ public class OffsetList extends AbstractList<Long> {
 
     @Override
     public Long get(int index) {
-        if (index >= size) {
+        if(index >= size) {
             throw new IndexOutOfBoundsException();
         }
         return base + index * dataSize;

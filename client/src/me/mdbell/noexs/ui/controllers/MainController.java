@@ -1,5 +1,26 @@
 package me.mdbell.noexs.ui.controllers;
 
+import javafx.application.Platform;
+import javafx.beans.property.StringProperty;
+import javafx.event.ActionEvent;
+import javafx.fxml.FXML;
+import javafx.scene.control.*;
+import javafx.scene.layout.GridPane;
+import javafx.scene.layout.Priority;
+import javafx.stage.FileChooser;
+import javafx.stage.Stage;
+import me.mdbell.noexs.core.DebuggerStatus;
+import me.mdbell.noexs.core.IConnection;
+import me.mdbell.noexs.io.net.NetworkConstants;
+import me.mdbell.noexs.core.Debugger;
+import me.mdbell.noexs.core.Result;
+import me.mdbell.noexs.misc.NopConnection;
+import me.mdbell.noexs.misc.ResultDecoder;
+import me.mdbell.noexs.ui.NoexsApplication;
+import me.mdbell.noexs.ui.Settings;
+import me.mdbell.noexs.ui.models.ConnectionType;
+import me.mdbell.noexs.ui.services.DebuggerConnectionService;
+
 import java.io.File;
 import java.io.IOException;
 import java.io.PrintWriter;
@@ -11,42 +32,8 @@ import java.util.TimerTask;
 import java.util.concurrent.Semaphore;
 import java.util.function.Consumer;
 
-import org.apache.logging.log4j.Level;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
-
-import javafx.application.Platform;
-import javafx.beans.property.StringProperty;
-import javafx.event.ActionEvent;
-import javafx.fxml.FXML;
-import javafx.scene.control.Alert;
-import javafx.scene.control.Button;
-import javafx.scene.control.CheckBox;
-import javafx.scene.control.ChoiceBox;
-import javafx.scene.control.Label;
-import javafx.scene.control.ProgressBar;
-import javafx.scene.control.TabPane;
-import javafx.scene.control.TextArea;
-import javafx.scene.control.TextField;
-import javafx.scene.layout.GridPane;
-import javafx.scene.layout.Priority;
-import javafx.stage.FileChooser;
-import javafx.stage.Stage;
-import me.mdbell.noexs.core.Debugger;
-import me.mdbell.noexs.core.DebuggerStatus;
-import me.mdbell.noexs.core.IConnection;
-import me.mdbell.noexs.core.Result;
-import me.mdbell.noexs.io.net.NetworkConstants;
-import me.mdbell.noexs.misc.NopConnection;
-import me.mdbell.noexs.misc.ResultDecoder;
-import me.mdbell.noexs.ui.NoexsApplication;
-import me.mdbell.noexs.ui.Settings;
-import me.mdbell.noexs.ui.models.ConnectionType;
-import me.mdbell.noexs.ui.services.DebuggerConnectionService;
 
 public class MainController implements NetworkConstants, IController {
-
-    private static final Logger logger = LogManager.getLogger(MainController.class);
 
     public ChoiceBox<ConnectionType> connectionType;
     public CheckBox autoResume;
@@ -64,9 +51,6 @@ public class MainController implements NetworkConstants, IController {
 
     @FXML
     Label progressLabel;
-
-    @FXML
-    CheckBox autoAttach;
 
     @FXML
     TabPane tabs;
@@ -91,9 +75,6 @@ public class MainController implements NetworkConstants, IController {
 
     @FXML
     UtilsController utilsTabPageController;
-
-    @FXML
-    CheatMakerController cheatMakerTabPageController;
 
     private final List<IController> controllers = new LinkedList<>();
 
@@ -123,7 +104,6 @@ public class MainController implements NetworkConstants, IController {
         controllers.add(pointerTabPageController);
         controllers.add(watchlistTabPageController);
         controllers.add(utilsTabPageController);
-        controllers.add(cheatMakerTabPageController);
 
         fire(c -> c.setMainController(this));
         fire(IController::onDisconnect);
@@ -143,7 +123,7 @@ public class MainController implements NetworkConstants, IController {
         ipAddr.setText(Settings.getConnectionHost());
 
         connectionType.getItems().addAll(ConnectionType.values());
-        connectionType.getSelectionModel().select(ConnectionType.NETWORK); // TODO save/store this
+        connectionType.getSelectionModel().select(ConnectionType.NETWORK); //TODO save/store this
         connectionType.getSelectionModel().selectedItemProperty()
                 .addListener((observable, oldValue, newValue) -> ipAddr.setDisable(newValue != ConnectionType.NETWORK));
 
@@ -179,25 +159,17 @@ public class MainController implements NetworkConstants, IController {
 
     @Override
     public void setMainController(MainController c) {
-        // ignored
+        //ignored
     }
 
     @Override
     public void onConnect() {
         setConnectBtnText("Disconnect");
         connectionService.cancel();
-        long currentPid = debugger.getCurrentPid();
-        long attachedPid = debugger.getAttachedPid();
-
-        setStatus("Connected. Current pid : " + currentPid + " Attached pid : " + attachedPid);
+        setStatus("Connected");
 
         DebuggerStatus status = debugger.getStatus();
         setTitle(status.getStatus());
-
-        if (autoAttach.isSelected()) {
-            logger.info("Auto attach");
-            tools().attachToCurrentProcess();
-        }
     }
 
     @Override
@@ -238,24 +210,7 @@ public class MainController implements NetworkConstants, IController {
         } else {
             sb.append(module.getMessage(rc.getDesc()));
         }
-        String message = infoMessage + sb.toString();
-        showMessage(message, alertType);
-        Level messageLevel = Level.INFO;
-        switch (alertType) {
-            case ERROR:
-                messageLevel = Level.ERROR;
-                break;
-            case CONFIRMATION:
-            case INFORMATION:
-            case NONE:
-                messageLevel = Level.INFO;
-                break;
-            case WARNING:
-                messageLevel = Level.WARN;
-                break;
-        }
-        logger.log(messageLevel, "Show message : {}", message);
-
+        showMessage(infoMessage + sb.toString(), alertType);
     }
 
     public static void showMessage(String infoMessage, Alert.AlertType alertType) {
@@ -292,6 +247,7 @@ public class MainController implements NetworkConstants, IController {
         alert.setHeaderText(ex.getClass().getSimpleName());
         alert.setContentText(ex.getMessage());
 
+
 // Create expandable Exception.
         StringWriter sw = new StringWriter();
         PrintWriter pw = new PrintWriter(sw);
@@ -323,10 +279,11 @@ public class MainController implements NetworkConstants, IController {
     public void setTitle(String title) {
         Platform.runLater(() -> {
             Stage s = (Stage) progressBar.getScene().getWindow();
-            s.setTitle(NoexsApplication.APP_NAME + " v" + NoexsApplication.APP_VERSION
-                    + (title != null ? (" - " + title) : ""));
+            s.setTitle(NoexsApplication.APP_NAME + " v" + NoexsApplication.APP_VERSION +
+                    (title != null ? (" - " + title) : ""));
         });
     }
+
 
     public void setStatus(String message) {
         if (message.length() == 0) {
@@ -336,7 +293,6 @@ public class MainController implements NetworkConstants, IController {
             Platform.runLater(() -> setStatus(message));
             return;
         }
-        // logger.info("Main controller new status : {}", message);
         statusLbl.setText(message);
     }
 
@@ -431,7 +387,7 @@ public class MainController implements NetworkConstants, IController {
             } catch (Exception ignored) {
             }
         } else {
-            logger.error("Invalid state, cannot disconnect!");
+            System.out.println("Invalid state, cannot disconnect!");
         }
         ipAddr.setDisable(disabled);
         connectionType.setDisable(disabled);
@@ -476,8 +432,7 @@ public class MainController implements NetworkConstants, IController {
         connectionType.setDisable(disabled);
     }
 
-    File browseFile(boolean save, String fileName, StringProperty property, String title, String desc,
-            String... extensions) {
+    File browseFile(boolean save, StringProperty property, String title, String desc, String... extensions) {
         fileChooser.setTitle(title);
         List<FileChooser.ExtensionFilter> filterList = fileChooser.getExtensionFilters();
         filterList.clear();
@@ -487,11 +442,8 @@ public class MainController implements NetworkConstants, IController {
         if (f != null) {
             File parent = f.getParentFile();
             fileChooser.setInitialDirectory(parent);
-            if (fileName != null) {
-                fileChooser.setInitialFileName(fileName);
-            }
             Settings.setChooserFile(parent);
-            if (property != null) {
+            if(property != null) {
                 property.setValue(f.toPath().toString());
             }
         }
@@ -522,15 +474,16 @@ public class MainController implements NetworkConstants, IController {
         return watchlistTabPageController;
     }
 
-    public CheatMakerController cheatMaker() {
-        return cheatMakerTabPageController;
-    }
-
     public Stage getStage() {
         return stage;
     }
 
     public enum Tab {
-        TOOLS, SEARCH, POINTER_SEARCH, MEMORY_VIEWER, WATCH_LIST, DISASSEMBLER, USB, CHEATS
+        TOOLS,
+        SEARCH,
+        POINTER_SEARCH,
+        MEMORY_VIEWER,
+        WATCH_LIST,
+        DISASSEMBLER
     }
 }

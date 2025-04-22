@@ -1,23 +1,8 @@
 package me.mdbell.noexs.ui.controllers;
 
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileReader;
-import java.io.IOException;
-import java.lang.reflect.Type;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.TimerTask;
-import java.util.concurrent.Semaphore;
-
-import org.apache.commons.io.FileUtils;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
-
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.reflect.TypeToken;
-
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
@@ -34,9 +19,18 @@ import me.mdbell.noexs.ui.models.DataType;
 import me.mdbell.noexs.ui.models.WatchlistModel;
 import me.mdbell.util.HexUtils;
 
-public class WatchlistController implements IController {
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
+import java.io.IOException;
+import java.lang.reflect.Type;
+import java.nio.file.Files;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.TimerTask;
+import java.util.concurrent.Semaphore;
 
-    private static final Logger logger = LogManager.getLogger(WatchlistController.class);
+public class WatchlistController implements IController {
 
     public Button addButton;
     public Button removeButton;
@@ -54,6 +48,7 @@ public class WatchlistController implements IController {
 
     private Semaphore semaphore = new Semaphore(1);
     private Gson gson = new GsonBuilder().setPrettyPrinting().create();
+
 
     @FXML
     public void initialize() {
@@ -74,27 +69,27 @@ public class WatchlistController implements IController {
         addrCol.setCellFactory(TextFieldTableCell.forTableColumn());
         descCol.setCellFactory(TextFieldTableCell.forTableColumn());
         valueCol.setCellFactory(param -> new SpinnerTableCell<>(valueCol, new HexSpinner() {
-            {
-                setEditable(true);
-                setSize(16);
-            }
-        }) {
-            @Override
-            protected void updateItem(Long item, boolean empty) {
-                super.updateItem(item, empty);
-                if (item == null || empty) {
-                    return;
+                    {
+                        setEditable(true);
+                        setSize(16);
+                    }
+                }) {
+                    @Override
+                    protected void updateItem(Long item, boolean empty) {
+                        super.updateItem(item, empty);
+                        if (item == null || empty) {
+                            return;
+                        }
+                        WatchlistModel model = getTableRow().getItem();
+                        if (model == null) {
+                            return;
+                        }
+                        getSpinner().setSize(model.getSize() * 2);
+                    }
                 }
-                WatchlistModel model = getTableRow().getItem();
-                if (model == null) {
-                    return;
-                }
-                getSpinner().setSize(model.getSize() * 2);
-            }
-        });
+        );
 
-        watchlistTable.getSelectionModel().selectedItemProperty()
-                .addListener((observable, oldValue, newValue) -> removeButton.setDisable(newValue == null));
+        watchlistTable.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> removeButton.setDisable(newValue == null));
     }
 
     @Override
@@ -110,7 +105,7 @@ public class WatchlistController implements IController {
 
     @Override
     public void onDisconnect() {
-        // watchlistTabPage.setDisable(true);
+        //watchlistTabPage.setDisable(true);
     }
 
     public void addAddr(long addr) {
@@ -138,12 +133,14 @@ public class WatchlistController implements IController {
         watchlistTable.getItems().remove(model);
         release();
     }
-
+//hack
     private void acquire() {
-        try {
-            semaphore.acquire();
-        } catch (InterruptedException e) {
-            throw new RuntimeException(e);
+    if (true) {
+            try {
+                semaphore.acquire();
+            } catch (InterruptedException e) {
+                throw new RuntimeException(e);
+            }
         }
     }
 
@@ -169,7 +166,7 @@ public class WatchlistController implements IController {
     }
 
     public void onSave(ActionEvent event) {
-        File f = mc.browseFile(true, null, null, "Save As...", "Watchlist File", "*.json");
+        File f = mc.browseFile(true, null, "Save As...", "Watchlist File", "*.json");
         if (f == null) {
             return;
         }
@@ -186,25 +183,24 @@ public class WatchlistController implements IController {
         });
         String json = gson.toJson(list);
         try {
-            FileUtils.writeStringToFile(f, json, "UTF-8");
+            Files.write(f.toPath(), json.getBytes());
         } catch (IOException e) {
-            logger.error("Error while saving watch list", e);
+            e.printStackTrace();
         }
     }
 
     public void onLoad(ActionEvent event) {
-        File f = mc.browseFile(false, null, null, "Open...", "Watchlist File", "*.json");
-        if (f == null) {
+        File f = mc.browseFile(false, null, "Open...", "Watchlist File", "*.json");
+        if(f == null){
             return;
         }
 
         watchlistTable.getItems().clear();
-        Type listOfTestObject = new TypeToken<List<SerializedWatchlistItem>>() {
-        }.getType();
+        Type listOfTestObject = new TypeToken<List<SerializedWatchlistItem>>(){}.getType();
         try {
             FileReader reader = new FileReader(f);
             List<SerializedWatchlistItem> list = gson.fromJson(reader, listOfTestObject);
-            list.forEach(item -> {
+            list.forEach( item ->{
                 WatchlistModel model = new WatchlistModel();
                 model.setUpdate(item.update);
                 model.setLocked(item.locked);

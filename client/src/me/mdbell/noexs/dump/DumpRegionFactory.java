@@ -5,7 +5,7 @@ public class DumpRegionFactory {
     private long start;
     private long end;
 
-    private DumpRegionFactory() {
+    private DumpRegionFactory(){
 
     }
 
@@ -14,33 +14,33 @@ public class DumpRegionFactory {
         return this;
     }
 
-    public DumpRegionFactory setStart(long start) {
+    public DumpRegionFactory setStart(long start){
         this.start = start;
         return this;
     }
 
-    public DumpRegionFactory setEnd(long end) {
+    public DumpRegionFactory setEnd(long end){
         this.end = end;
         return this;
     }
 
-    public static DumpRegionFactory create() {
+    public static DumpRegionFactory create(){
         return new DumpRegionFactory();
     }
 
-    public long getEnd() {
+    public long getEnd(){
         return end;
     }
 
-    public long getStart() {
+    public long getStart(){
         return start;
     }
 
-    public long getLength() {
+    public long getLength(){
         return end - start;
     }
 
-    public DumpRegion build() {
+    public DumpRegion build(){
         return new DumpRegion(start, end);
     }
 }
